@@ -1,0 +1,20 @@
+name = "CottLean"
+version = "0.1.0"
+keywords = ["math"]
+defaultTargets = ["CottLean"]
+
+[leanOptions]
+pp.unicode.fun = true # pretty-prints `fun a ↦ b`
+relaxedAutoImplicit = false
+weak.linter.mathlibStandardSet = true
+maxSynthPendingDepth = 3
+weak.linter.style.header = false # skip mathlib's copyright-header requirement (personal project)
+weak.linter.style.longLine = false # the engine wraps at 120
+
+[[require]]
+name = "mathlib"
+scope = "leanprover-community"
+rev = "v4.33.0"
+
+[[lean_lib]]
+name = "CottLean"
