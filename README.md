@@ -1,5 +1,7 @@
 # cott-lean
 
+[![Build and check axioms](https://github.com/sibarum/cott-lean/actions/workflows/build.yml/badge.svg)](https://github.com/sibarum/cott-lean/actions/workflows/build.yml)
+
 A Lean 4 formalization of traction: the pair `T(p, q)` of
 [cott-engine](../cott-engine)'s `docs/Traction-Model.md`, which is the definitive statement of the model.
 
@@ -8,7 +10,8 @@ T(p, q) = p/q ≈ tan(arg(q + i·p))
 ```
 
 Every theorem here holds for every pair. None is checked on a sample. Every proof depends only on Lean's
-standard axioms (`propext`, `Classical.choice`, `Quot.sound`), and nothing is assumed beyond Mathlib.
+standard axioms (`propext`, `Classical.choice`, `Quot.sound`), and nothing is assumed beyond Mathlib. That is
+checked for every declaration, not claimed: see [Checking the axioms](#checking-the-axioms).
 
 ## Conventions
 
@@ -257,3 +260,16 @@ lake build
 
 `lake exe cache get` downloads Mathlib's prebuilt files. Without it, the first build compiles Mathlib
 from source.
+
+## Checking the axioms
+
+```
+lake env lean AxiomCheck.lean
+```
+
+After a build, this walks every declaration in every `CottLean` module, not a chosen list. It fails if any
+of them depends on an axiom other than `propext`, `Classical.choice` and `Quot.sound`. A `sorry` is the
+axiom `sorryAx` and a `native_decide` adds one of its own, so either would fail it. On success it prints
+how many declarations and modules it checked.
+
+CI runs the build and this check on every push (`.github/workflows/build.yml`).

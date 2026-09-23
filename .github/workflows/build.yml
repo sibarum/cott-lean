@@ -1,0 +1,20 @@
+name: Build and check axioms
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      # Installs the toolchain in lean-toolchain, fetches Mathlib's prebuilt files, and runs `lake build`.
+      - uses: leanprover/lean-action@v1
+
+      # Fails if any declaration in any CottLean module uses an axiom other than
+      # propext, Classical.choice and Quot.sound. `sorry` and `native_decide` both would.
+      - name: Every declaration uses only the standard axioms
+        run: lake env lean AxiomCheck.lean
