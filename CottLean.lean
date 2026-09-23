@@ -18,3 +18,4 @@ import CottLean.T.Parallel
 import CottLean.T.Norm
 import CottLean.T.Projection
 import CottLean.T.Loss
+import CottLean.T.Angle

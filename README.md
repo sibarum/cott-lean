@@ -17,7 +17,8 @@ checked for every declaration, not claimed: see [Checking the axioms](#checking-
 
 - **No invariant is specified by default.** Two pairs are equal exactly when their coordinates are, so
   `T(1,2) ≠ T(2,4)`. The ratio, the ray (a positive multiple of both coordinates), the angle and the norm
-  are invariants that a use may specify. A result that holds only under one of them says which.
+  are invariants that a use may specify. Away from `0ω`, the angle and the ray turn out to be the same
+  invariant (`theta_eq_theta_iff_sameRay`). A result that holds only under one of them says which.
   Everything is proved at coordinate equality first.
 - **`0` is `T(0,1)`** by default. The other zero-magnitude pairs stay available by name.
 - **`-x` is `T(-p, q)`.** So `-0 = 0`, and `T(0,-1)` is `_0`. The `⊕` inverse `T(-p,-q)` is `-_x`.
@@ -123,6 +124,34 @@ onto it from `(T, ⊕, +)` (`ParPosition.reciprocalEquiv`). Its unit is `ω`, an
 Classically `1/(1/x + 1/y)` and `xy/(x + y)` are the same, but in the value position only the first is
 `∥`. The second is `∥` scaled by `x.q · y.q` (`parAdd_eq`), so it collapses against an open circuit,
 where `ω ∥ y = y` (`open_contrast`).
+
+### The angle column
+
+`T/Angle.lean` makes the model's first line exact. `θ(x) = arg(q + p·i)` is a real in `(−π, π]`, and
+`tan θ = p/q` for every pair (`tan_theta`). At a quarter turn both sides are Lean's `x/0 = 0`. The nine
+named values have the angles of the model's table (`theta_zero`, `theta_one`, …, `theta_negOne`). `0ω`
+has no angle, and the theorems below exclude it.
+
+As an angle mod `2π`:
+
+| operation | angle |
+|---|---|
+| `x ⊗ y` | `θx + θy` (`angle_otimes`) |
+| `-x` | `−θx` (`angle_neg`) |
+| `-_x` | `θx + π` (`angle_oplusInverse`) |
+| `1/x` | `π/2 − θx` (`angle_reciprocal`) |
+| `⊗` power `n` | `n·θx` (`angle_otimesPowNat`) |
+| `principal x` | `θx` or `θx + π`, with the same tangent (`angle_principal`, `tan_theta_principal`) |
+
+**The angle is the ray.** Two pairs other than `0ω` have the same θ exactly when they are positive
+multiples of one pair (`theta_eq_theta_iff_sameRay`). Equivalently, `det x y = 0` and `dot x y > 0`
+(`theta_eq_theta_iff`). So of the invariants the conventions name, the angle and the ray are the same
+one.
+
+**The mediant lies between.** The angle from `x` to `y` turns the way the sign of `det x y` says
+(`sign_angle_sub`). This is the determinant the mediant tree runs on. `det x (x ⊕ y)` and `det (x ⊕ y) y`
+both equal `det x y`, so `x ⊕ y` turns from `x` the way `y` does, and turns into `y` the same way
+(`mediant_between`).
 
 ### The mediant from the four seeds
 
@@ -237,7 +266,6 @@ what is left is the wheel, with `⊗`.
 
 ## Not covered
 
-- The angle column: θ as `arg(q + p·i)`, and `principal`.
 - `T(a,b)^T(c,d) = tan((c/d)·arctan(a/b))` off the integers.
 - That the power sum `(xⁿ + yⁿ)^(1/n)` leaves the integer pairs for `n ∉ {1, −1}`.
 - The wheel axioms were checked against the statements on Wikipedia and nLab. Carlström's paper itself
@@ -267,6 +295,7 @@ what is left is the wheel, with `⊗`.
 | `CottLean/T/Norm.lean` | one norm decides recovery and inverses for every product; the two projections |
 | `CottLean/T/Projection.lean` | the idempotents of every product; `*` alone has projections |
 | `CottLean/T/Loss.lean` | what each product loses at a zero divisor, and the one integer that restores it |
+| `CottLean/T/Angle.lean` | θ, `tan θ = p/q`, the table's angles, what each operation does to the angle; the angle is the ray; the mediant lies between |
 
 ## Building
 
