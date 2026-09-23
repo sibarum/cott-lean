@@ -36,8 +36,17 @@ So every ring law holds of `⊕` and `⊗`. The four seeds `0, ω, _0, -ω` are 
 coordinate equality (`isWheel`). It is Carlström's wheel of fractions over ℤ with `S = {1}`, which is the
 choice that identifies nothing. The wheel's bottom element `0/0` is `0ω`, and so is `0·ω`
 (`bottom_eq`, `zero_times_omega`). In wheel theory, choosing an invariant is choosing `S`: the positive
-integers give the ray and the non-zero integers give the ratio. That part is wheel theory's and isn't
-proved here.
+integers give the ray and the non-zero integers give the ratio. For every multiplicative `S` the quotient
+is a wheel (`T/Quotient.lean`, `Q.isWheel`), and `+`, `*`, `/`, `-`, `-_` and `⊗` survive it. `⊕`
+survives only `S = {1}` and `0 ∈ S` (`oplus_respects_iff`).
+
+**Next to the division-by-zero literature.** `T(p,q) ↦ p/q`, with every `T(p,0)` going to the error
+element, maps T onto the rational common meadow (`T/CommonMeadow.lean`). It respects `+`, `*` and `-`
+exactly, and the reciprocal everywhere but at the quarter turns. No map onto the common meadow respects
+all four (`no_surjective_hom_Qa`). Bergstra and Ponse's fracpairs are T with the reciprocal multiplied by
+the denominator (`T/Fracpair.lean`, `finv_eq_scale`). And every law below that differs from its written
+form differs by one added residue `T(0,k)`, where `x + T(0,k)` is `x` with both coordinates multiplied by
+`k` (`T/Residue.lean`, `plus_residue`).
 
 **`0ω` across both halves.** It absorbs under `+`, `*` and `⊗`, and it is the identity of `⊕`. It is also
 the only pair that all three inverses leave fixed (`zeroOmega_*`, `fixed_by_all_inverses_iff`).
@@ -179,6 +188,7 @@ what is left is the wheel, with `⊗`.
 
 - The angle column: θ as `arg(q + p·i)`, and `principal`.
 - `T(a,b)^T(c,d) = tan((c/d)·arctan(a/b))` off the integers.
+- That the power sum `(xⁿ + yⁿ)^(1/n)` leaves the integer pairs for `n ∉ {1, −1}`.
 - The wheel axioms were checked against the statements on Wikipedia and nLab. Carlström's paper itself
   has not been read against them.
 
