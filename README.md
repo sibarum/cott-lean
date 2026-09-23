@@ -42,6 +42,14 @@ proved here.
 **`0ω` across both halves.** It absorbs under `+`, `*` and `⊗`, and it is the identity of `⊕`. It is also
 the only pair that all three inverses leave fixed (`zeroOmega_*`, `fixed_by_all_inverses_iff`).
 
+**`⊕` also makes a ring with each value-position product** (`T/Dual.lean`). Under the same reading
+`T(p, q) ↦ q + p·ε`, `+` is multiplication in the dual numbers `ℤ[ε]`: `(b + aε)(d + cε) = bd + (ad+bc)ε`,
+which is `T(ad+bc, bd)`. `⊕` is addition, `0` is the unit, `ω` is `ε` (`ω + ω = 0ω`), and `-x` is the dual
+conjugate (`DualPosition.ringEquiv : DualPosition ≃+* ℤ[ε]`). `*` is coordinatewise, so `⊕` and `*` are
+`ℤ × ℤ` (`ProdPosition.ringEquiv`). So `⊗`, `+` and `*` are the elliptic, parabolic and hyperbolic products
+on the one additive group `(T, ⊕)`. The two positions share `⊕`, and `(x ⊕ y) + z = (x + z) ⊕ (y + z)`
+holds exactly (`oplus_plus`), where `+` over `*` needs the scale.
+
 ### Where the halves meet
 
 **`⊗` is the wheel's tangent addition, without the wheel's collapse** (`T/TangentAddition.lean`).
@@ -105,22 +113,27 @@ is the operation being ambiguous there, not an inverse that is too weak.
 
 ## What is classical and what is not
 
-Most of the individual facts are classical. ℤ[i] is ℤ[i]; the wheel result is a case of Carlström's
-theorem; the mediant tree is the Stern–Brocot tree, extended to the four signed quadrants. What the
-formalization adds is exactness about the model: which of its lines hold at coordinate equality, which
-hold only under a named invariant, and what the exact coordinate result is in each case.
+Most of the individual facts are classical. ℤ[i] is ℤ[i], ℤ[ε] is ℤ[ε], and ℤ × ℤ is ℤ × ℤ; the wheel
+result is a case of Carlström's theorem; the mediant tree is the Stern–Brocot tree, extended to the four
+signed quadrants. What the formalization adds is exactness about the model: which of its lines hold at
+coordinate equality, which hold only under a named invariant, and what the exact coordinate result is in
+each case.
 
-The part that belongs to traction, and not to either known structure, is the two structures sharing one
-set of pairs. `0ω` is the bottom element of one and the identity of the other. And `⊗` completes the
-wheel's tangent addition at exactly the inputs where the wheel collapses. `⊕` is also the reason the
-pairs cannot be quotiented: by hand, though not yet in Lean, it does not survive the ray or the ratio
-invariant, while `+`, `*`, `/` and `⊗` do.
+The part that belongs to traction, and not to any one known structure, is the structures sharing one set
+of pairs. The exponent position and the value position share `⊕`: with it, `⊗` is the elliptic product,
+`+` the parabolic one and `*` the hyperbolic one, so the three planar algebras over ℤ sit on the one
+additive group. `0ω` is the zero of all three rings and the bottom element of the wheel. And `⊗`
+completes the wheel's tangent addition at exactly the inputs where the wheel collapses.
+
+`⊕` is also the reason the pairs cannot be quotiented. It survives no invariant between identifying
+nothing and identifying everything, while `+`, `*`, `/` and `⊗` survive every one (`oplus_respects_iff`
+in `T/Quotient.lean`). So the three rings exist only on the pairs as they are. Under the ray or the ratio,
+what is left is the wheel, with `⊗`.
 
 ## Not covered
 
 - The angle column: θ as `arg(q + p·i)`, and `principal`.
 - `T(a,b)^T(c,d) = tan((c/d)·arctan(a/b))` off the integers.
-- The quotients by `S`, and that `⊕` does not survive them.
 - The wheel axioms were checked against the statements on Wikipedia and nLab. Carlström's paper itself
   has not been read against them.
 
@@ -137,6 +150,11 @@ invariant, while `+`, `*`, `/` and `⊗` do.
 | `CottLean/T/MediantTree.lean` | the mediant from the four seeds |
 | `CottLean/T/Wheel.lean` | the value position is a wheel; `0ω` across both halves |
 | `CottLean/T/TangentAddition.lean` | `⊗` against the wheel's tangent addition |
+| `CottLean/T/Quotient.lean` | the quotient by a multiplicative set; it is a wheel, and `⊕` does not survive it |
+| `CottLean/T/CommonMeadow.lean` | T against the rational common meadow |
+| `CottLean/T/Fracpair.lean` | Bergstra and Ponse's fracpairs, read in T |
+| `CottLean/T/Residue.lean` | each law's discrepancy is one added residue `T(0,k)` |
+| `CottLean/T/Dual.lean` | `⊕` with `+` is ℤ\[ε]; `⊕` with `*` is ℤ × ℤ |
 
 ## Building
 
