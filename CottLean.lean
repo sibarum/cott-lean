@@ -14,3 +14,4 @@ import CottLean.T.Residue
 import CottLean.T.Dual
 import CottLean.T.Quadratic
 import CottLean.T.Velocity
+import CottLean.T.Parallel

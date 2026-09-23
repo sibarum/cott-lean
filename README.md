@@ -103,6 +103,15 @@ by zero in three places, and they behave differently:
 `1` is the speed of light exactly: `1 ⊚ y` is a multiple of `1` for every `y` (`one_splitTimes`). `-x` is
 the split conjugate, and `x ⊚ -x = T(0, q² − p²)` is the split norm.
 
+**The parallel sum is `+` through the reciprocal** (`T/Parallel.lean`). Of the power sums
+`(xⁿ + yⁿ)^(1/n)`, two stay on the integer pairs: `n = 1`, which is `+`, and `n = −1`, the rule for
+resistors in parallel, `x ∥ y = 1/(1/x + 1/y) = T(ac, ad + bc)` (`reciprocal_par`). `(T, ⊕, ∥)` is ℤ[ε]
+again, with the coordinates swapped (`ParPosition.ringEquiv`), and the reciprocal is a ring isomorphism
+onto it from `(T, ⊕, +)` (`ParPosition.reciprocalEquiv`). Its unit is `ω`, an open circuit, and `0 ∥ 0 = 0ω`.
+Classically `1/(1/x + 1/y)` and `xy/(x + y)` are the same, but in the value position only the first is
+`∥`. The second is `∥` scaled by `x.q · y.q` (`parAdd_eq`), so it collapses against an open circuit,
+where `ω ∥ y = y` (`open_contrast`).
+
 ### The mediant from the four seeds
 
 `T/MediantTree.lean` settles the model's last line: *"every traction other than 0ω is reached exactly
@@ -142,6 +151,7 @@ Given a result and one operand, when does the other come back exactly? (`T/Recov
 | `+` | a pair with a non-zero denominator |
 | `*` | a pair with neither coordinate zero |
 | `⊚` | a pair off the light lines, `p² ≠ q²` (`splitTimes_recoverable_iff`, in `Velocity`) |
+| `∥` | a pair with a non-zero numerator (`par_recoverable_iff`, in `Parallel`) |
 
 Where it doesn't come back, every operand has a distinct partner that gives the same result. So the loss
 is the operation being ambiguous there, not an inverse that is too weak.
@@ -192,6 +202,7 @@ what is left is the wheel, with `⊗`.
 | `CottLean/T/Dual.lean` | `⊕` with `+` is ℤ\[ε]; `⊕` with `*` is ℤ × ℤ |
 | `CottLean/T/Quadratic.lean` | one product for every quadratic ring; split-complex; ℤ[j] is not ℤ × ℤ |
 | `CottLean/T/Velocity.lean` | `⊚` against the wheel's velocity addition; the light cone |
+| `CottLean/T/Parallel.lean` | the parallel sum `∥`; ℤ[ε] through the reciprocal |
 
 ## Building
 
