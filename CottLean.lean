@@ -15,3 +15,4 @@ import CottLean.T.Dual
 import CottLean.T.Quadratic
 import CottLean.T.Velocity
 import CottLean.T.Parallel
+import CottLean.T.Norm

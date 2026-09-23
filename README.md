@@ -165,6 +165,27 @@ Given a result and one operand, when does the other come back exactly? (`T/Recov
 Where it doesn't come back, every operand has a distinct partner that gives the same result. So the loss
 is the operation being ambiguous there, not an inverse that is too weak.
 
+**One norm decides every row but `⊕`** (`T/Norm.lean`). Each product is bilinear, so fixing `k` makes it a
+linear map of the other operand. Its determinant is the norm of `k` in that product's ring, which for
+`q + p·ω` with `ω² = a + b·ω` is `q² + b·pq − a·p²`. The other operand comes back exactly when the norm
+is non-zero (`recoverable_iff_norm`), and `k` has an inverse exactly when the norm is `±1`
+(`exists_inverse_iff_norm`). The first is recovery on the image; only the second gives every result a
+preimage.
+
+| product | norm of `k` | has an inverse exactly at |
+|---|---|---|
+| `⊗` | `p² + q²` | the four seeds `0, ω, _0, -ω` (`exists_otimes_eq_zero_iff`) |
+| `+` | `q²` | every `T(p, ±1)` (`exists_plus_eq_zero_iff`) |
+| `⊚` | `q² − p²` | the four seeds again (`exists_splitTimes_eq_zero_iff`) |
+| `*` | `pq` | `1, _1, -_1, -1` (`exists_times_eq_one_iff`) |
+| `∥` | `p²` | every `T(±1, q)` (`exists_par_eq_omega_iff`) |
+
+`*` and `∥` are read in their own bases: `q + (p − q)·ω` with `ω² = ω`, and `p + q·ω` with `ω² = 0`.
+
+Under `*`, `ω` and `0` are the complementary idempotents of ℤ × ℤ. `x * ω = T(p, 0)` and `x * 0 = T(0, q)`
+each keep one coordinate, and `(x * ω) ⊕ (x * 0) = x` restores both (`times_omega_oplus_times_zero`). What
+`*` loses against a pair on an axis is exactly the other projection.
+
 ## What is classical and what is not
 
 Most of the individual facts are classical. ℤ[i] is ℤ[i] and a quadratic ring is a quadratic ring; the wheel
@@ -213,6 +234,7 @@ what is left is the wheel, with `⊗`.
 | `CottLean/T/Quadratic.lean` | one product for every quadratic ring; split-complex; ℤ[j] is not ℤ × ℤ |
 | `CottLean/T/Velocity.lean` | `⊚` against the wheel's velocity addition; the light cone |
 | `CottLean/T/Parallel.lean` | the parallel sum `∥`; ℤ[ε] through the reciprocal |
+| `CottLean/T/Norm.lean` | one norm decides recovery and inverses for every product; the two projections |
 
 ## Building
 
