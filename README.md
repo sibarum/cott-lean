@@ -58,12 +58,12 @@ holds exactly (`oplus_plus`), where `+` over `*` needs the scale.
 |---|---|---|---|
 | `−1` | Gaussian integers ℤ[i] | `−4` | `⊗` (`otimes_eq_qtimes`) |
 | `0` | dual numbers ℤ[ε] | `0` | `+` (`plus_eq_qtimes`) |
-| `1` | split-complex integers ℤ[j] | `4` | `⊛` (`splitTimes`), new here |
+| `1` | split-complex integers ℤ[j] | `4` | `⊚` (`splitTimes`), new here |
 | `ω` | ℤ × ℤ | `1` | `*`, read as `q + (p − q)·ω` (`ProdPosition.quadEquiv`) |
 | `−1 − ω` | Eisenstein integers ℤ[ζ₃] | `−3` | `qtimes (-1) (-1)` |
 
 The complex, dual and split-complex numbers are the rows with `b = 0`, where `a` is the sign of `ω²`.
-`⊗` and `+` are two of them, and the third, `⊛`, is `⊗` with the sign of the `pr` term turned. `*`
+`⊗` and `+` are two of them, and the third, `⊚`, is `⊗` with the sign of the `pr` term turned. `*`
 is not the split-complex product over ℤ: its ring has the idempotent `ω`, and ℤ[j] has none but `0` and
 `1` (`split_not_prod`). The two agree only once `2` is invertible.
 
@@ -85,6 +85,23 @@ wheel's formula gives `0ω`. The collapse happens only when an *argument* is a q
 
 A direct consequence, not stated as a separate theorem: where `x.q · y.q < 0`, the wheel's answer is on
 the ray opposite to `⊗`'s. `_1 ⊗ 1 = T(0,-2)` is 180°, and the wheel's formula gives `T(0,2)`, at 0°.
+
+**`⊚` is the wheel's velocity addition, in the same way** (`T/Velocity.lean`). Relativistic velocity
+addition, `(u + v) / (1 + u·v)` with `1` as the speed of light, written with the value position's
+operations, is `x ⊚ y` with both coordinates multiplied by `x.q · y.q` (`velAdd_eq`). The formula divides
+by zero in three places, and they behave differently:
+
+- `uv = −1` is a pole, not a collapse. `⊚` and the wheel both answer `T(k, 0)` and agree, as at
+  `tan(45° + 45°)`.
+- An argument with `q = 0` collapses the wheel's formula to `0ω`, and `⊚` loses nothing
+  (`infinity_contrast`). This is the tangent contrast again.
+- Opposite light lines are `⊚`'s own collapse, which `⊗` has no counterpart to. In light-cone
+  coordinates `(q + p, q − p)`, `⊚` multiplies coordinatewise (`lightCone_splitTimes`). So `x ⊚ y = 0ω`
+  exactly when each light-cone coordinate is zero in one of the two (`splitTimes_eq_zeroOmega_iff`). For
+  example, `1 ⊚ -1 = 0ω` is `c` plus `−c`, where the classical formula is `0/0` too.
+
+`1` is the speed of light exactly: `1 ⊚ y` is a multiple of `1` for every `y` (`one_splitTimes`). `-x` is
+the split conjugate, and `x ⊚ -x = T(0, q² − p²)` is the split norm.
 
 ### The mediant from the four seeds
 
@@ -124,6 +141,7 @@ Given a result and one operand, when does the other come back exactly? (`T/Recov
 | `⊗` | anything but `0ω` |
 | `+` | a pair with a non-zero denominator |
 | `*` | a pair with neither coordinate zero |
+| `⊚` | a pair off the light lines, `p² ≠ q²` (`splitTimes_recoverable_iff`, in `Velocity`) |
 
 Where it doesn't come back, every operand has a distinct partner that gives the same result. So the loss
 is the operation being ambiguous there, not an inverse that is too weak.
@@ -173,6 +191,7 @@ what is left is the wheel, with `⊗`.
 | `CottLean/T/Residue.lean` | each law's discrepancy is one added residue `T(0,k)` |
 | `CottLean/T/Dual.lean` | `⊕` with `+` is ℤ\[ε]; `⊕` with `*` is ℤ × ℤ |
 | `CottLean/T/Quadratic.lean` | one product for every quadratic ring; split-complex; ℤ[j] is not ℤ × ℤ |
+| `CottLean/T/Velocity.lean` | `⊚` against the wheel's velocity addition; the light cone |
 
 ## Building
 
