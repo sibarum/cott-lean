@@ -8,3 +8,6 @@ import CottLean.T.MediantTree
 import CottLean.T.Wheel
 import CottLean.T.TangentAddition
 import CottLean.T.Quotient
+import CottLean.T.CommonMeadow
+import CottLean.T.Fracpair
+import CottLean.T.Residue
