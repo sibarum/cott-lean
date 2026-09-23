@@ -5,3 +5,4 @@ import CottLean.T.Recovery
 import CottLean.T.Powers
 import CottLean.T.Mobius
 import CottLean.T.MediantTree
+import CottLean.T.Wheel
