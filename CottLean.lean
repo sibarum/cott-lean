@@ -6,3 +6,4 @@ import CottLean.T.Powers
 import CottLean.T.Mobius
 import CottLean.T.MediantTree
 import CottLean.T.Wheel
+import CottLean.T.TangentAddition
