@@ -18,7 +18,7 @@ by the same map every time. Every ring that is free of rank two over ℤ, with `
 |---|---|---|---|---|---|
 | `−1` | `0` | `−1` | Gaussian integers ℤ[i] | `−4` | `⊗` (`otimes_eq_qtimes`) |
 | `0` | `0` | `0` | dual numbers ℤ[ε] | `0` | `+` (`plus_eq_qtimes`) |
-| `1` | `0` | `1` | split-complex integers ℤ[j] | `4` | `splitTimes` |
+| `1` | `0` | `1` | split-complex integers ℤ[j] | `4` | `⊛` (`splitTimes`) |
 | `0` | `1` | `ω` | ℤ × ℤ | `1` | `*`, by another basis |
 | `−1` | `−1` | `−1 − ω` | Eisenstein integers ℤ[ζ₃] | `−3` | `qtimes (-1) (-1)` |
 
@@ -49,8 +49,12 @@ theorem plus_eq_qtimes (x y : T) : x + y = qtimes 0 0 x y := by
 /-- The split-complex product, the case `ω² = 1`: `T(p,q) · T(r,s) = T(ps + rq, qs + pr)`. -/
 def splitTimes (x y : T) : T := qtimes 1 0 x y
 
+-- At the precedence of Mathlib's `Stream'` `⊛`, `75`, so the two parse alike and the types choose between
+-- them. As with `⊗`, a mix with `⊕` needs parentheses, since `⊕` is also `Sum`.
+@[inherit_doc] scoped infixl:75 " ⊛ " => splitTimes
+
 /-- Under the three `b = 0` products `ω` squares to `−1`, `0` and `1` of each ring: `_0`, `0ω` and `0`. -/
-example : «ω» ⊗ «ω» = «_0» ∧ «ω» + «ω» = «0ω» ∧ splitTimes «ω» «ω» = 0 := by decide
+example : «ω» ⊗ «ω» = «_0» ∧ «ω» + «ω» = «0ω» ∧ «ω» ⊛ «ω» = 0 := by decide
 
 /-! ## The map -/
 

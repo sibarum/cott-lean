@@ -58,12 +58,12 @@ holds exactly (`oplus_plus`), where `+` over `*` needs the scale.
 |---|---|---|---|
 | `−1` | Gaussian integers ℤ[i] | `−4` | `⊗` (`otimes_eq_qtimes`) |
 | `0` | dual numbers ℤ[ε] | `0` | `+` (`plus_eq_qtimes`) |
-| `1` | split-complex integers ℤ[j] | `4` | `splitTimes`, new here |
+| `1` | split-complex integers ℤ[j] | `4` | `⊛` (`splitTimes`), new here |
 | `ω` | ℤ × ℤ | `1` | `*`, read as `q + (p − q)·ω` (`ProdPosition.quadEquiv`) |
 | `−1 − ω` | Eisenstein integers ℤ[ζ₃] | `−3` | `qtimes (-1) (-1)` |
 
 The complex, dual and split-complex numbers are the rows with `b = 0`, where `a` is the sign of `ω²`.
-`⊗` and `+` are two of them, and the third, `splitTimes`, is `⊗` with the sign of the `pr` term turned. `*`
+`⊗` and `+` are two of them, and the third, `⊛`, is `⊗` with the sign of the `pr` term turned. `*`
 is not the split-complex product over ℤ: its ring has the idempotent `ω`, and ℤ[j] has none but `0` and
 `1` (`split_not_prod`). The two agree only once `2` is invertible.
 
