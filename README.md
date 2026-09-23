@@ -198,6 +198,24 @@ case `a = 1`, `b = 0`. What `*` loses against a pair on an axis is exactly one p
 (`times_eq_times_iff_of_q_eq_zero`). So keeping the other projection alongside the result gives the operand
 back (`times_recover_with_complement`).
 
+**Every product loses at most one integer** (`T/Loss.lean`). Against `k ≠ 0ω` with norm zero, a result
+`r = x · k` in the family `ω² = a + b·ω` satisfies `k.p · r.q = k.q · r.p`, so the whole result is its
+numerator, one linear form in `x` (`qtimes_eq_qtimes_iff`). Keeping `x.p` alongside it gives `x` back
+(`qtimes_recover_with_numerator`). Read off for each product:
+
+| product | against | keeps | loses |
+|---|---|---|---|
+| `+` | `T(c, 0)` | `x.q` | `x.p` |
+| `⊚` | `T(c, c)` | `x.q + x.p` | `x.q − x.p` |
+| `⊚` | `T(c, −c)` | `x.q − x.p` | `x.q + x.p` |
+| `*` | `T(c, 0)` | `x.p` | `x.q` |
+| `*` | `T(0, c)` | `x.q` | `x.p` |
+| `∥` | `T(0, c)` | `x.p` | `x.q` |
+
+`⊗` loses nothing except against `0ω`, and against `0ω` every product loses both integers. So a
+reversible use of any of these products, against anything but `0ω`, needs one integer of state beyond the
+result at most.
+
 ## What is classical and what is not
 
 Most of the individual facts are classical. ℤ[i] is ℤ[i] and a quadratic ring is a quadratic ring; the wheel
@@ -248,6 +266,7 @@ what is left is the wheel, with `⊗`.
 | `CottLean/T/Parallel.lean` | the parallel sum `∥`; ℤ[ε] through the reciprocal |
 | `CottLean/T/Norm.lean` | one norm decides recovery and inverses for every product; the two projections |
 | `CottLean/T/Projection.lean` | the idempotents of every product; `*` alone has projections |
+| `CottLean/T/Loss.lean` | what each product loses at a zero divisor, and the one integer that restores it |
 
 ## Building
 
