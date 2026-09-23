@@ -183,8 +183,17 @@ preimage.
 `*` and `∥` are read in their own bases: `q + (p − q)·ω` with `ω² = ω`, and `p + q·ω` with `ω² = 0`.
 
 Under `*`, `ω` and `0` are the complementary idempotents of ℤ × ℤ. `x * ω = T(p, 0)` and `x * 0 = T(0, q)`
-each keep one coordinate, and `(x * ω) ⊕ (x * 0) = x` restores both (`times_omega_oplus_times_zero`). What
-`*` loses against a pair on an axis is exactly the other projection.
+each keep one coordinate, and `(x * ω) ⊕ (x * 0) = x` restores both (`times_omega_oplus_times_zero`).
+
+**`*` is the only product with projections** (`T/Projection.lean`). A projection is an idempotent other
+than the ring's zero and unit. In the family `ω² = a + b·ω`, one exists exactly when the discriminant
+`b² + 4a` is `1`, and it is then `p = ±1`, `2q = 1 − b·p` (`qtimes_idempotent_iff`). That is ℤ × ℤ.
+So `⊗`, `+`, `⊚` and the Eisenstein product have only `0ω` and `0` as idempotents, `∥` has only `0ω`
+and `ω`, and `*` has four: `0ω`, `0`, `ω` and `1` (`times_idempotent_iff`). `split_not_prod` is the
+case `a = 1`, `b = 0`. What `*` loses against a pair on an axis is exactly one projection. Against
+`T(a, 0)` with `a ≠ 0`, two operands give the same result exactly when their `ω` projections agree
+(`times_eq_times_iff_of_q_eq_zero`). So keeping the other projection alongside the result gives the operand
+back (`times_recover_with_complement`).
 
 ## What is classical and what is not
 
@@ -235,6 +244,7 @@ what is left is the wheel, with `⊗`.
 | `CottLean/T/Velocity.lean` | `⊚` against the wheel's velocity addition; the light cone |
 | `CottLean/T/Parallel.lean` | the parallel sum `∥`; ℤ[ε] through the reciprocal |
 | `CottLean/T/Norm.lean` | one norm decides recovery and inverses for every product; the two projections |
+| `CottLean/T/Projection.lean` | the idempotents of every product; `*` alone has projections |
 
 ## Building
 
