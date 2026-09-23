@@ -7,3 +7,4 @@ import CottLean.T.Mobius
 import CottLean.T.MediantTree
 import CottLean.T.Wheel
 import CottLean.T.TangentAddition
+import CottLean.T.Quotient
