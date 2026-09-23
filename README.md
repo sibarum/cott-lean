@@ -46,9 +46,26 @@ the only pair that all three inverses leave fixed (`zeroOmega_*`, `fixed_by_all_
 `T(p, q) ↦ q + p·ε`, `+` is multiplication in the dual numbers `ℤ[ε]`: `(b + aε)(d + cε) = bd + (ad+bc)ε`,
 which is `T(ad+bc, bd)`. `⊕` is addition, `0` is the unit, `ω` is `ε` (`ω + ω = 0ω`), and `-x` is the dual
 conjugate (`DualPosition.ringEquiv : DualPosition ≃+* ℤ[ε]`). `*` is coordinatewise, so `⊕` and `*` are
-`ℤ × ℤ` (`ProdPosition.ringEquiv`). So `⊗`, `+` and `*` are the elliptic, parabolic and hyperbolic products
-on the one additive group `(T, ⊕)`. The two positions share `⊕`, and `(x ⊕ y) + z = (x + z) ⊕ (y + z)`
+`ℤ × ℤ` (`ProdPosition.ringEquiv`). The two positions share `⊕`, and `(x ⊕ y) + z = (x + z) ⊕ (y + z)`
 holds exactly (`oplus_plus`), where `+` over `*` needs the scale.
+
+**Every quadratic ring is one product on `(T, ⊕)`** (`T/Quadratic.lean`). Read `T(p, q)` as `q + p·ω` with
+`ω² = a + b·ω`. Then one formula, `qtimes a b (T(p,q)) (T(r,s)) = T(ps + rq + b·pr, qs + a·pr)`, makes
+`(T, ⊕, qtimes a b)` Mathlib's `QuadraticAlgebra ℤ a b`, for every `a` and `b`, by the same map
+(`QuadPosition.ringEquiv`). That covers every ring free of rank two over ℤ with `1` in a basis.
+
+| `ω²` | ring | discriminant | in T |
+|---|---|---|---|
+| `−1` | Gaussian integers ℤ[i] | `−4` | `⊗` (`otimes_eq_qtimes`) |
+| `0` | dual numbers ℤ[ε] | `0` | `+` (`plus_eq_qtimes`) |
+| `1` | split-complex integers ℤ[j] | `4` | `splitTimes`, new here |
+| `ω` | ℤ × ℤ | `1` | `*`, read as `q + (p − q)·ω` (`ProdPosition.quadEquiv`) |
+| `−1 − ω` | Eisenstein integers ℤ[ζ₃] | `−3` | `qtimes (-1) (-1)` |
+
+The complex, dual and split-complex numbers are the rows with `b = 0`, where `a` is the sign of `ω²`.
+`⊗` and `+` are two of them, and the third, `splitTimes`, is `⊗` with the sign of the `pr` term turned. `*`
+is not the split-complex product over ℤ: its ring has the idempotent `ω`, and ℤ[j] has none but `0` and
+`1` (`split_not_prod`). The two agree only once `2` is invertible.
 
 ### Where the halves meet
 
@@ -113,21 +130,21 @@ is the operation being ambiguous there, not an inverse that is too weak.
 
 ## What is classical and what is not
 
-Most of the individual facts are classical. ℤ[i] is ℤ[i], ℤ[ε] is ℤ[ε], and ℤ × ℤ is ℤ × ℤ; the wheel
+Most of the individual facts are classical. ℤ[i] is ℤ[i] and a quadratic ring is a quadratic ring; the wheel
 result is a case of Carlström's theorem; the mediant tree is the Stern–Brocot tree, extended to the four
 signed quadrants. What the formalization adds is exactness about the model: which of its lines hold at
 coordinate equality, which hold only under a named invariant, and what the exact coordinate result is in
 each case.
 
 The part that belongs to traction, and not to any one known structure, is the structures sharing one set
-of pairs. The exponent position and the value position share `⊕`: with it, `⊗` is the elliptic product,
-`+` the parabolic one and `*` the hyperbolic one, so the three planar algebras over ℤ sit on the one
-additive group. `0ω` is the zero of all three rings and the bottom element of the wheel. And `⊗`
+of pairs. The exponent position and the value position share `⊕`, and every quadratic ring over ℤ is a
+product on it, by one map. `⊗` is the complex one and `+` the dual one; the split-complex one completes
+the three. `0ω` is the zero of every one of these rings and the bottom element of the wheel. And `⊗`
 completes the wheel's tangent addition at exactly the inputs where the wheel collapses.
 
 `⊕` is also the reason the pairs cannot be quotiented. It survives no invariant between identifying
 nothing and identifying everything, while `+`, `*`, `/` and `⊗` survive every one (`oplus_respects_iff`
-in `T/Quotient.lean`). So the three rings exist only on the pairs as they are. Under the ray or the ratio,
+in `T/Quotient.lean`). So the rings exist only on the pairs as they are. Under the ray or the ratio,
 what is left is the wheel, with `⊗`.
 
 ## Not covered
@@ -155,6 +172,7 @@ what is left is the wheel, with `⊗`.
 | `CottLean/T/Fracpair.lean` | Bergstra and Ponse's fracpairs, read in T |
 | `CottLean/T/Residue.lean` | each law's discrepancy is one added residue `T(0,k)` |
 | `CottLean/T/Dual.lean` | `⊕` with `+` is ℤ\[ε]; `⊕` with `*` is ℤ × ℤ |
+| `CottLean/T/Quadratic.lean` | one product for every quadratic ring; split-complex; ℤ[j] is not ℤ × ℤ |
 
 ## Building
 

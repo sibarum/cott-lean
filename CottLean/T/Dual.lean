@@ -6,7 +6,7 @@ import Mathlib.Algebra.DualNumber
 # `⊕` with `+` is the dual numbers, and `⊕` with `*` is `ℤ × ℤ`
 
 `⊕` adds the coordinates, and each of the three products distributes over it. So each product makes a
-ring with `⊕`, and each ring is one of the three planar algebras over `ℤ`:
+ring with `⊕`, and each ring is free of rank two over `ℤ`:
 
 | product | its square of the unit on the axis | ring |
 |---|---|---|
@@ -22,8 +22,8 @@ its norm, as `x ⊗ -x = T(0, p²+q²)` is the Gaussian one.
 The product map is `T(p, q) ↦ (p, q)`: `*` is coordinatewise already. Its unit is `1 = T(1,1)`.
 
 So the two positions share `⊕`, not a product. The value position's `+` and the exponent position's `⊗`
-are the parabolic and elliptic products on the one additive group `(T, ⊕)`, and `*` is the hyperbolic
-one.
+are the dual and complex products on the one additive group `(T, ⊕)`. `*` is not the split-complex one
+over ℤ; `Quadratic` has that, and every other quadratic ring.
 -/
 
 namespace T
