@@ -125,6 +125,49 @@ Classically `1/(1/x + 1/y)` and `xy/(x + y)` are the same, but in the value posi
 `∥`. The second is `∥` scaled by `x.q · y.q` (`parAdd_eq`), so it collapses against an open circuit,
 where `ω ∥ y = y` (`open_contrast`).
 
+### Every product is a family of Möbius transformations
+
+`T/Transform.lean`. A Möbius transformation of the ratio, `p/q ↦ (αp + βq)/(γp + δq)`, is a 2×2 integer
+matrix acting on the pair (`act`), and composing two multiplies their matrices (`act_mul`). These are
+exactly the maps that respect `⊕` (`eq_act_of_oplus`). The reciprocal, `-x`, `-_x` and a quarter turn
+are among them.
+
+Multiplying by a fixed `y = T(r, s)` is one too, so every product is a family of them. Each family has a
+classical type, fixed by the discriminant `trace² − 4·det`:
+
+| product | multiply by `T(r, s)` | discriminant | type | fixed points |
+|---|---|---|---|---|
+| `⊗` | `[[s, r], [−r, s]]` | `−4r²` | elliptic | none but `0ω` |
+| `+` | `[[s, r], [0, s]]` | `0` | parabolic | `ω`'s ray |
+| `⊚` | `[[s, r], [r, s]]` | `4r²` | hyperbolic | the light lines |
+| `*` | `[[r, 0], [0, s]]` | `(r − s)²` | hyperbolic | the two axes |
+| `∥` | `[[r, 0], [s, r]]` | `0` | parabolic | `0`'s ray |
+
+For the whole family `ω² = a + b·ω`, the determinant of multiplying by `y` is `y`'s norm (`det_qmat`). So
+the norm that decides recovery is literally a determinant. The discriminant is `y.p²·(b² + 4a)`
+(`disc_qmat`), so the ring's type is the type of all its non-scalar elements. A ray is fixed exactly
+when `det(x, x·y) = y.p·N(x)` is zero (`det_qtimes_self`). So the fixed points are the rays of the zero
+divisors, which are the directions `Loss` found each product losing.
+
+**Sandwiches.** Carrying a product through a bijection and back, `g⁻¹(g x · g y)`, keeps commutativity,
+associativity, and, when `g` respects `⊕`, distributivity over `⊕` (`sandwich_comm`, `sandwich_assoc`,
+`sandwich_oplus`). The zoo already has three:
+
+- `∥` is `+` through the reciprocal (`par_eq_sandwich`).
+- `*` is `qtimes 0 1` through `T(p, q) ↦ T(p − q, q)` (`times_eq_sandwich`).
+- The light-cone map, of determinant `2`, takes `⊚` into `*` (`lightConeMap_splitTimes`). It is a
+  homomorphism but not an isomorphism, which is `split_not_prod` again.
+
+Conjugating by an invertible matrix keeps every discriminant (`disc_conj`), so a sandwich moves a
+product's fixed points and keeps its type. The model's `E` is the complex Cayley transform: it sends `⊗`
+to multiplication on the unit circle, since `z(x ⊗ y) = z(x) ⊗ z(y)` and `N(x ⊗ y) = N(x)·N(y)`
+(`doubleAngle_otimes`, `norm_otimes`).
+
+**`⊕` and division cannot share an equality** (`T/NoDivision.lean`). Take any equivalence that `⊕` and
+a product both respect, in which every pair other than `0ω` has an inverse. It identifies every pair
+with every other (`no_division_with_oplus`, for all five products). So division for the `⊕` rings has
+to come from the level above, where a pair of pairs is a fraction.
+
 ### The angle column
 
 `T/Angle.lean` makes the model's first line exact. `θ(x) = arg(q + p·i)` is a real in `(−π, π]`, and
@@ -296,6 +339,10 @@ what is left is the wheel, with `⊗`.
 | `CottLean/T/Projection.lean` | the idempotents of every product; `*` alone has projections |
 | `CottLean/T/Loss.lean` | what each product loses at a zero divisor, and the one integer that restores it |
 | `CottLean/T/Angle.lean` | θ, `tan θ = p/q`, the table's angles, what each operation does to the angle; the angle is the ray; the mediant lies between |
+| `CottLean/T/NoDivision.lean` | no equality lets `⊕` and division coexist, for any of the five products |
+| `CottLean/T/Transform.lean` | Möbius transformations as matrices; every product as a family of them; discriminants, fixed points, sandwiches |
+| `CottLean/Nested/Basic.lean` | `T2`, a pair of pairs: the embedding of `T`, the projection `flatten` as a Möbius transformation of the numerator, and `T2` against the common meadow |
+| `scripts/LawAtlas.lean` | not part of the library: a search that grades every law for every pairing of an addition and a multiplication, as evidence ahead of proofs |
 
 ## Building
 
