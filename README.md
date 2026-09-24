@@ -136,6 +136,16 @@ resistors in parallel, `x ∥ y = T(ac, ad + bc)` (`reciprocal_par`). `(T, ⊕, 
 `ω` exchanged (`ParPosition.ringEquiv`), and the reciprocal is a ring isomorphism onto it from `(T, ⊕, +)`
 (`ParPosition.reciprocalEquiv`).
 
+**Every other power sum leaves the pairs** (`T/PowerSum.lean`). Read exactly, `z` is a power sum of `x`
+and `y` when `zⁿ = xⁿ + yⁿ` on the coordinates (`IsPowerSum`). At `n = 1` and `n = −1` that is one pair,
+`x + y` or `x ∥ y`, for every `x` and `y`. At every other `n`, `1ⁿ + 1ⁿ = T(2,1)` is no pair's `n`th power,
+and no pair but `0ω` has an `n`th power at its ratio (`not_isPowerSum_one_one`, `sameRatio_one_one`),
+because `pⁿ = 2qⁿ` forces `p = q = 0` (`pow_eq_two_mul_pow`). So `+` and `∥` are the only power sums
+defined for every pair (`forall_isPowerSum_iff`). Some pairs stay at other exponents: `3² + 4² = 5²`
+(`isPowerSum_two`). At `n = 3` and `n = 4` a power sum is a pair only where one numerator is zero, which
+is Fermat's Last Theorem at those exponents (`isPowerSum_three`, `isPowerSum_four`). At every `n ≥ 3` the
+same statement is Fermat's Last Theorem itself, which Mathlib does not have (`isPowerSum_trivial_of_flt`).
+
 ### Every product is a family of Möbius transformations
 
 `T/Transform.lean`. A Möbius transformation of the ratio, `p/q ↦ (αp + βq)/(γp + δq)`, is a 2×2 integer
@@ -269,6 +279,15 @@ multiples of one pair (`theta_eq_theta_iff_sameRay`), which is when `det x y = 0
 (`sign_angle_sub`). `det x (x ⊕ y)` and `det (x ⊕ y) y` both equal `det x y`, so `x ⊕ y` turns from `x` the
 way `y` does, and turns into `y` the same way (`mediant_between`).
 
+**The power off the integers** (`T/AnglePower.lean`). `T(a,b)^r = tan(r·θ)` at any real `r`
+(`anglePow`). At every integer `n` it is the ratio of `otimesPower x n` (`anglePow_intCast`). The model's
+`tan((c/d)·arctan(a/b))` agrees with it at the integers wherever `b ≠ 0` (`arctanPow_intCast`), because
+`arctan(a/b)` is `θ` up to half turns. At `r = 1/2` the half turn shows. `_1` and `-1` have one ratio, so
+`arctan` gives both of them `tan(−π/8)`, while their angles give `tan(3π/8)` and `tan(−π/8)`
+(`arctanPow_underOne_ne`). So off the integers the exponent reads the angle and not the ratio. It also
+leaves the pairs: `1^(1/2) = tan(π/8)` is no pair's ratio (`anglePow_one_half_ne`), and no `y ⊗ y` has the
+angle of `1` (`theta_otimes_self_ne_theta_one`). Some halves stay: `ω^(1/2) = 1` (`anglePow_omega_half`).
+
 **The mediant from the four seeds** (`T/MediantTree.lean`). The model's last line says every traction
 other than `0ω` is reached exactly once by iterated mediant from the four seeds. Inserting `⊕` between
 neighbours, starting from `0, ω, _0, -ω` around the circle, first gives `1, _1, -_1, -1`, the table of nine.
@@ -321,12 +340,11 @@ These are the model's laws, with the exact coordinate result wherever it differs
 
 ## Not covered
 
-- `T(a,b)^T(c,d) = tan((c/d)·arctan(a/b))` off the integers.
-- That the power sum `(xⁿ + yⁿ)^(1/n)` leaves the integer pairs for `n ∉ {1, −1}`.
 - The law atlas (`scripts/LawAtlas.lean`). Its grades for all 36 pairings of an addition and a
   multiplication are search results on a grid, not yet theorems or proved counterexamples.
-- Each operation's hyperoperation, the exponentials between operations, and rational exponents. These
-  have been searched and worked by hand, but none of it is in Lean yet.
+- Each operation's hyperoperation, the exponentials between operations, and rational exponents of every
+  power but `⊗`'s, which `T/AnglePower.lean` has on the angle. These have been searched and worked by
+  hand, but none of it is in Lean yet.
 - The wheel axioms were checked against the statements on Wikipedia and nLab. Carlström's paper itself
   has not been read against them.
 
@@ -355,6 +373,8 @@ These are the model's laws, with the exact coordinate result wherever it differs
 | `CottLean/T/Projection.lean` | the idempotents of every product; `*` alone has projections |
 | `CottLean/T/Loss.lean` | what each product loses at a zero divisor, and the one integer that restores it |
 | `CottLean/T/Angle.lean` | θ, `tan θ = p/q`, the table's angles, what each operation does to the angle; the angle is the ray; the mediant lies between |
+| `CottLean/T/AnglePower.lean` | `tan(r·θ)` at any real exponent; the power at the integers; `arctan`'s half turn off them; `1^(1/2)` is no pair |
+| `CottLean/T/PowerSum.lean` | `zⁿ = xⁿ + yⁿ` exactly; only `n = ±1` stay for every pair; `pⁿ = 2qⁿ`; Fermat at 3 and 4 |
 | `CottLean/T/NoDivision.lean` | no equality lets `⊕` and division coexist, for any of the five products |
 | `CottLean/T/Transform.lean` | Möbius transformations as matrices; every product as a family of them; discriminants, fixed points, sandwiches |
 | `CottLean/Nested/Basic.lean` | `T2`, a pair of pairs: the embedding of `T`, the projection `flatten` as a Möbius transformation of the numerator, and `T2` against the common meadow |
