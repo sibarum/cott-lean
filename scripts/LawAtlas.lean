@@ -3,9 +3,10 @@ import CottLean
 /-!
 # The law atlas, by search
 
-Evidence, not proof: this runs T's real operations over a grid of pairs and reports, for every pairing
-of an addition and a multiplication, the strongest grade at which each law holds on the grid. Each cell
-is then to be proved, or refuted by a proved counterexample, in `CottLean`.
+The search behind `CottLean/T/Atlas.lean`: this runs T's real operations over a grid of pairs and reports, for
+every pairing of an addition and a multiplication, the strongest grade at which each law holds on the grid.
+`T.Atlas.atlas` proves every grade in the table, and this script checks that the grid agrees with
+`T.Atlas.table` cell by cell. The `respected` column is still search only.
 
 Run with `lake env lean scripts/LawAtlas.lean`.
 
@@ -112,21 +113,32 @@ def respects1 (g : Nat) (f : T → T) : Bool :=
   g == 0 || (([2, 3] ++ if g == 2 then [-1, -2] else []).all fun k =>
     pts3.all fun x => agree g (f (sc k x)) (f x))
 
+/-- The same operations and laws, as `T.Atlas` names them, in the same order. -/
+def atlasOps : List Atlas.Op := [.oplus, .plus, .times, .otimes, .split, .par]
+
+def atlasLaws : List Atlas.Law :=
+  [.aComm, .aAssoc, .aUnit, .aInv, .mComm, .mAssoc, .mUnit, .mInv,
+    .distrib, .zeroMul, .negMul, .negAdd, .invMul, .negNeg, .invInv, .fracMul]
+
 def main : IO Unit := do
   IO.println ("| add | mul | " ++ String.intercalate " | " (laws.map (·.name)) ++ " | needs | respected |")
   IO.println ("|---|---|" ++ String.join (laws.map fun _ => "---|") ++ "---|---|")
   let mut notes : Array String := #[]
-  for A in ops do
-    for M in ops do
+  let mut mismatches : Array String := #[]
+  for (A, A') in ops.zip atlasOps do
+    for (M, M') in ops.zip atlasOps do
       let mut cells : Array String := #[]
       let mut need := 0
       let mut broken : Array String := #[]
-      for law in laws do
+      for (law, law') in laws.zip atlasLaws do
         let base := if law.arity == 4 then pts4 else pts3
         let all := tuples law.arity base
         let gen := all.filter (·.all generic)
         let (g, _) := grade A M law all
         let (g', cex) := grade A M law gen
+        let (t, t') := Atlas.table A' M' law'
+        if g != t.rank || g' != t'.rank then
+          mismatches := mismatches.push s!"({A.name}, {M.name}) {law.name}: grid {gradeName g}/{gradeName g'}"
         cells := cells.push (if g == g' then gradeName g else s!"{gradeName g}/{gradeName g'}")
         need := max need g'
         if g' ≥ 3 then
@@ -144,5 +156,8 @@ def main : IO Unit := do
       IO.println s!"| {A.name} | {M.name} | {String.intercalate " | " cells.toList} | {gradeName need} | {resp} |"
   IO.println ""
   for n in notes.toList.take 40 do IO.println n
+  IO.println ""
+  if mismatches.isEmpty then IO.println "The grid agrees with T.Atlas.table in every cell."
+  else for m in mismatches do IO.println s!"MISMATCH {m}"
 
 #eval main

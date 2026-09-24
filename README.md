@@ -338,10 +338,33 @@ These are the model's laws, with the exact coordinate result wherever it differs
 | each operation against its inverse | `⊕` lands on `0ω` exactly; `⊗`, `+` and `*` land on `T(0, p²+q²)`, `T(0, q²)` and `T(pq, pq)`; `⊚` on `T(0, q²−p²)` | `Gaussian`, `Fraction`, `Velocity` |
 | `z(T) = T(2ab, b²−a²)`, "a unit vector" | `z(T) = T²`, with norm `(a²+b²)²`, so `z(T)/(a²+b²)` is the unit vector, and that is `E(T)` (`mobius_eq`, `doubleAngle_norm`) | `Mobius` |
 
+### The law atlas
+
+`T/Atlas.lean`. Pair any addition `A` with any multiplication `M` among `⊕`, `+`, `*`, `⊗`, `⊚` and `∥`,
+each with its own unit and inverse, and grade sixteen laws. The grades are `exact`, `ray` (a positive
+multiple), `ratio` (a non-zero multiple), `par` (`det = 0`) and `fails`, and each cell has two: one over
+all pairs, and one over generic pairs, off the axes and the light lines. `atlas` proves that every cell
+of the 36 × 16 table is the strongest grade at which its law holds. The law holds there for every input,
+and one of five fixed inputs fails every stronger grade (`witnesses_fail`, checked by `decide`).
+
+- Eleven laws are exact in every pairing: both commutative, associative and unit laws, `-(x+y)`,
+  `1/(xy)`, `--x`, `//x` and `(x/y)(z/w) = (xz)/(yw)` (`op_comm`, …, `op_frac`).
+- Only `⊕` has an exact inverse. For each other operation, `x ∘ x⁻¹` is the unit scaled by `q²`, `pq`,
+  `p² + q²`, `q² − p²` or `p²` (`inv_eq_scale`).
+- Distributivity is exact exactly when `A` is `⊕` and `M` is not. It is off by a scale for `(+, *)` and
+  `(∥, *)`, and fails for the other 29 pairings.
+- `0·x = 0` is exact for `⊕` with every product but itself, off by a scale in nine pairings, and fails in
+  the rest. `(−x)·y = −(x·y)` is exact in ten pairings and fails in the rest.
+
+Every grade short of `fails` that is not exact comes from one side being the other scaled by a
+polynomial `k`. Scaling by any `k` keeps `par`, by `k ≠ 0` keeps `ratio`, and by `k > 0` keeps `ray`
+(`holds_par_scale`, `holds_ratio_scale`, `holds_ray_scale`). `scripts/LawAtlas.lean` reruns the grid
+search and checks it against the proved `table` cell by cell.
+
 ## Not covered
 
-- The law atlas (`scripts/LawAtlas.lean`). Its grades for all 36 pairings of an addition and a
-  multiplication are search results on a grid, not yet theorems or proved counterexamples.
+- The `respected` column of `scripts/LawAtlas.lean`, whether each operation keeps the equivalence a
+  pairing needs, is still a search result.
 - Each operation's hyperoperation, the exponentials between operations, and rational exponents of every
   power but `⊗`'s, which `T/AnglePower.lean` has on the angle. These have been searched and worked by
   hand, but none of it is in Lean yet.
@@ -375,10 +398,11 @@ These are the model's laws, with the exact coordinate result wherever it differs
 | `CottLean/T/Angle.lean` | θ, `tan θ = p/q`, the table's angles, what each operation does to the angle; the angle is the ray; the mediant lies between |
 | `CottLean/T/AnglePower.lean` | `tan(r·θ)` at any real exponent; the power at the integers; `arctan`'s half turn off them; `1^(1/2)` is no pair |
 | `CottLean/T/PowerSum.lean` | `zⁿ = xⁿ + yⁿ` exactly; only `n = ±1` stay for every pair; `pⁿ = 2qⁿ`; Fermat at 3 and 4 |
+| `CottLean/T/Atlas.lean` | the law atlas: every law, every pairing of an addition and a multiplication, graded and proved strongest |
 | `CottLean/T/NoDivision.lean` | no equality lets `⊕` and division coexist, for any of the five products |
 | `CottLean/T/Transform.lean` | Möbius transformations as matrices; every product as a family of them; discriminants, fixed points, sandwiches |
 | `CottLean/Nested/Basic.lean` | `T2`, a pair of pairs: the embedding of `T`, the projection `flatten` as a Möbius transformation of the numerator, and `T2` against the common meadow |
-| `scripts/LawAtlas.lean` | not part of the library: a search that grades every law for every pairing of an addition and a multiplication, as evidence ahead of proofs |
+| `scripts/LawAtlas.lean` | not part of the library: the grid search behind the atlas, checked against `T.Atlas.table` |
 | `scripts/Declarations.lean` | not part of the library: writes `declarations.txt`, the name of every citable declaration. cott-engine cites these names, and CI fails if the file is out of date |
 | `declarations.txt` | the generated list of every citable declaration, sorted |
 

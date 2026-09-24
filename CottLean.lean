@@ -21,6 +21,7 @@ import CottLean.T.Loss
 import CottLean.T.Angle
 import CottLean.T.PowerSum
 import CottLean.T.AnglePower
+import CottLean.T.Atlas
 import CottLean.T.NoDivision
 import CottLean.T.Transform
 import CottLean.Nested.Basic
