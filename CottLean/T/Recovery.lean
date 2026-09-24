@@ -1,5 +1,5 @@
 import CottLean.T.Gaussian
-import CottLean.T.ValuePosition
+import CottLean.T.Fraction
 
 /-!
 # Where information is lost

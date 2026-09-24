@@ -13,8 +13,8 @@ negation.
 
 ## Why a second type
 
-`T`'s own `+` and `*` are the value position, and those are not a ring (see `ValuePosition`). So the ring
-structure is put on `ExponentPosition`, which is `T` itself read in the exponent position: its `+` is `⊕`
+`T`'s own `+` and `*` are the value position, and those are not a ring (see `Fraction`). So the ring
+structure is put on `GaussianPosition`, which is `T` itself read in the exponent position: its `+` is `⊕`
 and its `*` is `⊗`, definitionally. Every ring law Mathlib has then holds of `⊕` and `⊗`, and the theorems
 at the bottom restate the ones the docs quote in the docs' own notation.
 -/
@@ -78,33 +78,33 @@ theorem toGaussian_otimesPower_negSucc (x : T) (n : ℕ) :
 /-! ## The ring the exponent position is -/
 
 /-- `T` read in the exponent position: `+` is `⊕` and `*` is `⊗`. -/
-def ExponentPosition : Type := T
+def GaussianPosition : Type := T
 
-namespace ExponentPosition
+namespace GaussianPosition
 
 /-- Read a pair in the exponent position. -/
-def of : T ≃ ExponentPosition := Equiv.refl T
+def of : T ≃ GaussianPosition := Equiv.refl T
 /-- And back. -/
-def val : ExponentPosition ≃ T := Equiv.refl T
+def val : GaussianPosition ≃ T := Equiv.refl T
 
-instance : Zero ExponentPosition := ⟨of «0ω»⟩
-instance : One ExponentPosition := ⟨of «0»⟩
-instance : Add ExponentPosition := ⟨fun x y => of (val x ⊕ val y)⟩
-instance : Mul ExponentPosition := ⟨fun x y => of (val x ⊗ val y)⟩
-instance : Neg ExponentPosition := ⟨fun x => of (oplusInverse (val x))⟩
-instance : Sub ExponentPosition := ⟨fun x y => x + -y⟩
-instance : SMul ℕ ExponentPosition := ⟨fun n x => of ⟨n * (val x).p, n * (val x).q⟩⟩
-instance : SMul ℤ ExponentPosition := ⟨fun n x => of ⟨n * (val x).p, n * (val x).q⟩⟩
-instance : Pow ExponentPosition ℕ := ⟨fun x n => of (otimesPowNat (val x) n)⟩
-instance : NatCast ExponentPosition := ⟨fun n => of ⟨0, n⟩⟩
-instance : IntCast ExponentPosition := ⟨fun n => of ⟨0, n⟩⟩
+instance : Zero GaussianPosition := ⟨of «0ω»⟩
+instance : One GaussianPosition := ⟨of «0»⟩
+instance : Add GaussianPosition := ⟨fun x y => of (val x ⊕ val y)⟩
+instance : Mul GaussianPosition := ⟨fun x y => of (val x ⊗ val y)⟩
+instance : Neg GaussianPosition := ⟨fun x => of (oplusInverse (val x))⟩
+instance : Sub GaussianPosition := ⟨fun x y => x + -y⟩
+instance : SMul ℕ GaussianPosition := ⟨fun n x => of ⟨n * (val x).p, n * (val x).q⟩⟩
+instance : SMul ℤ GaussianPosition := ⟨fun n x => of ⟨n * (val x).p, n * (val x).q⟩⟩
+instance : Pow GaussianPosition ℕ := ⟨fun x n => of (otimesPowNat (val x) n)⟩
+instance : NatCast GaussianPosition := ⟨fun n => of ⟨0, n⟩⟩
+instance : IntCast GaussianPosition := ⟨fun n => of ⟨0, n⟩⟩
 
 /-- The map, on the exponent position. -/
-def toG (x : ExponentPosition) : GaussianInt := toGaussian (val x)
+def toG (x : GaussianPosition) : GaussianInt := toGaussian (val x)
 
 theorem toG_injective : Function.Injective toG := toGaussian_injective
 
-instance : CommRing ExponentPosition :=
+instance : CommRing GaussianPosition :=
   toG_injective.commRing toG
     toGaussian_zeroOmega
     toGaussian_zero
@@ -125,12 +125,12 @@ instance : CommRing ExponentPosition :=
     (fun n => by change (⟨n, 0⟩ : GaussianInt) = _; ext <;> simp)
 
 /-- The exponent position is `ℤ[i]`, as a ring. -/
-def ringEquiv : ExponentPosition ≃+* GaussianInt where
+def ringEquiv : GaussianPosition ≃+* GaussianInt where
   toEquiv := val.trans toGaussian
   map_mul' x y := toGaussian_otimes (val x) (val y)
   map_add' x y := toGaussian_oplus (val x) (val y)
 
-end ExponentPosition
+end GaussianPosition
 
 /-! ## What that gives, in the docs' notation
 

@@ -2,140 +2,148 @@
 
 [![Build and check axioms](https://github.com/sibarum/cott-lean/actions/workflows/build.yml/badge.svg)](https://github.com/sibarum/cott-lean/actions/workflows/build.yml)
 
-A Lean 4 formalization of traction: the pair `T(p, q)` of
-[cott-engine](../cott-engine)'s `docs/Traction-Model.md`, which is the definitive statement of the model.
+A Lean 4 formalization of **traction**, the number model of [cott-engine](../cott-engine), whose
+`docs/Traction-Model.md` is the definitive statement of it.
+
+A traction is a pair of integers `T(p, q)`, read as the ratio `p/q` and, at the same time, as the point
+`q + p·i` in the plane:
 
 ```
 T(p, q) = p/q ≈ tan(arg(q + i·p))
 ```
 
-Every theorem here holds for every pair. None is checked on a sample. Every proof depends only on Lean's
-standard axioms (`propext`, `Classical.choice`, `Quot.sound`), and nothing is assumed beyond Mathlib. That is
-checked for every declaration, not claimed: see [Checking the axioms](#checking-the-axioms).
+Nothing is reduced. `T(1,2)` and `T(2,4)` are different values, `q = 0` is allowed, and `0/0` is a value like
+any other. On that one set of pairs, traction defines several arithmetics at once. The design goal is a
+runtime in which a value can be read under any of them, and moving between them is always an explicit
+conversion. This repository proves what each arithmetic is, which laws it keeps, and where it loses
+information.
 
-## Conventions
+Every theorem holds for every pair; none is checked on a sample. Every declaration is machine-checked to
+use only Lean's standard axioms, in CI (see [Checking the axioms](#checking-the-axioms)).
+
+## What it shows
+
+**One carrier holds every quadratic ring, exactly.** Traction's mediant `⊕` adds pairs coordinatewise.
+With it, a single parametric product makes the pairs into the Gaussian integers, the dual numbers, the
+split-complex integers, ℤ × ℤ, the Eisenstein integers and every other ring of rank two over ℤ. It uses
+the same reading of the pair each time and needs no quotient. The model's own operations are members of
+this family: angle addition `⊗` is the Gaussian product, and ordinary fraction addition `+` is the
+dual-number product.
+
+**Each product is a family of Möbius transformations.** Multiplying by a fixed pair is a 2×2 integer
+matrix acting on the ratio. Its classical type, elliptic, parabolic or hyperbolic, is the ring's
+discriminant. Its determinant is the norm, the quantity that decides whether the product can be undone.
+Its fixed points are exactly the directions in which the product loses information. So each product is
+fixed by a pair of points on the line of ratios. Carrying a product through another Möbius transformation
+keeps all its laws and moves those points.
+
+**The pair operations keep what classical formulas lose.** Written with ordinary fraction arithmetic,
+tangent addition, relativistic velocity addition and the parallel sum all break down to `0/0` at an
+infinite argument. The corresponding pair operations, `⊗`, the split-complex `⊚` and the parallel `∥`, lose
+nothing there. The classical formula turns out to be the pair operation with both coordinates multiplied by
+a factor that happens to be zero.
+
+**Information loss is exact and bounded.** Given a result and one operand, the other operand comes back
+exactly when the known one has non-zero norm. When it doesn't come back, the product has forgotten
+exactly one integer of it, and keeping that one integer alongside the result is enough to recover it.
+
+**The tower is forced, not chosen.** The mediant survives no quotient: no invariant coarser than the pair
+itself, such as the ray or the ratio, is respected by it. No equality at all lets it stand beside
+division. So each ring keeps its laws on the bare pairs, and division has to come from a second level,
+pairs of pairs. That level is begun here. Among the named invariants, the angle and the ray turn out to
+be the same one, and the mediant always lies strictly between its two parents.
+
+## What is classical and what is new
+
+Most of the individual facts are classical. ℤ[i] is ℤ[i] and a quadratic ring is a quadratic ring; the
+wheel result is a case of Carlström's theorem; the mediant tree is the Stern–Brocot tree, extended to the
+four signed quadrants; and the elliptic, parabolic and hyperbolic types are the classical classification
+of Möbius transformations.
+
+What belongs to traction is all of them sharing one set of unreduced pairs, and the exactness that sharing
+forces:
+
+- which of the model's lines hold at coordinate equality, which hold only under a named invariant, and
+  what the exact coordinate result is otherwise;
+- `0ω = 0/0` as the zero of every one of the rings and the bottom element of the wheel, at once;
+- each product completing a classical formula at exactly the inputs where that formula collapses;
+- the mediant as the one operation every ring shares and no quotient keeps.
+
+## Reading the notation
 
 - **No invariant is specified by default.** Two pairs are equal exactly when their coordinates are, so
   `T(1,2) ≠ T(2,4)`. The ratio, the ray (a positive multiple of both coordinates), the angle and the norm
-  are invariants that a use may specify. Away from `0ω`, the angle and the ray turn out to be the same
-  invariant (`theta_eq_theta_iff_sameRay`). A result that holds only under one of them says which.
-  Everything is proved at coordinate equality first.
-- **`0` is `T(0,1)`** by default. The other zero-magnitude pairs stay available by name.
-- **`-x` is `T(-p, q)`.** So `-0 = 0`, and `T(0,-1)` is `_0`. The `⊕` inverse `T(-p,-q)` is `-_x`.
-- The nine named values are spelled the model's way: `T.«0»`, `T.«ω»`, `T.«_0»`, `T.«-_1»`, `T.«0ω»`, …
+  are invariants a use may specify, and a result that holds only under one of them says which. Away from
+  `0ω`, the angle and the ray are the same invariant (`theta_eq_theta_iff_sameRay`).
+- **The nine named values** are spelled the model's way. The four seeds are `0 = T(0,1)`, `ω = T(1,0)`,
+  `_0 = T(0,-1)` and `-ω = T(-1,0)`. Between them are `1 = T(1,1)`, `_1 = T(1,-1)`, `-_1 = T(-1,-1)` and
+  `-1 = T(-1,1)`, and `0ω = T(0,0)` is the ninth. In Lean they are `T.«0»`, `T.«ω»`, `T.«_0»`, and so on.
+- **`-x` is `T(-p, q)`**, the numerator turned. So `-0 = 0`, and `T(0,-1)` is `_0`. The mediant's
+  inverse `T(-p,-q)` is `-_x`.
+- **The operations.**
 
-## The results
+  | | formula | reading |
+  |---|---|---|
+  | `x + y` | `T(ps + rq, qs)` | fraction addition |
+  | `x * y` | `T(pr, qs)` | fraction multiplication |
+  | `x ⊕ y` | `T(p + r, q + s)` | the mediant; the sum of the points |
+  | `x ⊗ y` | `T(ps + rq, qs − pr)` | angle addition; the product of the points |
+  | `x ⊚ y` | `T(ps + rq, qs + pr)` | the split-complex product; velocity addition |
+  | `x ∥ y` | `T(pr, ps + rq)` | the parallel sum, `1/(1/x + 1/y)` |
 
-### The two halves
+  In each row `x = T(p,q)` and `y = T(r,s)`.
 
-T carries two arithmetics on one set of pairs. Each half, on its own, turns out to be a known structure.
+## The results in detail
 
-**The exponent position is the Gaussian integers** (`T/Gaussian.lean`). `T(p, q)` is the point `q + p·i`.
-Under that reading, `⊕` is addition, `⊗` is multiplication, `-x` is the complex conjugate and `-_x` is
-the negative. The correspondence is exact, term by term: `ExponentPosition.ringEquiv : ExponentPosition ≃+* ℤ[i]`.
-So every ring law holds of `⊕` and `⊗`. The four seeds `0, ω, _0, -ω` are exactly the pairs `⊗` can undo
-(`exists_otimes_eq_zero_iff`).
+### The rings on one carrier
 
-**The value position is a wheel** (`T/Wheel.lean`). `(T, 0, 1, +, *, /)` satisfies every wheel axiom at
-coordinate equality (`isWheel`). It is Carlström's wheel of fractions over ℤ with `S = {1}`, which is the
-choice that identifies nothing. The wheel's bottom element `0/0` is `0ω`, and so is `0·ω`
-(`bottom_eq`, `zero_times_omega`). In wheel theory, choosing an invariant is choosing `S`: the positive
-integers give the ray and the non-zero integers give the ratio. For every multiplicative `S` the quotient
-is a wheel (`T/Quotient.lean`, `Q.isWheel`), and `+`, `*`, `/`, `-`, `-_` and `⊗` survive it. `⊕`
-survives only `S = {1}` and `0 ∈ S` (`oplus_respects_iff`).
+**The mediant and `⊗` are the Gaussian integers** (`T/Gaussian.lean`). `T(p, q)` is the point `q + p·i`.
+`⊕` is addition, `⊗` is multiplication, `-x` is the complex conjugate and `-_x` is the negative, exactly:
+`GaussianPosition.ringEquiv : GaussianPosition ≃+* ℤ[i]`. The four seeds are exactly the pairs `⊗` can
+undo (`exists_otimes_eq_zero_iff`).
 
-**Next to the division-by-zero literature.** `T(p,q) ↦ p/q`, with every `T(p,0)` going to the error
-element, maps T onto the rational common meadow (`T/CommonMeadow.lean`). It respects `+`, `*` and `-`
-exactly, and the reciprocal everywhere but at the quarter turns. No map onto the common meadow respects
-all four (`no_surjective_hom_Qa`). Bergstra and Ponse's fracpairs are T with the reciprocal multiplied by
-the denominator (`T/Fracpair.lean`, `finv_eq_scale`). And every law below that differs from its written
-form differs by one added residue `T(0,k)`, where `x + T(0,k)` is `x` with both coordinates multiplied by
-`k` (`T/Residue.lean`, `plus_residue`).
+**Fraction arithmetic is a wheel** (`T/Wheel.lean`). `(T, 0, 1, +, *, /)` satisfies every wheel axiom at
+coordinate equality (`isWheel`). It is Carlström's wheel of fractions over ℤ with `S = {1}`, the choice
+that identifies nothing. The wheel's bottom element `0/0` is `0ω`, and so is `0·ω` (`bottom_eq`,
+`zero_times_omega`). `0ω` absorbs under `+`, `*` and `⊗`, is the identity of `⊕`, and is the only pair all
+three inverses leave fixed (`zeroOmega_*`, `fixed_by_all_inverses_iff`).
 
-**`0ω` across both halves.** It absorbs under `+`, `*` and `⊗`, and it is the identity of `⊕`. It is also
-the only pair that all three inverses leave fixed (`zeroOmega_*`, `fixed_by_all_inverses_iff`).
+**The mediant with `+` is the dual numbers, and with `*` it is ℤ × ℤ** (`T/Dual.lean`). Under the reading
+`T(p, q) ↦ q + p·ε`, `+` is dual-number multiplication: `(b + aε)(d + cε) = bd + (ad+bc)ε`, which is
+`T(ad+bc, bd)`. `0` is the unit, `ω` is `ε` (`ω + ω = 0ω`), and `-x` is the dual conjugate
+(`DualPosition.ringEquiv`). `*` is coordinatewise, so `⊕` and `*` are ℤ × ℤ (`ProdPosition.ringEquiv`).
+`(x ⊕ y) + z = (x + z) ⊕ (y + z)` holds exactly (`oplus_plus`), where `+` over `*` needs a scale.
 
-**`⊕` also makes a ring with each value-position product** (`T/Dual.lean`). Under the same reading
-`T(p, q) ↦ q + p·ε`, `+` is multiplication in the dual numbers `ℤ[ε]`: `(b + aε)(d + cε) = bd + (ad+bc)ε`,
-which is `T(ad+bc, bd)`. `⊕` is addition, `0` is the unit, `ω` is `ε` (`ω + ω = 0ω`), and `-x` is the dual
-conjugate (`DualPosition.ringEquiv : DualPosition ≃+* ℤ[ε]`). `*` is coordinatewise, so `⊕` and `*` are
-`ℤ × ℤ` (`ProdPosition.ringEquiv`). The two positions share `⊕`, and `(x ⊕ y) + z = (x + z) ⊕ (y + z)`
-holds exactly (`oplus_plus`), where `+` over `*` needs the scale.
-
-**Every quadratic ring is one product on `(T, ⊕)`** (`T/Quadratic.lean`). Read `T(p, q)` as `q + p·ω` with
-`ω² = a + b·ω`. Then one formula, `qtimes a b (T(p,q)) (T(r,s)) = T(ps + rq + b·pr, qs + a·pr)`, makes
-`(T, ⊕, qtimes a b)` Mathlib's `QuadraticAlgebra ℤ a b`, for every `a` and `b`, by the same map
-(`QuadPosition.ringEquiv`). That covers every ring free of rank two over ℤ with `1` in a basis.
+**Every quadratic ring is one product** (`T/Quadratic.lean`). Read `T(p, q)` as `q + p·ω` with
+`ω² = a + b·ω`. Then `qtimes a b (T(p,q)) (T(r,s)) = T(ps + rq + b·pr, qs + a·pr)` makes `(T, ⊕, qtimes a b)`
+Mathlib's `QuadraticAlgebra ℤ a b`, for every `a` and `b`, by the same map (`QuadPosition.ringEquiv`).
 
 | `ω²` | ring | discriminant | in T |
 |---|---|---|---|
 | `−1` | Gaussian integers ℤ[i] | `−4` | `⊗` (`otimes_eq_qtimes`) |
 | `0` | dual numbers ℤ[ε] | `0` | `+` (`plus_eq_qtimes`) |
-| `1` | split-complex integers ℤ[j] | `4` | `⊚` (`splitTimes`), new here |
+| `1` | split-complex integers ℤ[j] | `4` | `⊚` (`splitTimes`) |
 | `ω` | ℤ × ℤ | `1` | `*`, read as `q + (p − q)·ω` (`ProdPosition.quadEquiv`) |
 | `−1 − ω` | Eisenstein integers ℤ[ζ₃] | `−3` | `qtimes (-1) (-1)` |
 
-The complex, dual and split-complex numbers are the rows with `b = 0`, where `a` is the sign of `ω²`.
-`⊗` and `+` are two of them, and the third, `⊚`, is `⊗` with the sign of the `pr` term turned. `*`
-is not the split-complex product over ℤ: its ring has the idempotent `ω`, and ℤ[j] has none but `0` and
-`1` (`split_not_prod`). The two agree only once `2` is invertible.
-
-### Where the halves meet
-
-**`⊗` is the wheel's tangent addition, without the wheel's collapse** (`T/TangentAddition.lean`).
-Write the classical formula with the value position's own operations:
-
-```
-tanAdd(x, y) = (x + y) / (1 − x·y)
-```
-
-It is `x ⊗ y` with both coordinates multiplied by `x.q · y.q` (`tanAdd_eq`). The wheel's version lands on
-`0ω` exactly when a denominator is zero (`tanAdd_eq_zeroOmega_iff`). `⊗` lands on `0ω` only from `0ω`
-(`otimes_eq_zeroOmega_iff`). At a quarter turn, then, the wheel's formula forgets the other angle
-entirely, while `⊗` forgets nothing (`quarterTurn_contrast`). For example, `ω ⊗ 1 = _1`, where the
-wheel's formula gives `0ω`. The collapse happens only when an *argument* is a quarter turn:
-`tan(45° + 45°)` gives `T(2,0)` both ways.
-
-A direct consequence, not stated as a separate theorem: where `x.q · y.q < 0`, the wheel's answer is on
-the ray opposite to `⊗`'s. `_1 ⊗ 1 = T(0,-2)` is 180°, and the wheel's formula gives `T(0,2)`, at 0°.
-
-**`⊚` is the wheel's velocity addition, in the same way** (`T/Velocity.lean`). Relativistic velocity
-addition, `(u + v) / (1 + u·v)` with `1` as the speed of light, written with the value position's
-operations, is `x ⊚ y` with both coordinates multiplied by `x.q · y.q` (`velAdd_eq`). The formula divides
-by zero in three places, and they behave differently:
-
-- `uv = −1` is a pole, not a collapse. `⊚` and the wheel both answer `T(k, 0)` and agree, as at
-  `tan(45° + 45°)`.
-- An argument with `q = 0` collapses the wheel's formula to `0ω`, and `⊚` loses nothing
-  (`infinity_contrast`). This is the tangent contrast again.
-- Opposite light lines are `⊚`'s own collapse, which `⊗` has no counterpart to. In light-cone
-  coordinates `(q + p, q − p)`, `⊚` multiplies coordinatewise (`lightCone_splitTimes`). So `x ⊚ y = 0ω`
-  exactly when each light-cone coordinate is zero in one of the two (`splitTimes_eq_zeroOmega_iff`). For
-  example, `1 ⊚ -1 = 0ω` is `c` plus `−c`, where the classical formula is `0/0` too.
-
-`1` is the speed of light exactly: `1 ⊚ y` is a multiple of `1` for every `y` (`one_splitTimes`). `-x` is
-the split conjugate, and `x ⊚ -x = T(0, q² − p²)` is the split norm.
+The complex, dual and split-complex numbers are the rows with `b = 0`. `*` is not the split-complex
+product over ℤ: its ring has the idempotent `ω`, and ℤ[j] has none but `0` and `1` (`split_not_prod`).
+The two agree only once 2 is invertible.
 
 **The parallel sum is `+` through the reciprocal** (`T/Parallel.lean`). Of the power sums
 `(xⁿ + yⁿ)^(1/n)`, two stay on the integer pairs: `n = 1`, which is `+`, and `n = −1`, the rule for
-resistors in parallel, `x ∥ y = 1/(1/x + 1/y) = T(ac, ad + bc)` (`reciprocal_par`). `(T, ⊕, ∥)` is ℤ[ε]
-again, with the coordinates swapped (`ParPosition.ringEquiv`), and the reciprocal is a ring isomorphism
-onto it from `(T, ⊕, +)` (`ParPosition.reciprocalEquiv`). Its unit is `ω`, an open circuit, and `0 ∥ 0 = 0ω`.
-Classically `1/(1/x + 1/y)` and `xy/(x + y)` are the same, but in the value position only the first is
-`∥`. The second is `∥` scaled by `x.q · y.q` (`parAdd_eq`), so it collapses against an open circuit,
-where `ω ∥ y = y` (`open_contrast`).
+resistors in parallel, `x ∥ y = T(ac, ad + bc)` (`reciprocal_par`). `(T, ⊕, ∥)` is ℤ[ε] again with `0` and
+`ω` exchanged (`ParPosition.ringEquiv`), and the reciprocal is a ring isomorphism onto it from `(T, ⊕, +)`
+(`ParPosition.reciprocalEquiv`).
 
 ### Every product is a family of Möbius transformations
 
 `T/Transform.lean`. A Möbius transformation of the ratio, `p/q ↦ (αp + βq)/(γp + δq)`, is a 2×2 integer
 matrix acting on the pair (`act`), and composing two multiplies their matrices (`act_mul`). These are
 exactly the maps that respect `⊕` (`eq_act_of_oplus`). The reciprocal, `-x`, `-_x` and a quarter turn
-are among them.
+are among them. Multiplying by a fixed `y = T(r, s)` is one too:
 
-Multiplying by a fixed `y = T(r, s)` is one too, so every product is a family of them. Each family has a
-classical type, fixed by the discriminant `trace² − 4·det`:
-
-| product | multiply by `T(r, s)` | discriminant | type | fixed points |
+| product | multiply by `T(r, s)` | `trace² − 4·det` | type | fixed points |
 |---|---|---|---|---|
 | `⊗` | `[[s, r], [−r, s]]` | `−4r²` | elliptic | none but `0ω` |
 | `+` | `[[s, r], [0, s]]` | `0` | parabolic | `ω`'s ray |
@@ -143,39 +151,106 @@ classical type, fixed by the discriminant `trace² − 4·det`:
 | `*` | `[[r, 0], [0, s]]` | `(r − s)²` | hyperbolic | the two axes |
 | `∥` | `[[r, 0], [s, r]]` | `0` | parabolic | `0`'s ray |
 
-For the whole family `ω² = a + b·ω`, the determinant of multiplying by `y` is `y`'s norm (`det_qmat`). So
-the norm that decides recovery is literally a determinant. The discriminant is `y.p²·(b² + 4a)`
-(`disc_qmat`), so the ring's type is the type of all its non-scalar elements. A ray is fixed exactly
-when `det(x, x·y) = y.p·N(x)` is zero (`det_qtimes_self`). So the fixed points are the rays of the zero
-divisors, which are the directions `Loss` found each product losing.
+For the whole family `ω² = a + b·ω`, the determinant of multiplying by `y` is `y`'s norm (`det_qmat`),
+and the discriminant is `y.p²·(b² + 4a)` (`disc_qmat`). So the ring's type is the type of all its
+non-scalar elements. A ray is fixed exactly when `det(x, x·y) = y.p·N(x)` is zero (`det_qtimes_self`), so
+the fixed points are the rays of the zero divisors.
 
 **Sandwiches.** Carrying a product through a bijection and back, `g⁻¹(g x · g y)`, keeps commutativity,
-associativity, and, when `g` respects `⊕`, distributivity over `⊕` (`sandwich_comm`, `sandwich_assoc`,
-`sandwich_oplus`). The zoo already has three:
-
+associativity and, when `g` respects `⊕`, distributivity over `⊕` (`sandwich_comm`, `sandwich_assoc`,
+`sandwich_oplus`).
 - `∥` is `+` through the reciprocal (`par_eq_sandwich`).
 - `*` is `qtimes 0 1` through `T(p, q) ↦ T(p − q, q)` (`times_eq_sandwich`).
-- The light-cone map, of determinant `2`, takes `⊚` into `*` (`lightConeMap_splitTimes`). It is a
-  homomorphism but not an isomorphism, which is `split_not_prod` again.
+- The light-cone map, of determinant 2, takes `⊚` into `*` (`lightConeMap_splitTimes`). It is a
+  homomorphism and not an isomorphism, which is `split_not_prod` again.
 
 Conjugating by an invertible matrix keeps every discriminant (`disc_conj`), so a sandwich moves a
-product's fixed points and keeps its type. The model's `E` is the complex Cayley transform: it sends `⊗`
-to multiplication on the unit circle, since `z(x ⊗ y) = z(x) ⊗ z(y)` and `N(x ⊗ y) = N(x)·N(y)`
+product's fixed points and keeps its type. The model's `E` is the complex Cayley transform. It sends `⊗` to
+multiplication on the unit circle, since `z(x ⊗ y) = z(x) ⊗ z(y)` and `N(x ⊗ y) = N(x)·N(y)`
 (`doubleAngle_otimes`, `norm_otimes`).
 
-**`⊕` and division cannot share an equality** (`T/NoDivision.lean`). Take any equivalence that `⊕` and
-a product both respect, in which every pair other than `0ω` has an inverse. It identifies every pair
-with every other (`no_division_with_oplus`, for all five products). So division for the `⊕` rings has
-to come from the level above, where a pair of pairs is a fraction.
+### Where classical formulas collapse
 
-### The angle column
+**`⊗` is tangent addition, without the collapse** (`T/TangentAddition.lean`). Written with fraction
+arithmetic, `tan(α + β) = (x + y)/(1 − x·y)` is `x ⊗ y` with both coordinates multiplied by `x.q · y.q`
+(`tanAdd_eq`). So it lands on `0ω` exactly when a denominator is zero (`tanAdd_eq_zeroOmega_iff`), while
+`⊗` lands on `0ω` only from `0ω` (`otimes_eq_zeroOmega_iff`). At a quarter turn the classical formula
+forgets the other angle entirely, and `⊗` forgets nothing (`quarterTurn_contrast`). For example,
+`ω ⊗ 1 = _1`, where the formula gives `0ω`. A quarter turn in the *result* is not a collapse:
+`tan(45° + 45°)` gives `T(2,0)` both ways. Where `x.q · y.q < 0`, the formula's answer is on the opposite
+ray: `_1 ⊗ 1 = T(0,-2)`, at 180°, where it gives `T(0,2)`, at 0°.
 
-`T/Angle.lean` makes the model's first line exact. `θ(x) = arg(q + p·i)` is a real in `(−π, π]`, and
-`tan θ = p/q` for every pair (`tan_theta`). At a quarter turn both sides are Lean's `x/0 = 0`. The nine
-named values have the angles of the model's table (`theta_zero`, `theta_one`, …, `theta_negOne`). `0ω`
-has no angle, and the theorems below exclude it.
+**`⊚` is velocity addition, in the same way** (`T/Velocity.lean`). `(u + v)/(1 + u·v)`, with `1` as the
+speed of light, is `x ⊚ y` scaled by `x.q · y.q` (`velAdd_eq`). The formula divides by zero in three
+places:
+- `uv = −1` is a pole, not a collapse, and both sides answer `T(k, 0)`.
+- An argument with `q = 0` collapses the formula to `0ω`, and `⊚` loses nothing (`infinity_contrast`).
+- The two light lines are `⊚`'s own zero divisors. In light-cone coordinates `(q + p, q − p)` it
+  multiplies coordinatewise (`lightCone_splitTimes`), so `x ⊚ y = 0ω` exactly when each light-cone
+  coordinate is zero in one of the two (`splitTimes_eq_zeroOmega_iff`). `1 ⊚ -1 = 0ω` is `c` plus `−c`,
+  where the classical formula is `0/0` too.
 
-As an angle mod `2π`:
+`1 ⊚ y` is a multiple of `1` for every `y` (`one_splitTimes`): light plus any velocity is light.
+
+**The parallel sum's two classical forms differ.** `1/(1/x + 1/y)` is `∥` exactly, and `xy/(x + y)` is
+`∥` scaled by `x.q · y.q` (`parAdd_eq`). So the second collapses against an open circuit, where
+`ω ∥ y = y` (`open_contrast`).
+
+### Loss and recovery
+
+Given a result and one operand, when does the other come back exactly? (`T/Recovery.lean`)
+
+| operation | the other operand comes back exactly when the known one is |
+|---|---|
+| `⊕` | anything |
+| `⊗` | anything but `0ω` |
+| `+` | a pair with a non-zero denominator |
+| `*` | a pair with neither coordinate zero |
+| `⊚` | a pair off the light lines, `p² ≠ q²` (`splitTimes_recoverable_iff`) |
+| `∥` | a pair with a non-zero numerator (`par_recoverable_iff`) |
+
+Where it doesn't come back, every operand has a distinct partner that gives the same result. So the loss
+is the operation being ambiguous there, not an inverse that is too weak.
+
+**One norm decides every row but `⊕`** (`T/Norm.lean`). The other operand comes back exactly when `k`'s
+norm is non-zero (`recoverable_iff_norm`), and `k` has an inverse exactly when the norm is `±1`
+(`exists_inverse_iff_norm`).
+
+| product | norm of `k` | has an inverse exactly at |
+|---|---|---|
+| `⊗` | `p² + q²` | the four seeds (`exists_otimes_eq_zero_iff`) |
+| `+` | `q²` | every `T(p, ±1)` (`exists_plus_eq_zero_iff`) |
+| `⊚` | `q² − p²` | the four seeds again (`exists_splitTimes_eq_zero_iff`) |
+| `*` | `pq` | `1, _1, -_1, -1` (`exists_times_eq_one_iff`) |
+| `∥` | `p²` | every `T(±1, q)` (`exists_par_eq_omega_iff`) |
+
+**Every product loses at most one integer** (`T/Loss.lean`). Against `k ≠ 0ω` of norm zero, a result
+`r = x · k` satisfies `k.p · r.q = k.q · r.p`, so the whole result is its numerator, one linear form in
+`x` (`qtimes_eq_qtimes_iff`). Keeping `x.p` beside it gives `x` back (`qtimes_recover_with_numerator`).
+
+| product | against | keeps | loses |
+|---|---|---|---|
+| `+` | `T(c, 0)` | `x.q` | `x.p` |
+| `⊚` | `T(c, c)` | `x.q + x.p` | `x.q − x.p` |
+| `⊚` | `T(c, −c)` | `x.q − x.p` | `x.q + x.p` |
+| `*` | `T(c, 0)` | `x.p` | `x.q` |
+| `*` | `T(0, c)` | `x.q` | `x.p` |
+| `∥` | `T(0, c)` | `x.p` | `x.q` |
+
+Against `0ω` every product loses both integers.
+
+**`*` is the only product with projections** (`T/Projection.lean`). In the family `ω² = a + b·ω`, an
+idempotent other than the zero and the unit exists exactly when `b² + 4a = 1` (`qtimes_idempotent_iff`).
+That is ℤ × ℤ, where `ω` and `0` split a pair into its coordinates: `(x * ω) ⊕ (x * 0) = x`
+(`times_omega_oplus_times_zero`). What `*` loses against a pair on an axis is exactly one projection, and
+keeping the other gives the operand back (`times_recover_with_complement`).
+
+### Angles and the mediant
+
+**The angle column** (`T/Angle.lean`). `θ(x) = arg(q + p·i)` is a real in `(−π, π]`, and `tan θ = p/q` for
+every pair (`tan_theta`). At a quarter turn both sides are Lean's `x/0 = 0`. The nine named values have
+the angles of the model's table (`theta_zero`, …, `theta_negOne`). `0ω` has no angle, and the theorems
+below exclude it. As an angle mod `2π`:
 
 | operation | angle |
 |---|---|
@@ -187,130 +262,71 @@ As an angle mod `2π`:
 | `principal x` | `θx` or `θx + π`, with the same tangent (`angle_principal`, `tan_theta_principal`) |
 
 **The angle is the ray.** Two pairs other than `0ω` have the same θ exactly when they are positive
-multiples of one pair (`theta_eq_theta_iff_sameRay`). Equivalently, `det x y = 0` and `dot x y > 0`
-(`theta_eq_theta_iff`). So of the invariants the conventions name, the angle and the ray are the same
-one.
+multiples of one pair (`theta_eq_theta_iff_sameRay`), which is when `det x y = 0` and `dot x y > 0`
+(`theta_eq_theta_iff`).
 
 **The mediant lies between.** The angle from `x` to `y` turns the way the sign of `det x y` says
-(`sign_angle_sub`). This is the determinant the mediant tree runs on. `det x (x ⊕ y)` and `det (x ⊕ y) y`
-both equal `det x y`, so `x ⊕ y` turns from `x` the way `y` does, and turns into `y` the same way
-(`mediant_between`).
+(`sign_angle_sub`). `det x (x ⊕ y)` and `det (x ⊕ y) y` both equal `det x y`, so `x ⊕ y` turns from `x` the
+way `y` does, and turns into `y` the same way (`mediant_between`).
 
-### The mediant from the four seeds
+**The mediant from the four seeds** (`T/MediantTree.lean`). The model's last line says every traction
+other than `0ω` is reached exactly once by iterated mediant from the four seeds. Inserting `⊕` between
+neighbours, starting from `0, ω, _0, -ω` around the circle, first gives `1, _1, -_1, -1`, the table of nine.
+Nothing is reached twice (`reach_injective`), and the pairs reached are exactly those with
+`gcd(p, q) = 1` (`range_reach`). So the line holds up to the ray: every pair except `0ω` is a positive
+multiple of exactly one reached pair (`exists_unique_reached_ray`). The proof runs on `det`: neighbouring
+seeds have determinant 1, the mediant preserves it, and going down the tree is Euclid's algorithm.
 
-`T/MediantTree.lean` settles the model's last line: *"every traction other than 0ω is reached exactly
-once by iterated mediant from the four seeds."* The process inserts `⊕` between neighbours, starting from
-`0, ω, _0, -ω` around the circle. Its first round gives `1, _1, -_1, -1`, which is the model's table of nine.
+### The tower: quotients, division, and a second level
 
-- Nothing is reached twice (`reach_injective`).
-- The pairs reached are exactly those with `gcd(p, q) = 1` (`range_reach`).
+**The mediant survives no quotient** (`T/Quotient.lean`). For every multiplicative set `S` the quotient
+`s·x ~ t·y` is a wheel (`Q.isWheel`), and `+`, `*`, `/`, `-`, `-_` and `⊗` survive it. `⊕` survives only
+`S = {1}`, which identifies nothing, and `0 ∈ S`, which identifies everything (`oplus_respects_iff`).
 
-So the line splits by invariant. At coordinate equality, `T(2,4)`, `T(2,2)` and `T(0,2)` are never
-reached. Up to the ray it holds exactly: every pair except `0ω` is a positive multiple of exactly one
-reached pair (`exists_unique_reached_ray`). The proof runs on `det(a,b) = a.q·b.p − a.p·b.q`. Neighbouring
-seeds have determinant 1, and the mediant preserves it. Going down the tree is then Euclid's algorithm on
-the two coefficients.
+**The mediant and division cannot share an equality** (`T/NoDivision.lean`). Take any equivalence that
+`⊕` and a product both respect, in which every pair other than `0ω` has an inverse. It identifies every
+pair with every other (`no_division_with_oplus`, for all five products). So division for the `⊕` rings
+has to come from the level above.
 
-### The laws, stated exactly
+**A pair of pairs** (`CottLean/Nested/Basic.lean`). `T2(p, q)` is a traction whose coordinates are
+tractions, under fraction arithmetic. `T` sits inside it as `T(a,b) ↦ T2(T(a,1), T(b,1))`, respecting `+`,
+`*`, `-` and the reciprocal exactly (`of_plus`, `of_times`, `of_neg`, `of_reciprocal`). The projection
+`flatten` reads `T2(A, B)` as `A / B`. It respects `*`, `-` and the reciprocal, and `+` up to one residue
+(`flatten_plus`), exactly on the image of `T`. With `B` fixed it is the Möbius transformation
+`[[B.q, 0], [0, B.p]]` of the numerator (`flatten_eq_act`), so dividing by `B` respects `⊕`, and the
+numerator comes back exactly when `B` is off both axes (`flatten_recoverable_iff`).
 
-These are the model's laws, with the exact coordinate result given wherever one differs from the law as written.
+### Next to the division-by-zero literature
+
+`T(p,q) ↦ p/q`, with every `T(p,0)` going to the error element, maps T onto the rational common meadow
+(`T/CommonMeadow.lean`). It respects `+`, `*` and `-` exactly, and the reciprocal everywhere but at the
+quarter turns, and no map onto the common meadow respects all four (`no_surjective_hom_Qa`). Bergstra and
+Ponse's fracpairs are T with the reciprocal multiplied by the denominator (`T/Fracpair.lean`,
+`finv_eq_scale`). Every law of the model that differs from its written form differs by one added residue
+`T(0,k)`, where `x + T(0,k)` is `x` with both coordinates multiplied by `k` (`T/Residue.lean`,
+`plus_residue`).
+
+### The model's laws, stated exactly
+
+These are the model's laws, with the exact coordinate result wherever it differs from the law as written.
 
 | law | result | file |
 |---|---|---|
 | `(x ⊕ y) ⊗ z = (x ⊗ z) ⊕ (y ⊗ z)` | exact | `Gaussian` |
-| `(x + y) * z = (x * z) + (y * z)` | the right side is the left with both coordinates multiplied by `z.q`, which is the wheel's distributive law (`distrib_scaled`) | `ValuePosition` |
+| `(x + y) * z = (x * z) + (y * z)` | the right side is the left with both coordinates multiplied by `z.q`, which is the wheel's distributive law (`distrib_scaled`) | `Fraction` |
 | `(T^m)^n = T^(m·n)` | exact, both signs | `Powers` |
 | `T^(m+n) = T^m ⊗ T^n` | exact for same-sign exponents; otherwise off by `(p²+q²)^min(\|m\|,\|n\|)`, one norm per cancelled turn (`otimesPower_add`) | `Powers` |
-| each operation against its inverse | `⊕` lands on `0ω` exactly; `⊗`, `+` and `*` land on `T(0, p²+q²)`, `T(0, q²)` and `T(pq, pq)` | `Gaussian`, `ValuePosition` |
+| each operation against its inverse | `⊕` lands on `0ω` exactly; `⊗`, `+` and `*` land on `T(0, p²+q²)`, `T(0, q²)` and `T(pq, pq)`; `⊚` on `T(0, q²−p²)` | `Gaussian`, `Fraction`, `Velocity` |
 | `z(T) = T(2ab, b²−a²)`, "a unit vector" | `z(T) = T²`, with norm `(a²+b²)²`, so `z(T)/(a²+b²)` is the unit vector, and that is `E(T)` (`mobius_eq`, `doubleAngle_norm`) | `Mobius` |
-
-### Recovery
-
-Given a result and one operand, when does the other come back exactly? (`T/Recovery.lean`)
-
-| operation | the other operand comes back exactly when the known one is |
-|---|---|
-| `⊕` | anything |
-| `⊗` | anything but `0ω` |
-| `+` | a pair with a non-zero denominator |
-| `*` | a pair with neither coordinate zero |
-| `⊚` | a pair off the light lines, `p² ≠ q²` (`splitTimes_recoverable_iff`, in `Velocity`) |
-| `∥` | a pair with a non-zero numerator (`par_recoverable_iff`, in `Parallel`) |
-
-Where it doesn't come back, every operand has a distinct partner that gives the same result. So the loss
-is the operation being ambiguous there, not an inverse that is too weak.
-
-**One norm decides every row but `⊕`** (`T/Norm.lean`). Each product is bilinear, so fixing `k` makes it a
-linear map of the other operand. Its determinant is the norm of `k` in that product's ring, which for
-`q + p·ω` with `ω² = a + b·ω` is `q² + b·pq − a·p²`. The other operand comes back exactly when the norm
-is non-zero (`recoverable_iff_norm`), and `k` has an inverse exactly when the norm is `±1`
-(`exists_inverse_iff_norm`). The first is recovery on the image; only the second gives every result a
-preimage.
-
-| product | norm of `k` | has an inverse exactly at |
-|---|---|---|
-| `⊗` | `p² + q²` | the four seeds `0, ω, _0, -ω` (`exists_otimes_eq_zero_iff`) |
-| `+` | `q²` | every `T(p, ±1)` (`exists_plus_eq_zero_iff`) |
-| `⊚` | `q² − p²` | the four seeds again (`exists_splitTimes_eq_zero_iff`) |
-| `*` | `pq` | `1, _1, -_1, -1` (`exists_times_eq_one_iff`) |
-| `∥` | `p²` | every `T(±1, q)` (`exists_par_eq_omega_iff`) |
-
-`*` and `∥` are read in their own bases: `q + (p − q)·ω` with `ω² = ω`, and `p + q·ω` with `ω² = 0`.
-
-Under `*`, `ω` and `0` are the complementary idempotents of ℤ × ℤ. `x * ω = T(p, 0)` and `x * 0 = T(0, q)`
-each keep one coordinate, and `(x * ω) ⊕ (x * 0) = x` restores both (`times_omega_oplus_times_zero`).
-
-**`*` is the only product with projections** (`T/Projection.lean`). A projection is an idempotent other
-than the ring's zero and unit. In the family `ω² = a + b·ω`, one exists exactly when the discriminant
-`b² + 4a` is `1`, and it is then `p = ±1`, `2q = 1 − b·p` (`qtimes_idempotent_iff`). That is ℤ × ℤ.
-So `⊗`, `+`, `⊚` and the Eisenstein product have only `0ω` and `0` as idempotents, `∥` has only `0ω`
-and `ω`, and `*` has four: `0ω`, `0`, `ω` and `1` (`times_idempotent_iff`). `split_not_prod` is the
-case `a = 1`, `b = 0`. What `*` loses against a pair on an axis is exactly one projection. Against
-`T(a, 0)` with `a ≠ 0`, two operands give the same result exactly when their `ω` projections agree
-(`times_eq_times_iff_of_q_eq_zero`). So keeping the other projection alongside the result gives the operand
-back (`times_recover_with_complement`).
-
-**Every product loses at most one integer** (`T/Loss.lean`). Against `k ≠ 0ω` with norm zero, a result
-`r = x · k` in the family `ω² = a + b·ω` satisfies `k.p · r.q = k.q · r.p`, so the whole result is its
-numerator, one linear form in `x` (`qtimes_eq_qtimes_iff`). Keeping `x.p` alongside it gives `x` back
-(`qtimes_recover_with_numerator`). Read off for each product:
-
-| product | against | keeps | loses |
-|---|---|---|---|
-| `+` | `T(c, 0)` | `x.q` | `x.p` |
-| `⊚` | `T(c, c)` | `x.q + x.p` | `x.q − x.p` |
-| `⊚` | `T(c, −c)` | `x.q − x.p` | `x.q + x.p` |
-| `*` | `T(c, 0)` | `x.p` | `x.q` |
-| `*` | `T(0, c)` | `x.q` | `x.p` |
-| `∥` | `T(0, c)` | `x.p` | `x.q` |
-
-`⊗` loses nothing except against `0ω`, and against `0ω` every product loses both integers. So a
-reversible use of any of these products, against anything but `0ω`, needs one integer of state beyond the
-result at most.
-
-## What is classical and what is not
-
-Most of the individual facts are classical. ℤ[i] is ℤ[i] and a quadratic ring is a quadratic ring; the wheel
-result is a case of Carlström's theorem; the mediant tree is the Stern–Brocot tree, extended to the four
-signed quadrants. What the formalization adds is exactness about the model: which of its lines hold at
-coordinate equality, which hold only under a named invariant, and what the exact coordinate result is in
-each case.
-
-The part that belongs to traction, and not to any one known structure, is the structures sharing one set
-of pairs. The exponent position and the value position share `⊕`, and every quadratic ring over ℤ is a
-product on it, by one map. `⊗` is the complex one and `+` the dual one; the split-complex one completes
-the three. `0ω` is the zero of every one of these rings and the bottom element of the wheel. And `⊗`
-completes the wheel's tangent addition at exactly the inputs where the wheel collapses.
-
-`⊕` is also the reason the pairs cannot be quotiented. It survives no invariant between identifying
-nothing and identifying everything, while `+`, `*`, `/` and `⊗` survive every one (`oplus_respects_iff`
-in `T/Quotient.lean`). So the rings exist only on the pairs as they are. Under the ray or the ratio,
-what is left is the wheel, with `⊗`.
 
 ## Not covered
 
 - `T(a,b)^T(c,d) = tan((c/d)·arctan(a/b))` off the integers.
 - That the power sum `(xⁿ + yⁿ)^(1/n)` leaves the integer pairs for `n ∉ {1, −1}`.
+- The law atlas (`scripts/LawAtlas.lean`). Its grades for all 36 pairings of an addition and a
+  multiplication are search results on a grid, not yet theorems or proved counterexamples.
+- Each operation's hyperoperation, the exponentials between operations, and rational exponents. These
+  have been searched and worked by hand, but none of it is in Lean yet.
 - The wheel axioms were checked against the statements on Wikipedia and nLab. Carlström's paper itself
   has not been read against them.
 
@@ -318,14 +334,14 @@ what is left is the wheel, with `⊗`.
 
 | file | contents |
 |---|---|
-| `CottLean/T/Basic.lean` | the pair, the nine values, both positions' operations |
-| `CottLean/T/Gaussian.lean` | the exponent position is ℤ\[i] |
-| `CottLean/T/ValuePosition.lean` | `+` and `*`; distributivity exactly; the same-ratio relation |
+| `CottLean/T/Basic.lean` | the pair, the nine values, the operations |
+| `CottLean/T/Gaussian.lean` | `⊕` and `⊗` are ℤ\[i] |
+| `CottLean/T/Fraction.lean` | `+` and `*`; distributivity exactly; the same-ratio relation |
 | `CottLean/T/Recovery.lean` | when an operand can be read back |
 | `CottLean/T/Powers.lean` | the integer exponent laws |
 | `CottLean/T/Mobius.lean` | `z`, `E` and `E⁻¹` |
 | `CottLean/T/MediantTree.lean` | the mediant from the four seeds |
-| `CottLean/T/Wheel.lean` | the value position is a wheel; `0ω` across both halves |
+| `CottLean/T/Wheel.lean` | fraction arithmetic is a wheel; `0ω` across both |
 | `CottLean/T/TangentAddition.lean` | `⊗` against the wheel's tangent addition |
 | `CottLean/T/Quotient.lean` | the quotient by a multiplicative set; it is a wheel, and `⊕` does not survive it |
 | `CottLean/T/CommonMeadow.lean` | T against the rational common meadow |

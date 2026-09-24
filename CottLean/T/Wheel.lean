@@ -1,4 +1,4 @@
-import CottLean.T.ValuePosition
+import CottLean.T.Fraction
 import CottLean.T.Gaussian
 
 /-!
