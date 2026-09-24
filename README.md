@@ -359,6 +359,8 @@ These are the model's laws, with the exact coordinate result wherever it differs
 | `CottLean/T/Transform.lean` | Möbius transformations as matrices; every product as a family of them; discriminants, fixed points, sandwiches |
 | `CottLean/Nested/Basic.lean` | `T2`, a pair of pairs: the embedding of `T`, the projection `flatten` as a Möbius transformation of the numerator, and `T2` against the common meadow |
 | `scripts/LawAtlas.lean` | not part of the library: a search that grades every law for every pairing of an addition and a multiplication, as evidence ahead of proofs |
+| `scripts/Declarations.lean` | not part of the library: writes `declarations.txt`, the name of every citable declaration. cott-engine cites these names, and CI fails if the file is out of date |
+| `declarations.txt` | the generated list of every citable declaration, sorted |
 
 ## Building
 
@@ -383,4 +385,5 @@ of them depends on an axiom other than `propext`, `Classical.choice` and `Quot.s
 axiom `sorryAx` and a `native_decide` adds one of its own, so either would fail it. On success it prints
 how many declarations and modules it checked.
 
-CI runs the build and this check on every push (`.github/workflows/build.yml`).
+CI runs the build and this check on every push (`.github/workflows/build.yml`). It also regenerates
+`declarations.txt` and fails if the committed copy differs.

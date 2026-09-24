@@ -23,6 +23,8 @@ The flat pairs sit inside as `T(a,b) ↦ T2(T(a,1), T(b,1))`, so `n = T2(T(n,1),
 * `flatten_of`: `flatten` undoes the embedding, so it is onto, and `of` is a section of it.
 * `of_plus`, `of_times`, `of_neg`, `of_reciprocal`: the embedding respects every operation exactly.
 * `flatten_times`, `flatten_neg`, `flatten_reciprocal`: so does the projection, for all but `+`.
+* `power` raises each coordinate by `T`'s `power`. It is repeated `·` (`power_zero`, `power_succ`), and
+  the embedding and the projection both respect it (`of_power`, `flatten_power`).
 * `flatten_plus`: `+` survives up to one residue, `T(0, x.q.q · y.q.q)`, the product of the inner
   denominators of the two outer denominators. It is exact on the image of `of`.
 * `flatten_eq_act`: with the denominator `B` fixed, the projection is the Möbius transformation
@@ -103,6 +105,27 @@ theorem of_neg (x : T) : of (-x) = -of x := by
 
 theorem of_reciprocal (x : T) : of (T.reciprocal x) = reciprocal (of x) := rfl
 
+/-! ## Powers -/
+
+/-- `T2(p, q)ⁿ = T2(pⁿ, qⁿ)`, each coordinate raised by `T`'s own `power`. -/
+def power (x : T2) (n : ℕ) : T2 := ⟨T.power x.p n, T.power x.q n⟩
+
+@[simp] theorem power_def (x : T2) (n : ℕ) : power x n = ⟨T.power x.p n, T.power x.q n⟩ := rfl
+
+/-- The zeroth power is `1`, for every pair, `0` and `ω` included. -/
+theorem power_zero (x : T2) : power x 0 = «1» := by
+  ext <;> simp [T.power, «1», T.«1»]
+
+/-- So `power` is repeated `·`. -/
+theorem power_succ (x : T2) (n : ℕ) : power x (n + 1) = power x n * x := by
+  ext <;> simp [T.power, pow_succ]
+
+theorem power_add (x : T2) (m n : ℕ) : power x (m + n) = power x m * power x n := by
+  ext <;> simp [T.power, pow_add]
+
+theorem of_power (x : T) (n : ℕ) : of (T.power x n) = power (of x) n := by
+  ext <;> simp [of, T.power]
+
 /-! ## The projection -/
 
 /-- `T2(A, B) ↦ A / B`, so `T2(T(a,b), T(c,d)) ↦ T(ad, bc)`. -/
@@ -123,6 +146,9 @@ theorem flatten_neg (x : T2) : flatten (-x) = -flatten x := by
 
 theorem flatten_reciprocal (x : T2) : flatten (reciprocal x) = T.reciprocal (flatten x) := by
   ext <;> simp [reciprocal, T.reciprocal] <;> ring
+
+theorem flatten_power (x : T2) (n : ℕ) : flatten (power x n) = T.power (flatten x) n := by
+  ext <;> simp [T.power, mul_pow]
 
 /-- `+` survives the projection up to one residue: the inner denominators of the outer denominators. -/
 theorem flatten_plus (x y : T2) :

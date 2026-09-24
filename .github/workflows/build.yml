@@ -18,3 +18,9 @@ jobs:
       # propext, Classical.choice and Quot.sound. `sorry` and `native_decide` both would.
       - name: Every declaration uses only the standard axioms
         run: lake env lean AxiomCheck.lean
+
+      # cott-engine cites these names. Fails if declarations.txt is not the current list.
+      - name: declarations.txt lists every declaration
+        run: |
+          lake env lean scripts/Declarations.lean
+          git diff --exit-code declarations.txt
