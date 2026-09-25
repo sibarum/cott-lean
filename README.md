@@ -356,7 +356,12 @@ linear ones tensored (`bilinear_eq_tensor`). MLS-MPM's quadratic B-spline weight
 offset (`sum_quadratic`) and are non-negative on `[½, 3/2]`, the interval the kernel clamps to
 (`quadratic_nonneg`), and not outside it (`quadratic_one_neg`). The centre of the 3×3 stencil always
 weighs at least a quarter (`quadratic_center_ge`), so it is the node to take the remainder
-(`quadraticShares`, `quadraticShares_center`).
+(`quadraticShares`, `quadraticShares_center`). MLS-MPM's momentum deposit also carries an affine velocity and a pressure
+impulse, which cancel over the stencil because the weights' first moment is zero (`sum_quadratic_moment`,
+`sum_affine_amount`) but not after flooring. Flooring every node's momentum but the centre's, masked to zero
+where the mass share is zero, with the centre taking the rest of the exact total, conserves it exactly
+(`sum_maskedShares`, `sum_quadraticMomentum`). The centre always has mass when the particle does
+(`quadraticShares_center_pos`), so no node holds momentum without mass (`quadraticMomentum_eq_zero`).
 
 **What floating point loses** (`Scatter/Rounding.lean`). In the standard rounding model with unit
 roundoff `u`, a schedule is a tree of rounded additions, and one of depth `d` is within

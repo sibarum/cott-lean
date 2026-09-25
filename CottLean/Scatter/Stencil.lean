@@ -251,4 +251,161 @@ theorem quadraticShares_center {fx fy : ℚ} (hx₀ : 1 / 2 ≤ fx) (hx₁ : fx 
     have hMq : (0 : ℚ) ≤ M := by exact_mod_cast hM
     nlinarith
 
+
+/-! ## The full momentum deposit
+
+MLS-MPM's momentum deposit is not only the mass share times the velocity. Node `k`, at offset
+`d = xₖ − xₚ` from the particle, receives `(w·m)·(v + C·d) + w·s·d`: the affine velocity `C·d` and the
+pressure impulse `s·d`, both signed and neither proportional to the mass share. In exact arithmetic their
+sums over the stencil vanish, because the weights' first moment `Σ w·d` is zero (`sum_quadratic_moment`,
+`sum_quadratic2_moment_x`, `sum_quadratic2_moment_y`), so the particle's total is `m·v`
+(`sum_affine_amount`). Flooring each node's amount on its own would lose that.
+
+The remedy is the remainder again, with a mask: every node but the remainder takes the floor of its amount,
+or nothing if its mass share is zero, and the remainder takes the rest of the exact total
+(`maskedShares`). Then:
+
+* `sum_maskedShares`: the momentum shares sum to the exact total, so momentum is conserved exactly, the
+  affine and pressure terms included.
+* `maskedShares_eq_zero`: a node with no mass gets no momentum, whatever its amount.
+* `maskedShares_error_of_ne`, `maskedShares_self_sub`: every other node is within one quantum of its
+  amount or holds nothing, and the remainder takes up exactly what they missed.
+* `quadraticShares_center_pos`, `quadraticMomentum_eq_zero`: on the quadratic stencil the centre, which
+  takes the remainder, always has mass when the particle does, so no node of the stencil ever holds
+  momentum without mass.
+-/
+
+section Masked
+
+variable {ι : Type*} [Fintype ι] [DecidableEq ι]
+
+/-- Momentum shares: every node but `r` takes the floor of its amount `p k`, or nothing when its mass
+share is zero; `r` takes the rest of the total `P`. -/
+def maskedShares (mass : ι → ℤ) (p : ι → ℚ) (P : ℤ) (r : ι) (k : ι) : ℤ :=
+  if k = r then P - ∑ j ∈ univ.erase r, (if mass j = 0 then 0 else ⌊p j⌋)
+  else if mass k = 0 then 0 else ⌊p k⌋
+
+/-- Momentum is conserved exactly. -/
+theorem sum_maskedShares (mass : ι → ℤ) (p : ι → ℚ) (P : ℤ) (r : ι) :
+    ∑ k, maskedShares mass p P r k = P := by
+  rw [← add_sum_erase _ _ (mem_univ r)]
+  unfold maskedShares
+  rw [if_pos rfl, sum_congr rfl fun k hk => if_neg (ne_of_mem_erase hk)]
+  ring
+
+/-- A node with no mass, other than the remainder, gets no momentum. -/
+theorem maskedShares_eq_zero (mass : ι → ℤ) (p : ι → ℚ) (P : ℤ) {r k : ι} (hk : k ≠ r)
+    (h : mass k = 0) : maskedShares mass p P r k = 0 := by
+  simp [maskedShares, hk, h]
+
+/-- A node with mass, other than the remainder, is within `(-1, 0]` quanta of its amount. -/
+theorem maskedShares_error_of_ne (mass : ι → ℤ) (p : ι → ℚ) (P : ℤ) {r k : ι} (hk : k ≠ r)
+    (h : mass k ≠ 0) :
+    -1 < (maskedShares mass p P r k : ℚ) - p k ∧ (maskedShares mass p P r k : ℚ) - p k ≤ 0 := by
+  simp only [maskedShares, if_neg hk, if_neg h]
+  constructor <;> linarith [Int.floor_le (p k), Int.lt_floor_add_one (p k)]
+
+/-- When the amounts sum to the total, the remainder exceeds its amount by exactly what the other
+nodes missed. -/
+theorem maskedShares_self_sub (mass : ι → ℤ) (p : ι → ℚ) (P : ℤ) (r : ι) (hp : ∑ k, p k = P) :
+    (maskedShares mass p P r r : ℚ) - p r =
+      ∑ j ∈ univ.erase r, (p j - maskedShares mass p P r j) := by
+  have hs := sum_maskedShares mass p P r
+  rw [← add_sum_erase _ _ (mem_univ r)] at hs hp
+  have hs' : ((maskedShares mass p P r r : ℤ) : ℚ) +
+      ∑ j ∈ univ.erase r, ((maskedShares mass p P r j : ℤ) : ℚ) = P := by exact_mod_cast hs
+  rw [sum_sub_distrib]
+  linarith
+
+end Masked
+
+/-- A node's amount with an affine velocity and a pressure impulse, per axis:
+`w·(M·(V + cx·dx + cy·dy) + S·dx)`. The weights' first moments make the two offset terms cancel. -/
+theorem sum_affine_amount {ι : Type*} [Fintype ι] (w dx dy : ι → ℚ) (M V cx cy S : ℚ)
+    (hw : ∑ k, w k = 1) (hx : ∑ k, w k * dx k = 0) (hy : ∑ k, w k * dy k = 0) :
+    ∑ k, w k * (M * (V + cx * dx k + cy * dy k) + S * dx k) = M * V := by
+  have : ∀ k, w k * (M * (V + cx * dx k + cy * dy k) + S * dx k) =
+      M * V * w k + (M * cx + S) * (w k * dx k) + M * cy * (w k * dy k) := fun k => by ring
+  simp_rw [this, sum_add_distrib, ← mul_sum, hw, hx, hy]
+  ring
+
+/-- The quadratic weights' first moment is zero: `Σ w k · (k − f) = 0`, node `k` at `k` and the
+particle at `f`. -/
+theorem sum_quadratic_moment (f : ℚ) : ∑ k : Fin 3, quadratic f k * ((k : ℚ) - f) = 0 := by
+  simp [quadratic, Fin.sum_univ_three]; ring
+
+theorem modNat_finProdFinEquiv {n m : ℕ} (q : Fin m × Fin n) : (finProdFinEquiv q).modNat = q.2 := by
+  have h := finProdFinEquiv.symm_apply_apply q
+  rw [finProdFinEquiv_symm_apply] at h
+  exact congrArg Prod.snd h
+
+theorem divNat_finProdFinEquiv {n m : ℕ} (q : Fin m × Fin n) : (finProdFinEquiv q).divNat = q.1 := by
+  have h := finProdFinEquiv.symm_apply_apply q
+  rw [finProdFinEquiv_symm_apply] at h
+  exact congrArg Prod.fst h
+
+/-- A stencil weight times a function of the node's column sums as the column's weights times that. -/
+theorem sum_tensor_mul_modNat {n m : ℕ} (wx : Fin n → ℚ) (wy : Fin m → ℚ) (g : Fin n → ℚ) :
+    ∑ k, tensor wx wy k * g k.modNat = (∑ i, wx i * g i) * ∑ j, wy j := by
+  rw [← finProdFinEquiv.sum_comp, Fintype.sum_prod_type, sum_mul_sum, sum_comm]
+  refine sum_congr rfl fun i _ => sum_congr rfl fun j _ => ?_
+  rw [tensor_apply, modNat_finProdFinEquiv]
+  ring
+
+/-- And of the node's row. -/
+theorem sum_tensor_mul_divNat {n m : ℕ} (wx : Fin n → ℚ) (wy : Fin m → ℚ) (g : Fin m → ℚ) :
+    ∑ k, tensor wx wy k * g k.divNat = (∑ i, wx i) * ∑ j, wy j * g j := by
+  rw [← finProdFinEquiv.sum_comp, Fintype.sum_prod_type, sum_mul_sum, sum_comm]
+  refine sum_congr rfl fun i _ => sum_congr rfl fun j _ => ?_
+  rw [tensor_apply, divNat_finProdFinEquiv]
+  ring
+
+/-- The 3×3 stencil's first moment along x is zero: node `k` at column `k % 3`, the particle at `fx`. -/
+theorem sum_quadratic2_moment_x (fx fy : ℚ) :
+    ∑ k : Fin (3 * 3), quadratic2 fx fy k * ((k.modNat : ℚ) - fx) = 0 := by
+  have := sum_tensor_mul_modNat (quadratic fx) (quadratic fy) fun i => (i : ℚ) - fx
+  rw [sum_quadratic_moment, zero_mul] at this
+  exact this
+
+/-- And along y: node `k` at row `k / 3`, the particle at `fy`. -/
+theorem sum_quadratic2_moment_y (fx fy : ℚ) :
+    ∑ k : Fin (3 * 3), quadratic2 fx fy k * ((k.divNat : ℚ) - fy) = 0 := by
+  have := sum_tensor_mul_divNat (quadratic fx) (quadratic fy) fun j => (j : ℚ) - fy
+  rw [sum_quadratic_moment, mul_zero] at this
+  exact this
+
+/-- The centre always has mass when the particle does, so it can take the momentum remainder. -/
+theorem quadraticShares_center_pos {fx fy : ℚ} (hx₀ : 1 / 2 ≤ fx) (hx₁ : fx ≤ 3 / 2)
+    (hy₀ : 1 / 2 ≤ fy) (hy₁ : fy ≤ 3 / 2) {M : ℤ} (hM : 0 < M) : 0 < quadraticShares fx fy M 4 := by
+  obtain ⟨h₀, -, h₄⟩ := quadraticShares_center hx₀ hx₁ hy₀ hy₁ hM.le
+  have hMq : (0 : ℚ) < M := by exact_mod_cast hM
+  have : (0 : ℚ) < quadraticShares fx fy M 4 := by linarith
+  exact_mod_cast this
+
+/-- The particle step's momentum deposit on the 3×3 stencil, along one axis: mass shares from
+`quadraticShares`, and momentum shares masked by them with the centre taking the rest of `M·V`. -/
+def quadraticMomentum (fx fy : ℚ) (M V : ℤ) (p : Fin 9 → ℚ) : Fin 9 → ℤ :=
+  maskedShares (quadraticShares fx fy M) p (M * V) 4
+
+/-- It conserves momentum exactly, the affine and pressure terms included. -/
+theorem sum_quadraticMomentum (fx fy : ℚ) (M V : ℤ) (p : Fin 9 → ℚ) :
+    ∑ k, quadraticMomentum fx fy M V p k = M * V :=
+  sum_maskedShares _ _ _ _
+
+/-- And no node of the stencil holds momentum without mass. -/
+theorem quadraticMomentum_eq_zero {fx fy : ℚ} (hx₀ : 1 / 2 ≤ fx) (hx₁ : fx ≤ 3 / 2)
+    (hy₀ : 1 / 2 ≤ fy) (hy₁ : fy ≤ 3 / 2) {M V : ℤ} (hM : 0 ≤ M) (p : Fin 9 → ℚ) (k : Fin 9)
+    (h : quadraticShares fx fy M k = 0) : quadraticMomentum fx fy M V p k = 0 := by
+  by_cases hk : k = 4
+  · subst hk
+    rcases hM.lt_or_eq with hM | hM
+    · exact absurd h (quadraticShares_center_pos hx₀ hx₁ hy₀ hy₁ hM).ne'
+    · subst hM
+      have hz : ∀ j, quadraticShares fx fy 0 j = 0 := fun j =>
+        (sum_eq_zero_iff_of_nonneg fun i _ => quadraticShares_nonneg hx₀ hx₁ hy₀ hy₁ le_rfl i).mp
+          (sum_quadraticShares fx fy 0) j (mem_univ j)
+      unfold quadraticMomentum maskedShares
+      simp [hz]
+  · exact maskedShares_eq_zero _ _ _ hk h
+
 end Scatter
