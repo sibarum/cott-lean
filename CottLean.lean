@@ -29,3 +29,4 @@ import CottLean.Scatter.Accumulate
 import CottLean.Scatter.Wrap
 import CottLean.Scatter.Quantise
 import CottLean.Scatter.Rounding
+import CottLean.Scatter.Stencil

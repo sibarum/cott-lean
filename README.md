@@ -346,6 +346,18 @@ separately from mass can give a corner momentum with no mass, a multiple of `ω`
 (`sum_momentumShares`), gives a massless node no momentum (`node_momentum_eq_zero`), and keeps each node's
 velocity between its particles' (`node_velocity_between`).
 
+**Any stencil, and the quadratic one** (`Scatter/Stencil.lean`). On any finite stencil, flooring every
+share but one and giving that one, the remainder node, the rest conserves exactly
+(`sum_remainderShares`), leaves no share negative (`remainderShares_nonneg`), and puts all of the floors'
+error, under `n − 1` quanta on `n` nodes, on the remainder node (`remainderShares_error_self`). The
+four-corner scheme is the case with the north-east corner as remainder (`shares_eq_remainderShares`).
+Two-dimensional weights are a tensor of one axis's (`tensor`, `sum_tensor`), and the bilinear ones are the
+linear ones tensored (`bilinear_eq_tensor`). MLS-MPM's quadratic B-spline weights sum to one for every
+offset (`sum_quadratic`) and are non-negative on `[½, 3/2]`, the interval the kernel clamps to
+(`quadratic_nonneg`), and not outside it (`quadratic_one_neg`). The centre of the 3×3 stencil always
+weighs at least a quarter (`quadratic_center_ge`), so it is the node to take the remainder
+(`quadraticShares`, `quadraticShares_center`).
+
 **What floating point loses** (`Scatter/Rounding.lean`). In the standard rounding model with unit
 roundoff `u`, a schedule is a tree of rounded additions, and one of depth `d` is within
 `((1+u)^d − 1)·Σ|a|` of the exact sum (`eval_error`). Two schedules differ by at most the sum of their
@@ -451,6 +463,7 @@ search and checks it against the proved `table` cell by cell.
 | `CottLean/Scatter/Wrap.lean` | wrapping `w`-bit registers: exact whenever a node's final total fits; the mod-`2^w` quotient keeps `⊕` |
 | `CottLean/Scatter/Quantise.lean` | integer bilinear shares that conserve exactly; momentum as mass share times velocity |
 | `CottLean/Scatter/Rounding.lean` | floating point's error for every schedule; the scale at which fixed point is no worse; underflow and the order of the product |
+| `CottLean/Scatter/Stencil.lean` | quantised shares on any stencil with a chosen remainder node; tensor weights; the quadratic B-spline 3×3 stencil, remainder at the centre |
 | `scripts/LawAtlas.lean` | not part of the library: the grid search behind the atlas, checked against `T.Atlas.table` |
 | `scripts/Declarations.lean` | not part of the library: writes `declarations.txt`, the name of every citable declaration. cott-engine cites these names, and CI fails if the file is out of date |
 | `declarations.txt` | the generated list of every citable declaration, sorted |
