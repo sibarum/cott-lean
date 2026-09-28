@@ -340,6 +340,13 @@ numerator is the product of the leaves an even number of denominator steps down 
 odd ones (`flatten2_def`). With `Q` fixed, the numerator comes back only when all four integers of `Q` are
 non-zero (`flatten_recoverable_iff`), where level 2 needed two.
 
+**Starting from all ones** (`CottLean/Nested/Ones.lean`). `· 1` is the identity at every depth, and in `T`
+`+ 1` loses nothing (`plus_one_injective`). From `T2` on, `+ 1` erases: `X` comes back from `X + 1`
+exactly when the denominator `X.q` is off the axis of `ω` (`T2.plus_one_recoverable_iff`). In particular
+`a/ω + 1 = ω/ω` for every `a` (`T2.held_plus_one`), so the held form of `a · 0` does not survive adding
+`1`. `1 + (−1) = 0` at every depth, and then `0 ·` erases exactly one integer, the leaf reached by taking
+the numerator at every step: one of two, four and eight in `T`, `T2` and `T3` (`T3.zero_times`).
+
 ### The mediant on integer hardware
 
 **Registers keep `⊕`** (`T/Registers.lean`). A `w`-bit register is the ring `BitVec w`, and wrapping both
@@ -439,6 +446,7 @@ search and checks it against the proved `table` cell by cell.
 | `CottLean/Nested/Basic.lean` | `T2`, a pair of pairs: the embedding of `T`, the projection `flatten` as a Möbius transformation of the numerator, and `T2` against the common meadow |
 | `CottLean/Nested/DivZero.lean` | `p/0 = tan(arg(p·i))`: sign-only on integers, the quarter turn on pairs, the numerator `flatten` loses at `0`, and parallel lines, with and without the `·i` |
 | `CottLean/Nested/T3.lean` | `T3`, a pair of `T2`s: the embedding of `T2`, the projection's residue one level up, the two levels compounded into `T`, the leaves read by parity, and what a denominator erases |
+| `CottLean/Nested/Ones.lean` | what erases against `1` at each depth, `a/ω + 1 = ω/ω`, and `0 ·` erasing one leaf at every depth |
 | `scripts/LawAtlas.lean` | not part of the library: the grid search behind the atlas, checked against `T.Atlas.table` |
 | `scripts/Declarations.lean` | not part of the library: writes `declarations.txt`, the name of every citable declaration. cott-engine cites these names, and CI fails if the file is out of date |
 | `declarations.txt` | the generated list of every citable declaration, sorted |

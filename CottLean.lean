@@ -28,3 +28,4 @@ import CottLean.T.Registers
 import CottLean.Nested.Basic
 import CottLean.Nested.DivZero
 import CottLean.Nested.T3
+import CottLean.Nested.Ones

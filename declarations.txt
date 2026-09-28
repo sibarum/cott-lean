@@ -580,6 +580,7 @@ T.omega_splitTimes
 T.omega_times_omega
 T.omega_times_zero
 T.omega_zero_complementary
+T.one_plus_neg_one
 T.one_splitTimes
 T.open_contrast
 T.oplus
@@ -648,6 +649,7 @@ T.plus_eq_qtimes
 T.plus_idempotent_iff
 T.plus_neg_residue
 T.plus_neg_self
+T.plus_one_injective
 T.plus_recoverable_iff
 T.plus_recoverable_iff_norm
 T.plus_residue
@@ -940,6 +942,7 @@ T2.flatten_reciprocal
 T2.flatten_recoverable_iff
 T2.flatten_surjective
 T2.flatten_times
+T2.held_plus_one
 T2.instAdd
 T2.instMul
 T2.instNeg
@@ -962,8 +965,11 @@ T2.of_power
 T2.of_reciprocal
 T2.of_times
 T2.of_zero
+T2.one_plus_neg_one
 T2.p
 T2.plus
+T2.plus_one
+T2.plus_one_recoverable_iff
 T2.plus_quarterTurn
 T2.power
 T2.power_add
@@ -975,10 +981,12 @@ T2.rec
 T2.recOn
 T2.reciprocal
 T2.times
+T2.times_one
 T2.toQa_flatten
 T2.toQa_flatten_plus
 T2.toQa_flatten_quarterTurn
 T2.toQa_scale
+T2.zero_times
 T2.«0»
 T2.«1»
 T2.ω
@@ -1023,13 +1031,17 @@ T3.of_neg
 T3.of_plus
 T3.of_reciprocal
 T3.of_times
+T3.one_plus_neg_one
 T3.p
 T3.plus
+T3.plus_one_not_injective
 T3.q
 T3.rec
 T3.recOn
 T3.reciprocal
 T3.times
+T3.times_one
+T3.zero_times
 instDecidableEqT
 instDecidableEqT.decEq
 instDecidableEqT2
