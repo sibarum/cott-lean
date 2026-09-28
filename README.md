@@ -315,6 +315,15 @@ tractions, under fraction arithmetic. `T` sits inside it as `T(a,b) ↦ T2(T(a,1
 `[[B.q, 0], [0, B.p]]` of the numerator (`flatten_eq_act`), so dividing by `B` respects `⊕`, and the
 numerator comes back exactly when `B` is off both axes (`flatten_recoverable_iff`).
 
+**`p/0 = tan(arg(p·i))`** (`CottLean/Nested/DivZero.lean`). This is the model's first line at `q = 0`. For
+an integer `p` it sees only the sign, `arg(p·i) = ±π/2`, and in Lean it answers `0`
+(`tan_arg_intCast_mul_I`). For a pair it is the quarter turn `p ⊗ ω = T(b, −a)`, and `tan` of it is the
+perpendicular slope `−b/a` (`tan_arg_mul_I`). It loses nothing (`divZero_injective`), so at a zero
+denominator it keeps the numerator that `flatten` drops (`divide_zero_injective`). Only `⊗ −ω` undoes it,
+not `· 0`. On parallel lines, Cramer's numerator runs along both lines (`along_line_of_parallel`). The rule
+answers along the normal instead (`rule_normal_of_parallel`): the `·i` is one quarter turn too many once
+`p` is already a pair.
+
 ### The mediant on integer hardware
 
 **Registers keep `⊕`** (`T/Registers.lean`). A `w`-bit register is the ring `BitVec w`, and wrapping both
@@ -412,6 +421,7 @@ search and checks it against the proved `table` cell by cell.
 | `CottLean/T/Transform.lean` | Möbius transformations as matrices; every product as a family of them; discriminants, fixed points, sandwiches |
 | `CottLean/T/Registers.lean` | a traction in `w`-bit registers: the wrap keeps every operation, `⊕` included; a quotient of differences |
 | `CottLean/Nested/Basic.lean` | `T2`, a pair of pairs: the embedding of `T`, the projection `flatten` as a Möbius transformation of the numerator, and `T2` against the common meadow |
+| `CottLean/Nested/DivZero.lean` | `p/0 = tan(arg(p·i))`: sign-only on integers, the quarter turn on pairs, the numerator `flatten` loses at `0`, and parallel lines |
 | `scripts/LawAtlas.lean` | not part of the library: the grid search behind the atlas, checked against `T.Atlas.table` |
 | `scripts/Declarations.lean` | not part of the library: writes `declarations.txt`, the name of every citable declaration. cott-engine cites these names, and CI fails if the file is out of date |
 | `declarations.txt` | the generated list of every citable declaration, sorted |

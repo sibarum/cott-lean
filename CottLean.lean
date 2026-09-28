@@ -26,3 +26,4 @@ import CottLean.T.NoDivision
 import CottLean.T.Transform
 import CottLean.T.Registers
 import CottLean.Nested.Basic
+import CottLean.Nested.DivZero
