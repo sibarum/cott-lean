@@ -322,9 +322,12 @@ perpendicular slope `−b/a` (`tan_arg_mul_I`). It loses nothing (`divZero_injec
 denominator it keeps the numerator that `flatten` drops (`divide_zero_injective`). Only `⊗ −ω` undoes it,
 not `· 0`. On parallel lines, Cramer's numerator runs along both lines (`along_line_of_parallel`). The rule
 answers along the normal instead (`rule_normal_of_parallel`): the `·i` is one quarter turn too many once
-`p` is already a pair. Without it, `p/0 = p` read by `tan(arg p)`, the rule agrees with the first on
-integers, since `n` over zero is the pair `T(n, 0)` (`tan_arg_divAlong_intCast`). It lies along parallel
-lines (`divAlong_along_of_parallel`), and its slope is the meeting point's wherever the lines do meet, so it
+`p` is already a pair. Without it, `p/0 = p` read by `tan(arg p)` is the point at infinity of homogeneous
+coordinates, and the parallel-lines results are the projective-geometry ones: this section restates prior
+art rather than extending it. What it adds is that the two rules agree on integers, since `n` over zero is
+the pair `T(n, 0)` (`tan_arg_divAlong_intCast`), so the `·i` of the model's first line is the step from an
+integer over zero to a pair. The rule without it lies along parallel lines
+(`divAlong_along_of_parallel`), and its slope is the meeting point's wherever the lines do meet, so it
 answers the same on both sides of `D = 0` (`slope_meet_eq_tan_arg_divAlong`).
 
 ### The mediant on integer hardware
