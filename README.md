@@ -330,6 +330,16 @@ integer over zero to a pair. The rule without it lies along parallel lines
 (`divAlong_along_of_parallel`), and its slope is the meeting point's wherever the lines do meet, so it
 answers the same on both sides of `D = 0` (`slope_meet_eq_tan_arg_divAlong`).
 
+**A pair of pairs of pairs** (`CottLean/Nested/T3.lean`). `T3(P, Q)` has `T2` coordinates under the same
+fraction arithmetic. `T2` embeds respecting every operation, and a flat pair taken two levels up over unit
+denominators computes exactly what the flat pair does (`flatten2_plus_of_of`). The projection
+`flatten : T3 → T2` respects all but `+`, and `+` survives up to the same law as one level down, moved up a
+level: both coordinates are multiplied by the pair `x.q.q · y.q.q` where below they were multiplied by an
+integer (`flatten_plus`). Down to `T` the two residues compound (`flatten2_plus`). Read in one step, the
+numerator is the product of the leaves an even number of denominator steps down and the denominator of the
+odd ones (`flatten2_def`). With `Q` fixed, the numerator comes back only when all four integers of `Q` are
+non-zero (`flatten_recoverable_iff`), where level 2 needed two.
+
 ### The mediant on integer hardware
 
 **Registers keep `⊕`** (`T/Registers.lean`). A `w`-bit register is the ring `BitVec w`, and wrapping both
@@ -428,6 +438,7 @@ search and checks it against the proved `table` cell by cell.
 | `CottLean/T/Registers.lean` | a traction in `w`-bit registers: the wrap keeps every operation, `⊕` included; a quotient of differences |
 | `CottLean/Nested/Basic.lean` | `T2`, a pair of pairs: the embedding of `T`, the projection `flatten` as a Möbius transformation of the numerator, and `T2` against the common meadow |
 | `CottLean/Nested/DivZero.lean` | `p/0 = tan(arg(p·i))`: sign-only on integers, the quarter turn on pairs, the numerator `flatten` loses at `0`, and parallel lines, with and without the `·i` |
+| `CottLean/Nested/T3.lean` | `T3`, a pair of `T2`s: the embedding of `T2`, the projection's residue one level up, the two levels compounded into `T`, the leaves read by parity, and what a denominator erases |
 | `scripts/LawAtlas.lean` | not part of the library: the grid search behind the atlas, checked against `T.Atlas.table` |
 | `scripts/Declarations.lean` | not part of the library: writes `declarations.txt`, the name of every citable declaration. cott-engine cites these names, and CI fails if the file is out of date |
 | `declarations.txt` | the generated list of every citable declaration, sorted |
