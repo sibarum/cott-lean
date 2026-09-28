@@ -47,6 +47,22 @@ parallel, `D = 0` and the division stops.
   too many once `p` is already a pair.
 * `parallel_example`: `y = 0` and `y = 1`. The meeting point is horizontal, `T(0, −1)`, and the rule gives
   `−ω`, vertical.
+
+## Without the `·i`
+
+`divAlong p = p`, read by `tan(arg p) = a/b`: a pair over zero is its own direction, the point at infinity
+of homogeneous coordinates.
+
+* `divZero_eq_divAlong_otimes`: the first rule is this one turned by `⊗ ω`.
+* `tan_arg_divAlong_intCast`: the two agree on integers. The integer `n` over zero is the pair `T(n, 0)`,
+  and this rule on it is the first rule's `tan(arg(n·i))`. So the `·i` came from writing `n` over zero as
+  a pair, and a pair needs no second one.
+* `divAlong_injective`, `divideAlong_zero_injective`: it loses nothing either, and keeps what `flatten`
+  drops. `·0` does not undo it (`divAlong_times_zero`).
+* `divAlong_along_of_parallel`: for parallel lines it lies along both lines.
+* `slope_meet_eq_tan_arg_divAlong`: where the lines do meet, its slope is the slope of the meeting point.
+  So it gives the same answer on both sides of `D = 0`.
+* `parallel_example_along`: `y = 0` and `y = 1` give `_0`, horizontal.
 -/
 
 open Complex T
@@ -191,5 +207,58 @@ theorem parallel_example :
     D l m = 0 ∧ direction l m = «_0» ∧ divZero (direction l m) = «-ω» := by
   refine ⟨rfl, rfl, ?_⟩
   rw [divZero_def]; rfl
+
+/-! ## Without the `·i` -/
+
+/-- `p/0 = p`, read by `tan(arg p)`: a pair over zero is its own direction. -/
+def divAlong (p : T) : T := p
+
+/-- The rule without the `·i` is `tan(arg p) = a/b`. -/
+theorem tan_arg_divAlong (p : T) : Real.tan (arg (toC (divAlong p))) = (p.p : ℝ) / p.q :=
+  tan_theta p
+
+/-- The first rule is this one turned a quarter turn. -/
+theorem divZero_eq_divAlong_otimes (p : T) : divZero p = divAlong p ⊗ «ω» := rfl
+
+/-- On an integer over zero, the pair `T(n, 0)`, it is the first rule's `tan(arg(n·i))`. -/
+theorem tan_arg_divAlong_intCast (n : ℤ) :
+    Real.tan (arg (toC (divAlong ⟨n, 0⟩))) = Real.tan (arg ((n : ℂ) * I)) := by
+  rw [divAlong, toC_intCast_omega]
+
+theorem divAlong_injective : Function.Injective divAlong := fun _ _ h => h
+
+/-- `·0` does not undo it either: only the denominator survives. -/
+theorem divAlong_times_zero (p : T) : divAlong p * 0 = ⟨0, p.q⟩ := by
+  ext <;> simp [divAlong, show (0 : T) = ⟨0, 1⟩ from rfl]
+
+/-- `A / B`, by `flatten`, with `A` its own direction at a zero denominator. -/
+def divideAlong (A B : T) : T := if B = 0 then divAlong A else T2.flatten ⟨A, B⟩
+
+theorem divideAlong_zero (A : T) : divideAlong A 0 = A := if_pos rfl
+
+theorem divideAlong_zero_injective : Function.Injective (fun A => divideAlong A 0) := by
+  intro A A' h
+  simpa only [divideAlong_zero] using h
+
+/-- For parallel lines it lies along both lines. -/
+theorem divAlong_along_of_parallel {l m : Line} (hD : D l m = 0) :
+    l.a * (divAlong (direction l m)).q + l.b * (divAlong (direction l m)).p = 0 ∧
+      m.a * (divAlong (direction l m)).q + m.b * (divAlong (direction l m)).p = 0 :=
+  along_line_of_parallel hD
+
+/-- Its slope is the slope of the meeting point where the lines do meet, so it gives the same answer on
+both sides of `D = 0`. -/
+theorem slope_meet_eq_tan_arg_divAlong (l m : Line) (hD : D l m ≠ 0) :
+    ((Ny l m : ℝ) / D l m) / ((Nx l m : ℝ) / D l m) =
+      Real.tan (arg (toC (divAlong (direction l m)))) := by
+  have hD' : (D l m : ℝ) ≠ 0 := by exact_mod_cast hD
+  rw [tan_arg_divAlong, div_div_div_cancel_right₀ hD']
+  rfl
+
+/-- `y = 0` and `y = 1`: it answers horizontally, where the lines meet. -/
+theorem parallel_example_along :
+    let l : Line := ⟨0, 1, 0⟩
+    let m : Line := ⟨0, 1, 1⟩
+    divAlong (direction l m) = «_0» := rfl
 
 end DivZero

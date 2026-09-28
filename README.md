@@ -322,7 +322,10 @@ perpendicular slope `−b/a` (`tan_arg_mul_I`). It loses nothing (`divZero_injec
 denominator it keeps the numerator that `flatten` drops (`divide_zero_injective`). Only `⊗ −ω` undoes it,
 not `· 0`. On parallel lines, Cramer's numerator runs along both lines (`along_line_of_parallel`). The rule
 answers along the normal instead (`rule_normal_of_parallel`): the `·i` is one quarter turn too many once
-`p` is already a pair.
+`p` is already a pair. Without it, `p/0 = p` read by `tan(arg p)`, the rule agrees with the first on
+integers, since `n` over zero is the pair `T(n, 0)` (`tan_arg_divAlong_intCast`). It lies along parallel
+lines (`divAlong_along_of_parallel`), and its slope is the meeting point's wherever the lines do meet, so it
+answers the same on both sides of `D = 0` (`slope_meet_eq_tan_arg_divAlong`).
 
 ### The mediant on integer hardware
 
@@ -421,7 +424,7 @@ search and checks it against the proved `table` cell by cell.
 | `CottLean/T/Transform.lean` | Möbius transformations as matrices; every product as a family of them; discriminants, fixed points, sandwiches |
 | `CottLean/T/Registers.lean` | a traction in `w`-bit registers: the wrap keeps every operation, `⊕` included; a quotient of differences |
 | `CottLean/Nested/Basic.lean` | `T2`, a pair of pairs: the embedding of `T`, the projection `flatten` as a Möbius transformation of the numerator, and `T2` against the common meadow |
-| `CottLean/Nested/DivZero.lean` | `p/0 = tan(arg(p·i))`: sign-only on integers, the quarter turn on pairs, the numerator `flatten` loses at `0`, and parallel lines |
+| `CottLean/Nested/DivZero.lean` | `p/0 = tan(arg(p·i))`: sign-only on integers, the quarter turn on pairs, the numerator `flatten` loses at `0`, and parallel lines, with and without the `·i` |
 | `scripts/LawAtlas.lean` | not part of the library: the grid search behind the atlas, checked against `T.Atlas.table` |
 | `scripts/Declarations.lean` | not part of the library: writes `declarations.txt`, the name of every citable declaration. cott-engine cites these names, and CI fails if the file is out of date |
 | `declarations.txt` | the generated list of every citable declaration, sorted |
