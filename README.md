@@ -317,62 +317,12 @@ numerator comes back exactly when `B` is off both axes (`flatten_recoverable_iff
 
 ### The mediant on integer hardware
 
-These files apply `⊕` to vexelray-sim-fluid's particle-to-grid scatter, where a grid node accumulates the
-conserved pair `(Σ w·m·v, Σ w·m)`. They are stated for any additive commutative monoid, so they hold for
-`T` under `⊕` (`GaussianPosition`), for the three-field nodes of two dimensions, and for machine registers.
-Under `⊕` a pair of pairs is four integers added coordinatewise, so nesting changes nothing here.
-
-**Any schedule gives the same grid** (`Scatter/Accumulate.lean`). Atomic adds in any order that applies
-each deposit once leave exactly the grid (`run_eq_grid`, `run_perm`). Summing groups first, as the
-pre-reduced and segmented kernels do, gives it again (`grouped_eq_grid`), and so does the gather
-(`gather_eq_grid`). The grid holds exactly the particles' total (`total_grid_particles`). Regrouping needs
-only associativity (`grid_flatten`); the atomics' arbitrary order is what needs commutativity. An empty
-node is `0ω` (`pairGrid_empty`).
-
-**Wrapping registers cost nothing** (`Scatter/Wrap.lean`). A `w`-bit register is the ring `BitVec w`, and
-the map from ℤ to it is a ring map, so the registers hold the wrap of the integer grid in every order
-(`run_wrap`). Read back signed, a node is exact whenever its *final* total fits in `w` bits, however much
-the partial sums overflowed (`read_exact`, `run_read_exact`); `2·K·D < 2^w` for `K` deposits of size at
-most `D` is enough (`read_exact_of_bound`). Reduction modulo `2^w` is a quotient that `⊕` survives,
-together with `+`, `*` and `⊗` (`wrapPair_oplus` and the rest), unlike every quotient of
-`T/Quotient.lean`: it identifies pairs whose difference is divisible, not pairs that are multiples of each
-other (`wrapPair_eq_iff`).
-
-**Quantised shares conserve exactly** (`Scatter/Quantise.lean`). Three bilinear shares floored and the
-fourth taking the rest sum to the particle's amount exactly (`sum_shares`). None is negative
-(`shares_nonneg`), and each is within `(-1, 3)` quanta of exact (`share_error`). Rounding momentum
-separately from mass can give a corner momentum with no mass, a multiple of `ω`
-(`independent_rounding_omega`). Depositing the mass share times the velocity conserves momentum exactly
-(`sum_momentumShares`), gives a massless node no momentum (`node_momentum_eq_zero`), and keeps each node's
-velocity between its particles' (`node_velocity_between`).
-
-**Any stencil, and the quadratic one** (`Scatter/Stencil.lean`). On any finite stencil, flooring every
-share but one and giving that one, the remainder node, the rest conserves exactly
-(`sum_remainderShares`), leaves no share negative (`remainderShares_nonneg`), and puts all of the floors'
-error, under `n − 1` quanta on `n` nodes, on the remainder node (`remainderShares_error_self`). The
-four-corner scheme is the case with the north-east corner as remainder (`shares_eq_remainderShares`).
-Two-dimensional weights are a tensor of one axis's (`tensor`, `sum_tensor`), and the bilinear ones are the
-linear ones tensored (`bilinear_eq_tensor`). MLS-MPM's quadratic B-spline weights sum to one for every
-offset (`sum_quadratic`) and are non-negative on `[½, 3/2]`, the interval the kernel clamps to
-(`quadratic_nonneg`), and not outside it (`quadratic_one_neg`). The centre of the 3×3 stencil always
-weighs at least a quarter (`quadratic_center_ge`), so it is the node to take the remainder
-(`quadraticShares`, `quadraticShares_center`). MLS-MPM's momentum deposit also carries an affine velocity and a pressure
-impulse, which cancel over the stencil because the weights' first moment is zero (`sum_quadratic_moment`,
-`sum_affine_amount`) but not after flooring. Flooring every node's momentum but the centre's, masked to zero
-where the mass share is zero, with the centre taking the rest of the exact total, conserves it exactly
-(`sum_maskedShares`, `sum_quadraticMomentum`). The centre always has mass when the particle does
-(`quadraticShares_center_pos`), so no node holds momentum without mass (`quadraticMomentum_eq_zero`).
-
-**What floating point loses** (`Scatter/Rounding.lean`). In the standard rounding model with unit
-roundoff `u`, a schedule is a tree of rounded additions, and one of depth `d` is within
-`((1+u)^d − 1)·Σ|a|` of the exact sum (`eval_error`). Two schedules differ by at most the sum of their
-bounds (`schedules_differ`). For mass, which is never negative, the error is relative to the total
-(`eval_error_nonneg`). `n` atomics on a node have depth `n − 1` (`chain_depth`); runs summed first and then
-chained have depth at most the run depth plus the number of runs (`chainT_depth_le`). Fixed point's error,
-under three quanta a share and the same for every order (`fixed_error_le`), is no worse than that bound
-once `3·(n+1)·δ ≤ n·u·Σ|a|` (`fixed_le_float_bound`). With underflow, computing momentum as `(w·m)·v`
-gives a flushed mass share zero momentum (`massFirst_zero`), and `w·(m·v)` does not
-(`momentumFirst_omega`).
+**Registers keep `⊕`** (`T/Registers.lean`). A `w`-bit register is the ring `BitVec w`, and wrapping both
+coordinates respects `⊕`, `+`, `*` and `⊗` (`wrapPair_oplus` and the rest). Reduction modulo `2^w` is a
+quotient that `⊕` survives, unlike every quotient of `T/Quotient.lean`: it identifies pairs whose
+difference is divisible, not pairs that are multiples of each other (`wrapPair_eq_iff`). The scatter
+that sums these pairs on a GPU, and why every schedule of it gives one grid, is proved in
+[vexelray-lean-proofs](https://github.com/sibarum/vexelray-lean-proofs).
 
 ### Next to the division-by-zero literature
 
@@ -427,9 +377,6 @@ search and checks it against the proved `table` cell by cell.
 - Each operation's hyperoperation, the exponentials between operations, and rational exponents of every
   power but `⊗`'s, which `T/AnglePower.lean` has on the angle. These have been searched and worked by
   hand, but none of it is in Lean yet.
-- For the scatter: that the segmented kernel's subgroup scan leaves each run's sum in its last lane, and
-  a concrete IEEE `f32` counterexample to associativity. `Scatter/Rounding.lean` bounds floating point
-  through a rounding model, not IEEE bits, and none of it checks the Java or SPIR-V kernels themselves.
 - The wheel axioms were checked against the statements on Wikipedia and nLab. Carlström's paper itself
   has not been read against them.
 
@@ -463,12 +410,8 @@ search and checks it against the proved `table` cell by cell.
 | `CottLean/T/Atlas.lean` | the law atlas: every law, every pairing of an addition and a multiplication, graded and proved strongest |
 | `CottLean/T/NoDivision.lean` | no equality lets `⊕` and division coexist, for any of the five products |
 | `CottLean/T/Transform.lean` | Möbius transformations as matrices; every product as a family of them; discriminants, fixed points, sandwiches |
+| `CottLean/T/Registers.lean` | a traction in `w`-bit registers: the wrap keeps every operation, `⊕` included; a quotient of differences |
 | `CottLean/Nested/Basic.lean` | `T2`, a pair of pairs: the embedding of `T`, the projection `flatten` as a Möbius transformation of the numerator, and `T2` against the common meadow |
-| `CottLean/Scatter/Accumulate.lean` | the particle-to-grid scatter over any additive monoid: every schedule gives the same grid, and it conserves |
-| `CottLean/Scatter/Wrap.lean` | wrapping `w`-bit registers: exact whenever a node's final total fits; the mod-`2^w` quotient keeps `⊕` |
-| `CottLean/Scatter/Quantise.lean` | integer bilinear shares that conserve exactly; momentum as mass share times velocity |
-| `CottLean/Scatter/Rounding.lean` | floating point's error for every schedule; the scale at which fixed point is no worse; underflow and the order of the product |
-| `CottLean/Scatter/Stencil.lean` | quantised shares on any stencil with a chosen remainder node; tensor weights; the quadratic B-spline 3×3 stencil, remainder at the centre |
 | `scripts/LawAtlas.lean` | not part of the library: the grid search behind the atlas, checked against `T.Atlas.table` |
 | `scripts/Declarations.lean` | not part of the library: writes `declarations.txt`, the name of every citable declaration. cott-engine cites these names, and CI fails if the file is out of date |
 | `declarations.txt` | the generated list of every citable declaration, sorted |

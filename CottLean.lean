@@ -24,9 +24,5 @@ import CottLean.T.AnglePower
 import CottLean.T.Atlas
 import CottLean.T.NoDivision
 import CottLean.T.Transform
+import CottLean.T.Registers
 import CottLean.Nested.Basic
-import CottLean.Scatter.Accumulate
-import CottLean.Scatter.Wrap
-import CottLean.Scatter.Quantise
-import CottLean.Scatter.Rounding
-import CottLean.Scatter.Stencil
