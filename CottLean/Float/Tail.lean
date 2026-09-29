@@ -25,7 +25,11 @@ Then `+` is tropical on grades and lossless on terms.
 
 * `mul`: the product of two full sums. `val_mul` gives `val (x·y) = val x + val y`. `card_support_mul_le`
   bounds the terms of a product by the product of the term counts, which is how the bookkeeping grows.
-  Nothing caps it.
+  Nothing caps it, because nothing needs to: the product conserves what the terms add up to.
+* `ev_mul`, `total_mul`: evaluating at any `ε = t ≠ 0` is multiplicative, and `total` is `t = 1`. A total of
+  `1` stays `1` (`total_mul_one`) and a total of `0` stays `0` (`total_mul_zero`), through every product.
+  `total_add` makes it additive too. The grade (`val_mul`) is conserved the same way, additively.
+* `recover`: the total fixes any one term from the rest, so a tail is one term shorter than it looks.
 -/
 
 namespace Tail
@@ -181,5 +185,60 @@ theorem card_support_mul_le (x y : Coord) :
   rw [mul_comm]
   refine (Finset.sum_le_card_nsmul _ _ y.support.card fun a _ => Finset.card_image_le).trans ?_
   simp [mul_comm]
+
+
+/-! ## What the product conserves -/
+
+/-- Evaluate at `ε = t`: the coordinate as a number, every term counted. -/
+noncomputable def ev (t : ℚ) (x : Coord) : ℚ := x.sum fun k c => c * t ^ k
+
+/-- The total: all coefficients, ignoring grade. `ε = 1`. -/
+noncomputable def total (x : Coord) : ℚ := ev 1 x
+
+theorem ev_add (t : ℚ) (x y : Coord) : ev t (x + y) = ev t x + ev t y := by
+  unfold ev
+  exact Finsupp.sum_add_index' (fun _ => by simp) (fun _ _ _ => by ring)
+
+theorem ev_single (t : ℚ) (k : ℤ) (c : ℚ) : ev t (Finsupp.single k c) = c * t ^ k := by
+  unfold ev; rw [Finsupp.sum_single_index]; simp
+
+theorem ev_shift {t : ℚ} (ht : t ≠ 0) (k : ℤ) (c : ℚ) (x : Coord) :
+    ev t (shift k c x) = c * t ^ k * ev t x := by
+  unfold shift ev
+  rw [Finsupp.sum_smul_index' (by simp), Finsupp.sum_mapDomain_index (by simp) (fun _ _ _ => by ring),
+    Finsupp.mul_sum]
+  refine Finsupp.sum_congr fun a _ => ?_
+  rw [zpow_add₀ ht]; ring
+
+/-- `ε = t` is multiplicative: the product of two sums evaluates to the product of their values. -/
+theorem ev_mul {t : ℚ} (ht : t ≠ 0) (x y : Coord) : ev t (mul x y) = ev t x * ev t y := by
+  unfold mul
+  have : ∀ s : Finset ℤ, ev t (∑ a ∈ s, shift a (x a) y) = ∑ a ∈ s, x a * t ^ a * ev t y := by
+    intro s
+    induction s using Finset.cons_induction with
+    | empty => simp [ev]
+    | cons a s ha ih => rw [Finset.sum_cons, Finset.sum_cons, ev_add, ih, ev_shift ht]
+  rw [Finsupp.sum, this, ← Finset.sum_mul]
+  rfl
+
+/-- The total is multiplicative. If two coordinates each total `1`, so does their product; if either
+totals `0`, so does the product. -/
+theorem total_mul (x y : Coord) : total (mul x y) = total x * total y := ev_mul one_ne_zero x y
+
+theorem total_add (x y : Coord) : total (x + y) = total x + total y := ev_add 1 x y
+
+theorem total_mul_one {x y : Coord} (hx : total x = 1) (hy : total y = 1) : total (mul x y) = 1 := by
+  rw [total_mul, hx, hy, one_mul]
+
+/-- Total zero is absorbing: a coordinate whose terms sum to zero keeps that in every product. -/
+theorem total_mul_zero {x : Coord} (hx : total x = 0) (y : Coord) : total (mul x y) = 0 := by
+  rw [total_mul, hx, zero_mul]
+
+/-- The total is what lets one term be dropped: erase the term at `k`, and it is recovered from the
+total of the rest. So a coordinate whose total is known carries one term fewer than it seems. -/
+theorem recover (x : Coord) (k : ℤ) : x k = total x - total (x.erase k) := by
+  have : x = x.erase k + Finsupp.single k (x k) := (Finsupp.erase_add_single k x).symm
+  conv_rhs => rw [this, total_add]
+  simp [total, ev_single]
 
 end Tail
