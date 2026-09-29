@@ -37,3 +37,4 @@ import CottLean.Physics.Center
 import CottLean.Physics.Vertex
 import CottLean.Float.Basic
 import CottLean.Float.Residue
+import CottLean.Float.Tropical
