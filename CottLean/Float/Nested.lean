@@ -18,7 +18,8 @@ flatten TR2(A, B)       = A · reciprocal B,   so TR2(T(a,b), T(c,d)) ↦ T(ad, 
   `flatten`, and `flatten` respects `·`.
 * `flatten` is total: it is a `TR.times`, and a product of residues is a residue. It is a product, and a product of residues is a residue. A
   quotient `A / B` that a float would turn into `0/0` or `x/0` is here always a pair of coordinates.
-* `plus` is the only partial operation, and only where the additive zero appears (`plus_cancel`). The
+* `plus` is the only operation with no value anywhere, and only where the additive zero appears
+  (`plus_cancel`). `·` is total but erases too, at the multiplicative identity (`Erasure`). The
   multiplicative zero has been written as `ε` all the way down.
 -/
 
