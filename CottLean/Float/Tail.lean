@@ -23,7 +23,9 @@ Then `+` is tropical on grades and lossless on terms.
 * `val_eq_top`: only the empty sum has no grade. That is the additive zero, and it is the one case that
   `Res` had to call `none`.
 
-Multiplying two full sums (convolution) is not done here; multiplying by a single term is.
+* `mul`: the product of two full sums. `val_mul` gives `val (x·y) = val x + val y`. `card_support_mul_le`
+  bounds the terms of a product by the product of the term counts, which is how the bookkeeping grows.
+  Nothing caps it.
 -/
 
 namespace Tail
@@ -127,5 +129,57 @@ theorem cancel_example :
   refine ⟨by simp, fun j hj => ?_⟩
   have h2 : j ≠ 2 := by omega
   by_cases h1 : j = 1 <;> simp [Finsupp.single_apply, h1, h2, eq_comm]
+
+
+/-! ## Full multiplication -/
+
+/-- The product of two sums: every term of `x` shifts `y`, and the shifts add. No term is dropped and
+none is merged unless the grades meet. -/
+noncomputable def mul (x y : Coord) : Coord := x.sum fun a c => shift a c y
+
+theorem mul_apply (x y : Coord) (n : ℤ) : mul x y n = x.sum fun a c => c * y (n - a) := by
+  simp only [mul, Finsupp.sum, Finsupp.finset_sum_apply, shift_apply]
+
+/-- The grade of a product is the sum of the grades. -/
+theorem val_mul {x y : Coord} {a b : ℤ} (hx : val x = a) (hy : val y = b) :
+    val (mul x y) = ((a + b : ℤ) : WithTop ℤ) := by
+  have h1 := val_eq_iff.mp hx
+  have h2 := val_eq_iff.mp hy
+  rw [val_eq_iff]
+  refine ⟨?_, fun j hj => ?_⟩
+  · rw [mul_apply, Finsupp.sum_eq_single a]
+    · have : a + b - a = b := by omega
+      rw [this]; exact mul_ne_zero h1.1 h2.1
+    · intro i hi hia
+      have hai : a < i := lt_of_le_of_ne (by
+        by_contra hlt
+        exact hi (h1.2 i (not_le.mp hlt))) (Ne.symm hia)
+      show x i * y (a + b - i) = 0
+      rw [h2.2 (a + b - i) (by omega), mul_zero]
+    · intro h; exact absurd (h1.1) (by simpa using h)
+  · rw [mul_apply]
+    refine Finset.sum_eq_zero fun i hi => ?_
+    have hai : a ≤ i := by
+      by_contra hlt
+      exact (Finsupp.mem_support_iff.mp hi) (h1.2 i (not_le.mp hlt))
+    show x i * y (j - i) = 0
+    rw [h2.2 (j - i) (by omega), mul_zero]
+
+/-- A product has at most as many terms as the pairs of terms. This is how the bookkeeping grows. -/
+theorem card_support_mul_le (x y : Coord) :
+    (mul x y).support.card ≤ x.support.card * y.support.card := by
+  classical
+  have hsub : (mul x y).support ⊆ x.support.biUnion fun a => y.support.image (· + a) := by
+    intro n hn
+    rw [Finsupp.mem_support_iff, mul_apply] at hn
+    obtain ⟨a, ha, hne⟩ := Finset.exists_ne_zero_of_sum_ne_zero hn
+    rw [Finset.mem_biUnion]
+    refine ⟨a, ha, Finset.mem_image.mpr ⟨n - a, ?_, by omega⟩⟩
+    exact Finsupp.mem_support_iff.mpr fun h => hne (by simp [h])
+  refine (Finset.card_le_card hsub).trans ?_
+  refine Finset.card_biUnion_le.trans ?_
+  rw [mul_comm]
+  refine (Finset.sum_le_card_nsmul _ _ y.support.card fun a _ => Finset.card_image_le).trans ?_
+  simp [mul_comm]
 
 end Tail
