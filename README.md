@@ -347,6 +347,34 @@ exactly when the denominator `X.q` is off the axis of `ω` (`T2.plus_one_recover
 `1`. `1 + (−1) = 0` at every depth, and then `0 ·` erases exactly one integer, the leaf reached by taking
 the numerator at every step: one of two, four and eight in `T`, `T2` and `T3` (`T3.zero_times`).
 
+**A zero that adds a layer** (`CottLean/Nested/Epsilon.lean`). Let a component that meets a zero gain a
+layer, `(a, b) · (0, 1) = ((0, a), b)`, and read an inner pair `(x, y)` as `x + ε·y`. The layers are then
+Horner form, and holding is multiplying by `ε` (`Nest.eval_hold`). `TE` is `T` over `ℤ[ε]`: `T` sits inside
+exactly, `x · 0` is the rule (`of_times_zero`), and neither `· 0` nor `· ω` loses anything
+(`times_zero_injective`). `0 · 0` is not `0` (`zero_sq_not_equiv`), and `x · 0 · ω` is `x` again
+(`times_zero_times_omega`). A common `ε` cancels exactly (`cancel_step`), and once the denominator is
+non-zero at `ε = 0`, setting `ε = 0` respects `+`, `·` and `−` and gives the classical value (`st_plus`,
+`st_of`). The zero that `+` produces, `1 + (−1)`, cannot be held, since in any ring `a · 0 = b · 0`
+(`additive_zero_erases`). With one `ε`, `0/0 = 1` (`zero_div_zero`). This is the formal infinitesimal of
+`ℚ(ε)`, and the standard part is `ε → 0`; what the model adds is that its nested pairs, read by Horner, are
+the rule.
+
+**Which laws make `m · (n − n)` erase `m`** (`CottLean/Nested/NoRing.lean`). In an additive group, the one
+instance `m · (0 + 0) = m·0 + m·0` of left distributivity forces `m · 0 = 0` (`left_distrib_zero`), and so
+does distributing over any cancelling sum with the sign rule (`cancel_sum`). On the right, `z + z = z` gives
+`2 · z = 1 · z` (`right_distrib_zero`). And a multiplication that agrees with a field's away from `0` and
+loses nothing has `0 · m = 0` (`field_no_room`): the zero needs an element the field does not have.
+
+**Room for the zero** (`CottLean/Nested/Hotel.lean`). Take a field and a corridor of distinct non-zero
+elements `e 0, e 1, …`, in the model `ε, ε², …`. The carrier is the non-zero elements under the field's `·`,
+and `+` is the field's moved one room along the corridor: `0 ↦ e 0`, `e k ↦ e (k + 1)`. Both are commutative
+groups. `n + (−n) = 0` erases `n` (`Held.universal_invariant`), while multiplying by any element, the zero
+included, loses nothing (`Held.mandate`), `0 · 0 ≠ 0`, and the zero has an inverse. Distributivity fails
+(`Held.not_left_distrib`, as it must), holds wherever every value is off the corridor
+(`Held.distrib_of_plain`), and holds after the standard part, which respects both `+` and `·` on finite
+elements (`Held.st_add`, `Held.st_mul`, `Held.st_distrib`). The Laurent series over `ℚ` are a model
+(`laurent`, `laurent_infinitesimal`).
+
 ### The mediant on integer hardware
 
 **Registers keep `⊕`** (`T/Registers.lean`). A `w`-bit register is the ring `BitVec w`, and wrapping both
@@ -447,6 +475,9 @@ search and checks it against the proved `table` cell by cell.
 | `CottLean/Nested/DivZero.lean` | `p/0 = tan(arg(p·i))`: sign-only on integers, the quarter turn on pairs, the numerator `flatten` loses at `0`, and parallel lines, with and without the `·i` |
 | `CottLean/Nested/T3.lean` | `T3`, a pair of `T2`s: the embedding of `T2`, the projection's residue one level up, the two levels compounded into `T`, the leaves read by parity, and what a denominator erases |
 | `CottLean/Nested/Ones.lean` | what erases against `1` at each depth, `a/ω + 1 = ω/ω`, and `0 ·` erasing one leaf at every depth |
+| `CottLean/Nested/Epsilon.lean` | a zero that adds a layer: the Horner reading, `T` over `ℤ[ε]`, holding and releasing without loss, cancellation, and the standard part |
+| `CottLean/Nested/NoRing.lean` | the laws that make `m · (n − n)` erase `m`, each isolated, and why the zero needs new room |
+| `CottLean/Nested/Hotel.lean` | room for the zero: two groups on one carrier, `+` erasing and `·` never, distributivity after the standard part, and a Laurent-series model |
 | `scripts/LawAtlas.lean` | not part of the library: the grid search behind the atlas, checked against `T.Atlas.table` |
 | `scripts/Declarations.lean` | not part of the library: writes `declarations.txt`, the name of every citable declaration. cott-engine cites these names, and CI fails if the file is out of date |
 | `declarations.txt` | the generated list of every citable declaration, sorted |

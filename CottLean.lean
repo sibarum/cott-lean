@@ -29,3 +29,6 @@ import CottLean.Nested.Basic
 import CottLean.Nested.DivZero
 import CottLean.Nested.T3
 import CottLean.Nested.Ones
+import CottLean.Nested.Epsilon
+import CottLean.Nested.NoRing
+import CottLean.Nested.Hotel
