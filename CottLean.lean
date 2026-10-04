@@ -27,6 +27,8 @@ import CottLean.T.Transform
 import CottLean.T.Registers
 import CottLean.T.Readings
 import CottLean.T.Drift
+import CottLean.T.Ternary
+import CottLean.T.TernaryMeadow
 import CottLean.Nested.Basic
 import CottLean.Nested.DivZero
 import CottLean.Nested.T3
