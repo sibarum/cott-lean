@@ -23,6 +23,15 @@ use only Lean's standard axioms, in CI (see [Checking the axioms](#checking-the-
 
 ## What it shows
 
+**Every inverse returns to 1 up to its own norm.** Multiplying by a fixed pair is a linear map of the
+other pair, and its determinant is the product's norm. Since traction never reduces, where classical
+arithmetic divides by the determinant, traction keeps the adjugate, and the determinant stays in the
+coordinates as a residue: `x · (1/x)` is `1` with both coordinates scaled by the norm. The inverse fails
+exactly where the norm is zero, and that is exactly where multiplying by the pair loses information. One
+level up, where the coordinates are themselves ratios, every quadratic ring gets an exact inverse this
+way, and the same rule holds: `z · (1/z)` is `1` scaled by one integer, which is zero exactly at a zero
+denominator or a zero norm. On the integer points that is the flat product's own loss.
+
 **One carrier holds every quadratic ring, exactly.** Traction's mediant `⊕` adds pairs coordinatewise.
 With it, a single parametric product makes the pairs into the Gaussian integers, the dual numbers, the
 split-complex integers, ℤ × ℤ, the Eisenstein integers and every other ring of rank two over ℤ. It uses
@@ -50,8 +59,11 @@ exactly one integer of it, and keeping that one integer alongside the result is 
 **The tower is forced, not chosen.** The mediant survives no quotient: no invariant coarser than the pair
 itself, such as the ray or the ratio, is respected by it. No equality at all lets it stand beside
 division. So each ring keeps its laws on the bare pairs, and division has to come from a second level,
-pairs of pairs. That level is begun here. Among the named invariants, the angle and the ray turn out to
-be the same one, and the mediant always lies strictly between its two parents.
+pairs of pairs. That level gives each ring its exact inverse. It also builds ℚ(i) in two ways, as a
+complex number with ratio coordinates and as a ratio of two Gaussian integers. The two hold the same
+values, pay for division in opposite places, and each loses something the other keeps. Among the named
+invariants, the angle and the ray turn out to be the same one, and the mediant always lies strictly
+between its two parents.
 
 ## What is classical and what is new
 
@@ -67,7 +79,13 @@ forces:
   what the exact coordinate result is otherwise;
 - `0ω = 0/0` as the zero of every one of the rings and the bottom element of the wheel, at once;
 - each product completing a classical formula at exactly the inputs where that formula collapses;
-- the mediant as the one operation every ring shares and no quotient keeps.
+- the mediant as the one operation every ring shares and no quotient keeps;
+- each inverse leaving its own norm behind as a residue, failing exactly where that product loses
+  information, at both levels.
+
+The second level's values are classical too: the Gaussian rationals, the inverse `z̄/|z|²`, the
+adjugate identity behind Cramer's rule, and the bicomplex numbers. What is new is the unreduced
+bookkeeping, which keeps the determinant where classical arithmetic divides it away.
 
 ## Reading the notation
 
@@ -234,6 +252,9 @@ norm is non-zero (`recoverable_iff_norm`), and `k` has an inverse exactly when t
 | `*` | `pq` | `1, _1, -_1, -1` (`exists_times_eq_one_iff`) |
 | `∥` | `p²` | every `T(±1, q)` (`exists_par_eq_omega_iff`) |
 
+The same norm decides where each ring's exact inverse fails one level up (`Nested/QuadPoint.lean`, in
+[Two readings, and the inverse one level up](#two-readings-and-the-inverse-one-level-up)).
+
 **Every product loses at most one integer** (`T/Loss.lean`). Against `k ≠ 0ω` of norm zero, a result
 `r = x · k` satisfies `k.p · r.q = k.q · r.p`, so the whole result is its numerator, one linear form in
 `x` (`qtimes_eq_qtimes_iff`). Keeping `x.p` beside it gives `x` back (`qtimes_recover_with_numerator`).
@@ -375,6 +396,104 @@ included, loses nothing (`Held.mandate`), `0 · 0 ≠ 0`, and the zero has an in
 elements (`Held.st_add`, `Held.st_mul`, `Held.st_distrib`). The Laurent series over `ℚ` are a model
 (`laurent`, `laurent_infinitesimal`).
 
+### Two readings, and the inverse one level up
+
+**The two readings agree on ℤ and nowhere else** (`T/Readings.lean`). The integer `n` is `T(n, 1)` in the
+ratio reading and `T(0, n)` in the complex reading. Each copy respects its own reading's operations
+(`ratioInt_plus`, `ratioInt_times`, `complexInt_oplus`, `complexInt_otimes`). The maps between them are
+written in the model's operations, `0 / x` one way and `1/y ⊕ 0` the other, and they invert each other on
+the integers (`toComplex_ratioInt`, `toRatio_complexInt`). `T(0, 1)` is in both copies, as the ratio `0`
+and the complex `1`, and no other pair is (`ratioInt_eq_complexInt_iff`). The readings are not
+isomorphic. No injective map takes `+` to `⊕`, since `ω + 0 = ω + 1` and `⊕` cancels
+(`not_plus_embeds_oplus`). No injective map takes `*` to `⊗`, since `ω * 0` and `0 * ω` are both `0ω`
+and ℤ[i] has no zero divisors (`not_times_embeds_otimes`).
+
+**The complex reading has no inverse of its own.** `1/(q + p·i) = (q − p·i)/(p² + q²)`, and a Gaussian
+integer has nowhere to keep the denominator. `T/Drift.lean` carries both readings side by side with the
+conjugate standing in for the inverse. The gap between the two sides is additive and obeys a product rule
+(`drift_add`, `drift_mul`), and most of it is the missing denominator.
+
+**With ratio coordinates the inverse is exact** (`Nested/Point.lean`). Read `T2(A, B)` as the point
+`B + A·i`, with `A` and `B` ratios. `⊕` and `⊗` are the flat formulas with `T`'s `+`, `*` and `-` inside
+each coordinate. On values they are the sum and product of ℚ(i), and
+`1 / T2(T(a,b), T(c,d)) = T2(T(−a·b²·d², b·D), T(c·b²·d², d·D))` with `D = a²d² + b²c²` is its inverse
+(`val_oplus`, `val_otimes`, `val_pointInv`, `pointInv_eq`). Multiplying back gives
+`T2(T(0, k), T(k, k))` with `k = (b·d·D)²`: `1`, scaled by one integer, over the residue `T(0, k)`
+(`otimes_pointInv`). `k` is zero exactly when a coordinate has a zero denominator or the point is zero
+(`inverse_residue_eq_zero_iff`). A Gaussian integer gets the inverse it lacked, `(q − p·i)/(p² + q²)`
+(`pointInv_ofPoint`). A flat ratio `x = T(p, q)`, read as the real point `T2(0, x)`, gets `T`'s
+reciprocal scaled by `p·q` (`pointInv_ofRatio`). So the complex inverse collapses to `0ω` exactly where
+`* x` cannot be undone in the ratio reading (`pointInv_collapses_iff_times_ambiguous`). At `1/0` the
+ratio reading answers `ω` and the point reading `0ω` (`pointInv_ofRatio_zero`).
+
+**Every quadratic ring, the same way** (`Nested/QuadPoint.lean`). Read `T2(A, B)` as `B + A·ω` with
+`ω² = a + b·ω`. Write `A = T(u, v)` and `B = T(s, t)`. The norm with the denominators cleared is
+`M = s²v² + b·uvst − a·u²t²`. The inverse, the conjugate `(B + b·A) − A·ω` over the norm, is
+`T2(T(−u·v²·t², v·M), T((sv + but)·v·t², t·M))` (`qinv`). At `ω² = −1` the product and inverse are
+`Point`'s, coordinate for coordinate (`qmul_gaussian`, `qinv_gaussian`). For every `a` and `b`:
+
+- `z · (1/z) = T2(T(0, k), T(k, k))` with `k = (v·t·M)²` (`qmul_qinv`).
+- `k` is zero exactly at a zero denominator or a zero norm (`qinv_residue_eq_zero_iff`).
+- On integer points `M` is the flat norm, so the inverse collapses exactly where the flat product cannot
+  be undone (`qinv_ofPoint_collapses_iff`): only at `0ω` for `⊗`, on the light lines for `⊚`, and at
+  `q = 0` for the dual numbers.
+- Read into `QuadraticAlgebra ℚ a b`, the product is the ring's, and the inverse is its inverse wherever
+  the denominators and the norm are non-zero (`qval_qmul`, `qval_qinv`).
+
+**ℚ(i) as a ratio of complex numbers** (`T/Over.lean`, `Nested/RatioPoint.lean`). `TOver R` is `T`'s
+value-position formulas over any commutative ring. Over ℤ it is `T`, with each operation carried across
+as `rfl` (`ofT_plus` and the rest). Over the Gaussian integers it is `T(C, C)`, a ratio `z / w`, holding
+the same values as `C(T, T)` above. On values `·` and the reciprocal are ℚ(i)'s product and inverse, and
+so is `+` where both denominators are non-zero (`val_times`, `val_reciprocal`, `val_plus`). Two maps
+connect the constructions. `rationalize` multiplies through by the conjugate of the denominator,
+`z·w̄ / N(w)`. `combine` puts both coordinates over one denominator, `(cb + ad·i) / (bd)`. Both keep every
+finite value (`val_rationalize`, `val_combine`), and the two inverses agree through them
+(`val_rationalize_reciprocal`). Neither is the identity on coordinates. Each round trip multiplies the
+coordinates by a residue (`combine_rationalize`, `rationalize_combine`).
+
+**What each construction keeps** (`Nested/Compare.lean`). Asking `Recovery`'s question of both:
+
+| | `C(T, T)`, a complex number of ratios | `T(C, C)`, a ratio of complex numbers |
+|---|---|---|
+| `+ k` undone exactly when | both denominators of `k` are non-zero (`oplus_cancel_iff`) | the denominator of `k` is non-zero (`plus_cancel_iff`) |
+| `· k` undone exactly when | never (`otimes_never_injective`) | neither coordinate of `k` is zero (`times_cancel_iff`) |
+| `1/x` | the conjugate over the norm | a swap |
+| `x · (1/x)` | `1` scaled by `(b·d·D)²` | `1` scaled by `z·w` (`times_reciprocal_self`) |
+| at infinity | an infinite coordinate beside a finite one | one point `z / 0` for every direction `z` |
+
+The product of `C(T, T)` sees `c/d + (a/b)·i` only through `a·d`, `b·d` and `c·b` (`otimes_eq_int`). Four
+integers go in and three come out. So a factor moves between the two coordinates without changing any
+product (`otimes_transfer`), and `⊗ K` loses information against every `K`, `1` included. Where `K` is
+finite with a non-zero norm, that is all it loses (`otimes_eq_otimes_iff`). Those three numbers are exactly
+`combine`'s coordinates (`combine_eq_iff`), and `combine` carries `C(T, T)`'s product to `T(C, C)`'s, scaled
+by its own denominator (`combine_otimes`). So `C(T, T)`'s product is `T(C, C)`'s, read through `combine`.
+`rationalize` loses something else: it identifies `z / w` with `u·z / u·w` for each unit `u`
+(`rationalize_eq_iff`, `rationalize_unit`). At infinity, `rationalize` sends every direction `z / 0` to
+`T2(0ω, 0ω)` (`rationalize_infinite`). `combine` sends exactly the points with an infinite coordinate to a
+zero denominator (`combine_q_eq_zero_iff`), and an infinite imaginary part drops the real part
+(`combine_imag_infinite`).
+
+**Complex coordinates: the bicomplex integers** (`Nested/Bicomplex.lean`). `C(C, C)` reads a pair of
+Gaussian integers as the point `B + A·j`. It is `QuadraticAlgebra ℤ[i] (−1) 0` (`toQuad_otimes`), with two
+square roots of `−1`. A flat point placed on the inner `i` and on the outer `j` carries `⊕` and `⊗` exactly
+either way (`ofInner_otimes`, `ofOuter_otimes`), and the two placements differ (`inner_ne_outer`). Reading
+`j` as `i` makes them coincide, so that reading is not injective (`evPlus_inner_eq_outer`,
+`evPlus_not_injective`). Reading `j` as `i` and as `−i` together loses nothing (`ev_injective`), but the
+pair does not reach `(1, 0)` (`ev_not_surjective`), as `split_not_prod` found for ℤ[j]. `(i·j)² = 1`, so
+`(1 + ij)(1 − ij) = 0` (`zero_divisors`), and `T(p, q) ↦ C(p·i, q)` carries `⊚` to `⊗` (`ofSplit_otimes`).
+Angle addition and velocity addition are one product here. The norm `B² + A²` is itself a Gaussian
+integer, and `z ⊗ conj z` leaves it standing (`otimes_conj`). `⊗ k` can be undone exactly when it is
+non-zero (`otimes_cancel_iff`), which fails on the light lines `B = ±i·A` (`nrm_eq_zero_iff`). Through each
+placement it is that flat product's norm: `p² + q²`, `q² − p²` and `(q + p·i)²` (`nrm_ofOuter`,
+`nrm_ofSplit`, `nrm_ofInner`).
+
+The four ways to nest the two readings:
+
+| | ratio coordinates | complex coordinates |
+|---|---|---|
+| **read as a ratio** | `T(T, T)` = `T2`: a ratio of ratios, with values in ℚ | `T(C, C)`: ℚ(i); the inverse is a swap |
+| **read as a point** | `C(T, T)`: ℚ(i); the inverse is the conjugate over the norm | `C(C, C)`: the bicomplex integers, with zero divisors on the light lines |
+
 ### The mediant on integer hardware
 
 **Registers keep `⊕`** (`T/Registers.lean`). A `w`-bit register is the ring `BitVec w`, and wrapping both
@@ -439,6 +558,11 @@ search and checks it against the proved `table` cell by cell.
   hand, but none of it is in Lean yet.
 - The wheel axioms were checked against the statements on Wikipedia and nLab. Carlström's paper itself
   has not been read against them.
+- The exact inverse of `C(C, C)`. Its norm is a Gaussian integer, so the inverse needs coordinates that are
+  ratios of Gaussian integers, three levels deep, and it would still fail on the light lines.
+- The ratio reading's `*` is in the quadratic family only through another basis, so `Point`'s result for
+  real ratios is proved on its own, not as a case of `QuadPoint`'s.
+- The points at infinity of `T2`, in the terms `Compare` uses for the two constructions of ℚ(i).
 
 ## Files
 
@@ -471,6 +595,9 @@ search and checks it against the proved `table` cell by cell.
 | `CottLean/T/NoDivision.lean` | no equality lets `⊕` and division coexist, for any of the five products |
 | `CottLean/T/Transform.lean` | Möbius transformations as matrices; every product as a family of them; discriminants, fixed points, sandwiches |
 | `CottLean/T/Registers.lean` | a traction in `w`-bit registers: the wrap keeps every operation, `⊕` included; a quotient of differences |
+| `CottLean/T/Readings.lean` | the integers in the ratio and complex readings; the maps between them; no isomorphism |
+| `CottLean/T/Drift.lean` | both readings side by side, with the conjugate for the complex inverse; the drift between them |
+| `CottLean/T/Over.lean` | `T`'s formulas over any commutative ring; `x · (1/x) = T(pq, pq)`; when `+` and `·` can be undone in a domain |
 | `CottLean/Nested/Basic.lean` | `T2`, a pair of pairs: the embedding of `T`, the projection `flatten` as a Möbius transformation of the numerator, and `T2` against the common meadow |
 | `CottLean/Nested/DivZero.lean` | `p/0 = tan(arg(p·i))`: sign-only on integers, the quarter turn on pairs, the numerator `flatten` loses at `0`, and parallel lines, with and without the `·i` |
 | `CottLean/Nested/T3.lean` | `T3`, a pair of `T2`s: the embedding of `T2`, the projection's residue one level up, the two levels compounded into `T`, the leaves read by parity, and what a denominator erases |
@@ -478,6 +605,11 @@ search and checks it against the proved `table` cell by cell.
 | `CottLean/Nested/Epsilon.lean` | a zero that adds a layer: the Horner reading, `T` over `ℤ[ε]`, holding and releasing without loss, cancellation, and the standard part |
 | `CottLean/Nested/NoRing.lean` | the laws that make `m · (n − n)` erase `m`, each isolated, and why the zero needs new room |
 | `CottLean/Nested/Hotel.lean` | room for the zero: two groups on one carrier, `+` erasing and `·` never, distributivity after the standard part, and a Laurent-series model |
+| `CottLean/Nested/Point.lean` | `T2` read as a point: ℚ(i), the exact inverse in integers, its residue, and where it splits from the reciprocal |
+| `CottLean/Nested/QuadPoint.lean` | every quadratic ring over ratio coordinates: the inverse, its residue, and its collapse at the flat product's loss |
+| `CottLean/Nested/RatioPoint.lean` | `T(C, C)`, a ratio of Gaussian integers: values, `rationalize` and `combine`, the round trips, the infinities |
+| `CottLean/Nested/Compare.lean` | what each construction of ℚ(i) can undo, and exactly what each map identifies |
+| `CottLean/Nested/Bicomplex.lean` | `C(C, C)`, the bicomplex integers: two units, the evaluations, zero divisors, `⊗` and `⊚` together, the complex norm |
 | `scripts/LawAtlas.lean` | not part of the library: the grid search behind the atlas, checked against `T.Atlas.table` |
 | `scripts/Declarations.lean` | not part of the library: writes `declarations.txt`, the name of every citable declaration. cott-engine cites these names, and CI fails if the file is out of date |
 | `declarations.txt` | the generated list of every citable declaration, sorted |
