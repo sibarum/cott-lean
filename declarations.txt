@@ -1416,6 +1416,9 @@ T2.held_plus_one
 T2.instAdd
 T2.instMul
 T2.instNeg
+T2.inverse_residue_eq_zero_iff
+T2.lenSq
+T2.lenSq_eq_zero_iff
 T2.mk
 T2.mk.inj
 T2.mk.injEq
@@ -1447,6 +1450,7 @@ T2.of_zero
 T2.one_plus_neg_one
 T2.oplus
 T2.otimes
+T2.otimes_pointInv
 T2.p
 T2.plus
 T2.plus_one
@@ -1454,7 +1458,9 @@ T2.plus_one_recoverable_iff
 T2.plus_quarterTurn
 T2.pointInv
 T2.pointInv_collapses_iff_times_ambiguous
+T2.pointInv_eq
 T2.pointInv_factor_is_residue
+T2.pointInv_ofPoint
 T2.pointInv_ofRatio
 T2.pointInv_ofRatio_omega
 T2.pointInv_ofRatio_q_eq_zeroOmega_iff

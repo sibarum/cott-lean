@@ -34,7 +34,8 @@ So on values the level-two point reading is the field ℚ(i).
 ## The two flat readings inside it
 
 * `ofPoint`: a flat point `T(p, q)` is `T2(p/1, q/1)`. `⊕` and `⊗` carry across exactly, at coordinate
-  equality (`ofPoint_oplus`, `ofPoint_otimes`). The flat complex reading is the integer points.
+  equality (`ofPoint_oplus`, `ofPoint_otimes`). The flat complex reading is the integer points,
+  and there it gains the inverse it lacked: `(q − p·i) / (p² + q²)` (`pointInv_ofPoint`).
 * `ofRatio`: a flat ratio `x` is the real point `T2(0, x)`. `+` carries to `⊕` exactly (`ofRatio_plus`).
   `*` carries to `⊗` with the imaginary part left as the residue `T(0, q₁·q₂)`, which reads as `0`
   (`ofRatio_times`).
@@ -125,6 +126,53 @@ theorem val_pointInv {x : T2} (hx : Finite x) : val (pointInv x) = (val x)⁻¹ 
   · simp only [val, pointInv, Complex.inv_im]
     rw [rv_times, rv_neg, rv_reciprocal, rv_normSq hx, div_eq_mul_inv]; rfl
 
+/-! ## The inverse in integers
+
+Write `T2(T(a,b), T(c,d))`, the point `c/d + (a/b)·i`, and `D = a²d² + b²c²`. `D` is the squared length
+`(c/d)² + (a/b)²` with the denominators cleared, `b²d²` times it. Then
+
+```
+1 / T2(T(a,b), T(c,d)) = T2( T(−a·b²·d², b·D),  T(c·b²·d², d·D) )
+```
+
+and multiplying back gives `1` with both coordinates scaled by one integer `k = (b·d·D)²`, the
+imaginary part left as the residue `T(0, k)`. That is the shape of `x · (1/x) = T(pq, pq)` one level
+down: each inverse returns to `1` up to its own product's norm. `k` is `0` exactly when a coordinate has
+a zero denominator or the point is zero.
+-/
+
+/-- `a²d² + b²c²`: the squared length of `c/d + (a/b)·i`, times `b²d²`. -/
+def lenSq (a b c d : ℤ) : ℤ := a ^ 2 * d ^ 2 + b ^ 2 * c ^ 2
+
+/-- The inverse, coordinate by coordinate. -/
+theorem pointInv_eq (a b c d : ℤ) :
+    pointInv ⟨⟨a, b⟩, ⟨c, d⟩⟩ =
+      ⟨⟨-a * b ^ 2 * d ^ 2, b * lenSq a b c d⟩, ⟨c * b ^ 2 * d ^ 2, d * lenSq a b c d⟩⟩ := by
+  ext <;> simp only [pointInv, normSq, T.reciprocal, lenSq, T.mul_def, T.add_def, T.neg_def] <;> ring
+
+/-- `z ⊗ (1/z)` is `1` with both coordinates scaled by `k = (b·d·D)²`, over the residue `T(0, k)`. -/
+theorem otimes_pointInv (a b c d : ℤ) :
+    otimes ⟨⟨a, b⟩, ⟨c, d⟩⟩ (pointInv ⟨⟨a, b⟩, ⟨c, d⟩⟩) =
+      ⟨⟨0, (b * d * lenSq a b c d) ^ 2⟩,
+        ⟨(b * d * lenSq a b c d) ^ 2, (b * d * lenSq a b c d) ^ 2⟩⟩ := by
+  rw [pointInv_eq]; ext <;> simp [otimes, lenSq] <;> ring
+
+theorem lenSq_eq_zero_iff (a b c d : ℤ) : lenSq a b c d = 0 ↔ a * d = 0 ∧ b * c = 0 := by
+  have e : lenSq a b c d = (a * d) ^ 2 + (b * c) ^ 2 := by unfold lenSq; ring
+  rw [e]
+  constructor
+  · intro h
+    have h1 : (a * d) ^ 2 = 0 := by nlinarith [sq_nonneg (a * d), sq_nonneg (b * c)]
+    have h2 : (b * c) ^ 2 = 0 := by nlinarith [sq_nonneg (a * d), sq_nonneg (b * c)]
+    exact ⟨pow_eq_zero_iff two_ne_zero |>.mp h1, pow_eq_zero_iff two_ne_zero |>.mp h2⟩
+  · rintro ⟨h1, h2⟩; rw [h1, h2]; norm_num
+
+/-- The residue vanishes exactly when a coordinate has a zero denominator, or the point is zero. -/
+theorem inverse_residue_eq_zero_iff (a b c d : ℤ) :
+    b * d * lenSq a b c d = 0 ↔ b = 0 ∨ d = 0 ∨ (a = 0 ∧ c = 0) := by
+  rw [mul_eq_zero, mul_eq_zero, lenSq_eq_zero_iff, mul_eq_zero, mul_eq_zero]
+  tauto
+
 /-! ## The flat point reading inside it -/
 
 /-- A flat point `T(p, q)`, the Gaussian integer `q + p·i`, with each coordinate over `1`. -/
@@ -138,6 +186,11 @@ theorem ofPoint_oplus (x y : T) : ofPoint (x ⊕ y) = oplus (ofPoint x) (ofPoint
 
 theorem ofPoint_otimes (x y : T) : ofPoint (x ⊗ y) = otimes (ofPoint x) (ofPoint y) := by
   ext <;> simp [ofPoint, otimes, T.otimes, ratioInt]; ring
+
+/-- A Gaussian integer `q + p·i`: the inverse is `(q − p·i) / (p² + q²)`. -/
+theorem pointInv_ofPoint (z : T) :
+    pointInv (ofPoint z) = ⟨⟨-z.p, z.p ^ 2 + z.q ^ 2⟩, ⟨z.q, z.p ^ 2 + z.q ^ 2⟩⟩ := by
+  ext <;> simp only [ofPoint, ratioInt, pointInv, normSq, T.reciprocal, T.mul_def, T.add_def, T.neg_def] <;> ring
 
 /-! ## The flat ratio reading inside it -/
 
