@@ -40,6 +40,7 @@ import CottLean.Nested.Hotel
 import CottLean.Nested.Point
 import CottLean.Nested.QuadPoint
 import CottLean.Nested.RatioPoint
+import CottLean.Nested.Bicomplex
 import CottLean.Physics.Triality
 import CottLean.Physics.Center
 import CottLean.Physics.Vertex
