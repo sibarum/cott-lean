@@ -27,6 +27,7 @@ import CottLean.T.Transform
 import CottLean.T.Registers
 import CottLean.T.Readings
 import CottLean.T.Drift
+import CottLean.T.Over
 import CottLean.T.Ternary
 import CottLean.T.TernaryMeadow
 import CottLean.Nested.Basic
@@ -38,6 +39,7 @@ import CottLean.Nested.NoRing
 import CottLean.Nested.Hotel
 import CottLean.Nested.Point
 import CottLean.Nested.QuadPoint
+import CottLean.Nested.RatioPoint
 import CottLean.Physics.Triality
 import CottLean.Physics.Center
 import CottLean.Physics.Vertex
