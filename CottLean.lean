@@ -25,6 +25,8 @@ import CottLean.T.Atlas
 import CottLean.T.NoDivision
 import CottLean.T.Transform
 import CottLean.T.Registers
+import CottLean.T.Readings
+import CottLean.T.Drift
 import CottLean.Nested.Basic
 import CottLean.Nested.DivZero
 import CottLean.Nested.T3
@@ -32,6 +34,7 @@ import CottLean.Nested.Ones
 import CottLean.Nested.Epsilon
 import CottLean.Nested.NoRing
 import CottLean.Nested.Hotel
+import CottLean.Nested.Point
 import CottLean.Physics.Triality
 import CottLean.Physics.Center
 import CottLean.Physics.Vertex
