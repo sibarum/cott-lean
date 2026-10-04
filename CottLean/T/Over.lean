@@ -96,4 +96,21 @@ theorem times_cancel_iff [IsDomain R] (k : TOver R) :
     · exact mul_right_cancel₀ hp h1
     · exact mul_right_cancel₀ hq h2
 
+/-- In a domain, `+ k` can be undone exactly when the denominator of `k` is not zero. -/
+theorem plus_cancel_iff [IsDomain R] (k : TOver R) :
+    (∀ x x' : TOver R, x + k = x' + k → x = x') ↔ k.q ≠ 0 := by
+  constructor
+  · intro h hq
+    have := h ⟨1, 1⟩ ⟨0, 1⟩ (by ext <;> simp [hq])
+    exact one_ne_zero (congrArg TOver.p this)
+  · intro hq x x' h
+    have h1 := congrArg TOver.p h
+    have h2 := congrArg TOver.q h
+    simp only [add_p, add_q] at h1 h2
+    have hq' : x.q = x'.q := mul_right_cancel₀ hq h2
+    rw [hq'] at h1
+    ext
+    · exact mul_right_cancel₀ hq (add_right_cancel h1)
+    · exact hq'
+
 end TOver

@@ -1447,6 +1447,8 @@ T2
 T2.Finite
 T2.add_def
 T2.casesOn
+T2.combine_eq_iff
+T2.combine_otimes
 T2.ctorIdx
 T2.det_flatten_mat
 T2.ext
@@ -1502,8 +1504,13 @@ T2.of_times
 T2.of_zero
 T2.one_plus_neg_one
 T2.oplus
+T2.oplus_cancel_iff
 T2.otimes
+T2.otimes_eq_int
+T2.otimes_eq_otimes_iff
+T2.otimes_never_injective
 T2.otimes_pointInv
+T2.otimes_transfer
 T2.p
 T2.plus
 T2.plus_one
@@ -1623,7 +1630,10 @@ TC.nrm
 TC.nrm_ne_zero
 TC.rationalize
 TC.rationalize_combine
+TC.rationalize_eq_iff
 TC.rationalize_infinite
+TC.rationalize_not_injective
+TC.rationalize_unit
 TC.times_reciprocal_residue
 TC.toComplex_im
 TC.toComplex_ne_zero
@@ -1704,6 +1714,7 @@ TOver.ofT_plus
 TOver.ofT_reciprocal
 TOver.ofT_times
 TOver.p
+TOver.plus_cancel_iff
 TOver.q
 TOver.rec
 TOver.recOn
