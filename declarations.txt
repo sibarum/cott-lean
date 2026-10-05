@@ -940,6 +940,14 @@ T.exists_plus_eq_zero_iff
 T.exists_splitTimes_eq_zero_iff
 T.exists_times_eq_one_iff
 T.exists_unique_reached_ray
+T.exp
+T.exp_injective
+T.exp_oplus
+T.exp_oplus_fails
+T.exp_sameRatio_iff
+T.exp_scale
+T.exp_times_base
+T.exp_zeroOmega
 T.ext
 T.ext_iff
 T.finv
@@ -1407,6 +1415,10 @@ T.velAdd_classical
 T.velAdd_eq
 T.velAdd_eq_zeroOmega_iff
 T.velAdd_of_q_mul_eq_one
+T.vlog
+T.vlog_exp
+T.vlog_one
+T.vlog_times
 T.wrap
 T.wrapPair
 T.wrapPair_eq_iff

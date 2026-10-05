@@ -12,6 +12,7 @@ import CottLean.T.CommonMeadow
 import CottLean.T.Fracpair
 import CottLean.T.Residue
 import CottLean.T.Dual
+import CottLean.T.Exponential
 import CottLean.T.Quadratic
 import CottLean.T.Velocity
 import CottLean.T.Parallel
