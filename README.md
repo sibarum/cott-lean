@@ -309,6 +309,15 @@ way `y` does, and turns into `y` the same way (`mediant_between`).
 leaves the pairs: `1^(1/2) = tan(π/8)` is no pair's ratio (`anglePow_one_half_ne`), and no `y ⊗ y` has the
 angle of `1` (`theta_otimes_self_ne_theta_one`). Some halves stay: `ω^(1/2) = 1` (`anglePow_omega_half`).
 
+**The spin cover** (`T/Spin.lean`). Under `⊗` a pair turns and scales, so only the four units are
+rotations as they stand. Its square `x ⊗ x` has norm `N²`, which divides out exactly: `rot x` is the matrix
+of `(q² − p², 2pq)/N`, rational, orthogonal, with determinant one (`rot_mem_specialOrthogonalGroup`).
+`rot (x ⊗ y) = rot x * rot y` for every pair (`rot_otimes`), so rotations compose as pairs and the squaring
+can wait until the end. Off `0ω`, two pairs give one rotation exactly when `det x y = 0`
+(`rot_eq_rot_iff`): `x` and `-_x` give the same one, the double cover. Every rotation with rational
+entries is some `rot x` (`rot_surjective`). Read classically it is the rotation by `2θ` (`rotCos_eq_cos`,
+`rotSin_eq_sin`), the only place π enters.
+
 **The mediant from the four seeds** (`T/MediantTree.lean`). The model's last line says every traction
 other than `0ω` is reached exactly once by iterated mediant from the four seeds. Inserting `⊕` between
 neighbours, starting from `0, ω, _0, -ω` around the circle, first gives `1, _1, -_1, -1`, the table of nine.
@@ -628,6 +637,7 @@ search and checks it against the proved `table` cell by cell.
 | `CottLean/T/Loss.lean` | what each product loses at a zero divisor, and the one integer that restores it |
 | `CottLean/T/Angle.lean` | θ, `tan θ = p/q`, the table's angles, what each operation does to the angle; the angle is the ray; the mediant lies between |
 | `CottLean/T/AnglePower.lean` | `tan(r·θ)` at any real exponent; the power at the integers; `arctan`'s half turn off them; `1^(1/2)` is no pair |
+| `CottLean/T/Spin.lean` | the square of a pair as an exact rational rotation; composition; the double cover; every rotation of `SO(2, ℚ)` |
 | `CottLean/T/PowerSum.lean` | `zⁿ = xⁿ + yⁿ` exactly; only `n = ±1` stay for every pair; `pⁿ = 2qⁿ`; Fermat at 3 and 4 |
 | `CottLean/T/Atlas.lean` | the law atlas: every law, every pairing of an addition and a multiplication, graded and proved strongest |
 | `CottLean/T/NoDivision.lean` | no equality lets `⊕` and division coexist, for any of the five products |
