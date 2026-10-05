@@ -487,12 +487,34 @@ non-zero (`otimes_cancel_iff`), which fails on the light lines `B = ±i·A` (`nr
 placement it is that flat product's norm: `p² + q²`, `q² − p²` and `(q + p·i)²` (`nrm_ofOuter`,
 `nrm_ofSplit`, `nrm_ofInner`).
 
+**The bicomplex inverse** (`Nested/BicomplexRatio.lean`). `C(T(C, C), T(C, C))` gives each coordinate of
+the bicomplex point its own denominator, a ratio of Gaussian integers, and uses `Point`'s formulas word for
+word. Write `A = T(u, v)`, `B = T(s, t)` and `D = u²t² + v²s²`. The inverse is
+`C(T(−u·v²·t², v·D), T(s·v²·t², t·D))` (`inv_eq`), and `z ⊗ (1/z)` is `1` scaled by one Gaussian integer
+`k = (v·t·D)²` (`otimes_inv`), which is zero exactly at a zero denominator or `D = 0`
+(`inv_residue_eq_zero_iff`). In `Point` the matching `D` is a sum of two squares, zero only at the zero
+point. Here it factors as `(vs + i·ut)(vs − i·ut)` and is zero on the light lines `B = ±i·A`
+(`den_eq_mul`, `den_eq_zero_iff`). The other three corners sit inside it:
+
+- `C(C, C)` carries `⊕` and `⊗` across exactly (`ofCC_oplus`, `ofCC_otimes`). Its points get the inverse
+  `(B − A·j) / (B² + A²)` (`inv_ofCC`), which collapses exactly where `C(C, C)`'s `⊗` cannot be undone
+  (`inv_ofCC_collapses_iff`). The zero divisor `1 + i·j` gets `C(−i/0, 1/0)`, and multiplying back gives
+  `C(0/0, 0/0)` (`otimes_zeroDivisor_inv`).
+- `C(T, T)` carries `⊕`, `⊗` and its inverse across exactly (`inv_ofT2`), so `Point`'s `i` is this `j`.
+- The inverse of a real `T(C, C)` value is its swap scaled by its residue `z·w` (`inv_ofTC`). That is the
+  split `Point` found between its two inverses.
+
+Read into the bicomplex numbers `QuadraticAlgebra ℂ (−1) 0`, `⊕` and `⊗` are their sum and product, and
+`inv` is the inverse wherever the denominators and `D` are non-zero (`val_oplus`, `val_otimes`, `val_inv`).
+The light lines are not a defect of the encoding. A finite point is a unit exactly when `D ≠ 0`
+(`isUnit_val_iff`), and on the light lines `z · conj z = 0` (`val_otimes_conj`).
+
 The four ways to nest the two readings:
 
 | | ratio coordinates | complex coordinates |
 |---|---|---|
 | **read as a ratio** | `T(T, T)` = `T2`: a ratio of ratios, with values in ℚ | `T(C, C)`: ℚ(i); the inverse is a swap |
-| **read as a point** | `C(T, T)`: ℚ(i); the inverse is the conjugate over the norm | `C(C, C)`: the bicomplex integers, with zero divisors on the light lines |
+| **read as a point** | `C(T, T)`: ℚ(i); the inverse is the conjugate over the norm | `C(C, C)`: the bicomplex integers, with zero divisors on the light lines; over `T(C, C)` coordinates they get an exact inverse everywhere else |
 
 ### The mediant on integer hardware
 
@@ -558,8 +580,6 @@ search and checks it against the proved `table` cell by cell.
   hand, but none of it is in Lean yet.
 - The wheel axioms were checked against the statements on Wikipedia and nLab. Carlström's paper itself
   has not been read against them.
-- The exact inverse of `C(C, C)`. Its norm is a Gaussian integer, so the inverse needs coordinates that are
-  ratios of Gaussian integers, three levels deep, and it would still fail on the light lines.
 - The ratio reading's `*` is in the quadratic family only through another basis, so `Point`'s result for
   real ratios is proved on its own, not as a case of `QuadPoint`'s.
 - The points at infinity of `T2`, in the terms `Compare` uses for the two constructions of ℚ(i).
@@ -610,6 +630,7 @@ search and checks it against the proved `table` cell by cell.
 | `CottLean/Nested/RatioPoint.lean` | `T(C, C)`, a ratio of Gaussian integers: values, `rationalize` and `combine`, the round trips, the infinities |
 | `CottLean/Nested/Compare.lean` | what each construction of ℚ(i) can undo, and exactly what each map identifies |
 | `CottLean/Nested/Bicomplex.lean` | `C(C, C)`, the bicomplex integers: two units, the evaluations, zero divisors, `⊗` and `⊚` together, the complex norm |
+| `CottLean/Nested/BicomplexRatio.lean` | `C(T(C, C), T(C, C))`: the exact bicomplex inverse, its residue, the light lines, the other three corners inside it, the bicomplex units |
 | `scripts/LawAtlas.lean` | not part of the library: the grid search behind the atlas, checked against `T.Atlas.table` |
 | `scripts/Declarations.lean` | not part of the library: writes `declarations.txt`, the name of every citable declaration. cott-engine cites these names, and CI fails if the file is out of date |
 | `declarations.txt` | the generated list of every citable declaration, sorted |

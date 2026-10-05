@@ -44,8 +44,8 @@ the `i` inside each coordinate and the `j` of the point. With `j² = −1` this 
   (`nrm_ofInner`).
 
 An exact inverse is `(B − A·j) / nrm`, and `nrm` is a Gaussian integer, so it needs coordinates that are
-ratios of Gaussian integers, `C(T(C, C), T(C, C))`. Even there it fails on the light lines, where `nrm`
-is zero and the point is not.
+ratios of Gaussian integers, `C(T(C, C), T(C, C))` (`BicomplexRatio`). Even there it fails on the light
+lines, where `nrm` is zero and the point is not.
 -/
 
 open T

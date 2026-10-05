@@ -42,6 +42,7 @@ import CottLean.Nested.Point
 import CottLean.Nested.QuadPoint
 import CottLean.Nested.RatioPoint
 import CottLean.Nested.Bicomplex
+import CottLean.Nested.BicomplexRatio
 import CottLean.Nested.Compare
 import CottLean.Physics.Triality
 import CottLean.Physics.Center
