@@ -318,6 +318,26 @@ can wait until the end. Off `0ω`, two pairs give one rotation exactly when `det
 entries is some `rot x` (`rot_surjective`). Read classically it is the rotation by `2θ` (`rotCos_eq_cos`,
 `rotSin_eq_sin`), the only place π enters.
 
+**The winding count** (`T/Winding.lean`). Whether a pair's turn `θ/2π` is below a rational `a/b` is
+decided in integers. Walk the `⊗` powers `x, …, x^b` and count the steps whose numerator goes from negative
+to non-negative. For a pair in the upper half-plane each step is under a half turn, so none crosses
+uncounted, and the count is `⌊b · turn x⌋` (`winding_eq_floor`). So `turn x < a/b` exactly when the count is
+below `a` (`turnLt_iff`). Doubling the walk doubles the count, plus one if the half-way power is in the
+closed lower half-plane (`winding_double`), so `powWind` finds the count in `O(log b)` products
+(`powWind_eq`).
+
+**Dialing a turn** (`T/Dial.lean`). From `(0, ω)`, the mediant replaces whichever end the target is past:
+`L' = L ⊕ s·R`, `R' = R ⊕ (1 − s)·L`, with `s` the test's bit. For any target in `(0, 1/4]` the ends stay
+neighbours, `det L R = 1` (`det_dial`), and the target stays between them, `turn L < a/b ≤ turn R`
+(`dial_bracket`). The width is exact in integers, `sin²(θR − θL) = 1/(N(L)·N(R))` (`sin_sq_dial`), and closes:
+`(turn R − turn L)² ≤ 1/(16(n + 1))` after `n` steps (`turn_width_dial`).
+
+**Rational trigonometry** (`T/RationalTrig.lean`). `cosTurn a b n` and `sinTurn a b n` are rationals: dial
+half the turn past its quarter turns, turn by `ω` for an odd quarter, and square. They are exactly on the
+unit circle (`cosTurn_sq_add_sinTurn_sq`), and within `π/√(n + 1)` of `cos(2π·a/b)` and `sin(2π·a/b)`
+(`cosTurn_err`, `sinTurn_err`). The computation is integers, floor division and one comparison per step;
+π is only in the error statements.
+
 **The mediant from the four seeds** (`T/MediantTree.lean`). The model's last line says every traction
 other than `0ω` is reached exactly once by iterated mediant from the four seeds. Inserting `⊕` between
 neighbours, starting from `0, ω, _0, -ω` around the circle, first gives `1, _1, -_1, -1`, the table of nine.
@@ -638,6 +658,9 @@ search and checks it against the proved `table` cell by cell.
 | `CottLean/T/Angle.lean` | θ, `tan θ = p/q`, the table's angles, what each operation does to the angle; the angle is the ray; the mediant lies between |
 | `CottLean/T/AnglePower.lean` | `tan(r·θ)` at any real exponent; the power at the integers; `arctan`'s half turn off them; `1^(1/2)` is no pair |
 | `CottLean/T/Spin.lean` | the square of a pair as an exact rational rotation; composition; the double cover; every rotation of `SO(2, ℚ)` |
+| `CottLean/T/Winding.lean` | the turn; comparing it with a rational by counting crossings; the count by squaring |
+| `CottLean/T/Dial.lean` | the mediant descent toward a turn: neighbours, a certified bracket, its exact width, and its closing |
+| `CottLean/T/RationalTrig.lean` | cosine and sine of a rational turn as rationals: exactly on the circle, with a proved error |
 | `CottLean/T/PowerSum.lean` | `zⁿ = xⁿ + yⁿ` exactly; only `n = ±1` stay for every pair; `pⁿ = 2qⁿ`; Fermat at 3 and 4 |
 | `CottLean/T/Atlas.lean` | the law atlas: every law, every pairing of an addition and a multiplication, graded and proved strongest |
 | `CottLean/T/NoDivision.lean` | no equality lets `⊕` and division coexist, for any of the five products |

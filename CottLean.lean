@@ -32,6 +32,9 @@ import CottLean.T.Over
 import CottLean.T.Ternary
 import CottLean.T.TernaryMeadow
 import CottLean.T.Spin
+import CottLean.T.Winding
+import CottLean.T.Dial
+import CottLean.T.RationalTrig
 import CottLean.Nested.Basic
 import CottLean.Nested.DivZero
 import CottLean.Nested.T3
