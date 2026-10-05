@@ -30,7 +30,7 @@ the `i` inside each coordinate and the `j` of the point. With `j² = −1` this 
 * `ev_injective`: the two evaluations together lose nothing.
 * `ev_not_surjective`: but they do not reach every pair. `(1, 0)` would need `2B = 1`. Over ℤ the
   bicomplex integers are not `ℤ[i] × ℤ[i]`, as the split-complex integers are not `ℤ × ℤ`
-  (`T.split_not_prod`). The two agree once `2` is invertible.
+  (`T.split_not_prod`). The two agree once `2` is invertible (`Embeddings.split`).
 
 ## The norm, which is complex
 

@@ -516,6 +516,24 @@ The four ways to nest the two readings:
 | **read as a ratio** | `T(T, T)` = `T2`: a ratio of ratios, with values in ℚ | `T(C, C)`: ℚ(i); the inverse is a swap |
 | **read as a point** | `C(T, T)`: ℚ(i); the inverse is the conjugate over the norm | `C(C, C)`: the bicomplex integers, with zero divisors on the light lines; over `T(C, C)` coordinates they get an exact inverse everywhere else |
 
+**How the corners fit together** (`Nested/Embeddings.lean`). Every route up from flat `T` to
+`C(T(C, C), T(C, C))` lands on the same point. A flat point goes through `C(T, T)` or through `C(C, C)`
+(`face_point`), a point on the inner `i` through `C(C, C)` or `T(C, C)` (`face_inner`), and a flat ratio
+through `C(T, T)` or `T(C, C)` (`face_ratio`). On real ratios `combine` is just the cast (`face_combine`),
+while `rationalize` comes back only up to a residue (`rationalize_castT`). ℚ(i) sits in the top corner
+twice: `ofT2` puts the imaginary part on the outer `j` and carries `⊗` exactly, and `ofTC ∘ combine` puts
+the whole number on the inner `i` and carries `*` up to the residue `T(0, w₁·w₂)` (`ofTC_times`). The two
+copies agree exactly on the real axis (`val_outer_eq_inner_iff`). Reading `j` as `i` identifies them, and
+reading it as `−i` makes them complex conjugates (`evP_outer`, `evM_outer`). That is `Bicomplex`'s inner
+and outer placement, one level up. Over ℂ the two readings of `j` together are a ring isomorphism from the
+bicomplex numbers onto `ℂ × ℂ` (`split`). On the integers it is `Bicomplex`'s two evaluations
+(`split_val_ofCC`), and the `(1, 0)` that ℤ misses is the value of `C(−i/2, 1/2)`, the idempotent
+`(1 − i·j)/2` (`split_val_half`). With unreduced coordinates it is idempotent up to scaling every coordinate
+by `8` (`otimes_half`). The light lines are the two axes of `ℂ × ℂ`: a finite point has `D ≠ 0` exactly when
+neither evaluation is zero (`den_ne_zero_iff`), and the zero divisor `1 + i·j` goes to `(0, 2)`. Because of
+the zero divisors, no injective map from `C(C, C)` to a domain is multiplicative
+(`not_otimes_embeds_domain`). In particular none takes its `⊗` to flat `⊗` (`not_otimes_embeds_flat`).
+
 ### The mediant on integer hardware
 
 **Registers keep `⊕`** (`T/Registers.lean`). A `w`-bit register is the ring `BitVec w`, and wrapping both
@@ -631,6 +649,7 @@ search and checks it against the proved `table` cell by cell.
 | `CottLean/Nested/Compare.lean` | what each construction of ℚ(i) can undo, and exactly what each map identifies |
 | `CottLean/Nested/Bicomplex.lean` | `C(C, C)`, the bicomplex integers: two units, the evaluations, zero divisors, `⊗` and `⊚` together, the complex norm |
 | `CottLean/Nested/BicomplexRatio.lean` | `C(T(C, C), T(C, C))`: the exact bicomplex inverse, its residue, the light lines, the other three corners inside it, the bicomplex units |
+| `CottLean/Nested/Embeddings.lean` | how the corners fit together: the commuting cube, ℚ(i) twice in the top corner, the bicomplex numbers as `ℂ × ℂ`, and what cannot embed |
 | `scripts/LawAtlas.lean` | not part of the library: the grid search behind the atlas, checked against `T.Atlas.table` |
 | `scripts/Declarations.lean` | not part of the library: writes `declarations.txt`, the name of every citable declaration. cott-engine cites these names, and CI fails if the file is out of date |
 | `declarations.txt` | the generated list of every citable declaration, sorted |
