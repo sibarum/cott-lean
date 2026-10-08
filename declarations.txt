@@ -1208,6 +1208,7 @@ T.complexInt_zero
 T.contract
 T.cosTurn
 T.cosTurn_err
+T.cosTurn_scale
 T.cosTurn_sq_add_sinTurn_sq
 T.couple
 T.couple_polar
@@ -1236,6 +1237,7 @@ T.dialStep_eq
 T.dial_bracket
 T.dial_isCoprime
 T.dial_nonneg
+T.dial_scale
 T.disc
 T.disc_conj
 T.disc_otimes
@@ -1507,6 +1509,7 @@ T.qtimes_idempotent_iff
 T.qtimes_recover_with_numerator
 T.quadrant
 T.quarterSplit
+T.quarterSplit_scale
 T.quarterTurn_contrast
 T.quarter_split
 T.range_reach
@@ -1608,12 +1611,14 @@ T.sign_intCast'
 T.signs
 T.sinTurn
 T.sinTurn_err
+T.sinTurn_scale
 T.sin_sq_dial
 T.sin_theta_sub
 T.sm
 T.sm_consistent
 T.spinTurn
 T.spinTurn_ne
+T.spinTurn_scale
 T.splitTimes
 T.splitTimes_eq_act
 T.splitTimes_eq_splitTimes_iff_of_p_eq_neg_q
@@ -1790,6 +1795,7 @@ T.tri_zero
 T.turn
 T.turnLt
 T.turnLt_iff
+T.turnLt_scale
 T.turn_mem
 T.turn_omega
 T.turn_one

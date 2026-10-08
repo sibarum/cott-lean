@@ -17,6 +17,8 @@ What is proved, for `b > 0`:
 * `cosTurn_sq_add_sinTurn_sq`: `cos² + sin² = 1` exactly. The answer is always an exact rotation; only
   its angle is approximate.
 * `cosTurn_err`, `sinTurn_err`: `(cosTurn − cos(2π·a/b))² ≤ π²/(n + 1)`, and the same for sine.
+* `cosTurn_scale`, `sinTurn_scale`: `(k·a)/(k·b)` gives the same answer as `a/b` for every `k > 0`, at
+  every depth: it is the turn that is dialed, not how it is written.
 
 The bound is what the plain descent guarantees in the worst case; the descent usually does far better,
 and the bracket it returns says exactly how well (`sin_sq_dial`). `spinTurn` is the pair itself, for
@@ -167,6 +169,63 @@ theorem sinTurn_err (a : ℤ) {b : ℕ} (hb : 0 < b) (n : ℕ) :
   rw [hc, htarget, Real.sin_add_int_mul_pi]
   exact err_sq Real.abs_sin_sub_sin_le (by rw [← zpow_natCast, ← zpow_mul]; simp [Even.neg_one_zpow])
     hl hu n (turn_width_dial _ _ n)
+
+/-! ## The turn, not its spelling
+
+`a/b` and `(k·a)/(k·b)` are one turn, and the descent cannot tell them apart: the split's remainder
+scales with `k` and its quotient does not, and every comparison inside the descent is `turn M < a/b`
+itself (`turnLt_iff`). So `cos(2/12)` is `cos(1/6)` at every depth. -/
+
+/-- A comparison with `(k·a)/(k·b)` is the comparison with `a/b`. -/
+theorem turnLt_scale {x : T} (h : 0 < x.p ∨ (x.p = 0 ∧ 0 ≤ x.q)) (a : ℤ) {b k : ℕ} (hb : 0 < b)
+    (hk : 0 < k) : turnLt x (k * a) (k * b) = turnLt x a b := by
+  rw [Bool.eq_iff_iff, turnLt_iff h _ (Nat.mul_pos hk hb), turnLt_iff h _ hb]
+  have hk' : (k : ℝ) ≠ 0 := by exact_mod_cast hk.ne'
+  push_cast
+  rw [mul_div_mul_left _ _ hk']
+
+/-- The descent toward `(k·a)/(k·b)` is the descent toward `a/b`, step for step. -/
+theorem dial_scale (a : ℤ) {b k : ℕ} (hb : 0 < b) (hk : 0 < k) (n : ℕ) :
+    dial (k * a) (k * b) n = dial a b n := by
+  induction n with
+  | zero => rfl
+  | succ n ih =>
+    have hM : 0 < ((dial a b n).1 ⊕ (dial a b n).2).p ∨
+        (((dial a b n).1 ⊕ (dial a b n).2).p = 0 ∧ 0 ≤ ((dial a b n).1 ⊕ (dial a b n).2).q) := by
+      obtain ⟨h1, h2, h3, h4⟩ := dial_nonneg a b n
+      simp only [oplus]; omega
+    simp only [dial, ih, dialStep, turnLt_scale hM a hb hk]
+
+/-- Splitting `(k·a)/(k·B)` gives the same quarter turns, and `k` times the remainder. -/
+theorem quarterSplit_scale (a : ℤ) {B k : ℕ} (hB : 0 < B) (hk : 0 < k) :
+    quarterSplit (k * a) (k * B) = ((quarterSplit a B).1, k * (quarterSplit a B).2) := by
+  have hB' : (0 : ℤ) < B := by exact_mod_cast hB
+  have hk' : (1 : ℤ) ≤ k := by exact_mod_cast hk
+  have h0 := Int.emod_nonneg (4 * a - 1) hB'.ne'
+  have h1 := Int.emod_lt_of_pos (4 * a - 1) hB'
+  have h2 := Int.ediv_mul_add_emod (4 * a - 1) (B : ℤ)
+  have key := (Int.ediv_emod_unique (a := 4 * (k * a) - 1) (b := (k : ℤ) * B)
+    (q := (4 * a - 1) / B) (r := k * ((4 * a - 1) % B + 1) - 1) (by positivity)).2
+    ⟨by linear_combination (k : ℤ) * h2, by nlinarith, by nlinarith⟩
+  simp only [quarterSplit]
+  push_cast
+  rw [key.1, key.2]
+  simp
+
+/-- **A positive multiple of the turn is the same turn**: `spinTurn (k·a) (k·b) = spinTurn a b`. -/
+theorem spinTurn_scale (a : ℤ) {b k : ℕ} (hb : 0 < b) (hk : 0 < k) (n : ℕ) :
+    spinTurn (k * a) (k * b) n = spinTurn a b n := by
+  simp only [spinTurn]
+  rw [show 2 * (k * b) = k * (2 * b) by ring, quarterSplit_scale a (by omega) hk,
+    show 4 * (k * (2 * b)) = k * (4 * (2 * b)) by ring, dial_scale _ (by omega) hk]
+
+theorem cosTurn_scale (a : ℤ) {b k : ℕ} (hb : 0 < b) (hk : 0 < k) (n : ℕ) :
+    cosTurn (k * a) (k * b) n = cosTurn a b n := by
+  simp only [cosTurn, spinTurn_scale a hb hk]
+
+theorem sinTurn_scale (a : ℤ) {b k : ℕ} (hb : 0 < b) (hk : 0 < k) (n : ℕ) :
+    sinTurn (k * a) (k * b) n = sinTurn a b n := by
+  simp only [sinTurn, spinTurn_scale a hb hk]
 
 /-! ## Examples -/
 

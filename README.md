@@ -543,7 +543,8 @@ neighbours, `det L R = 1` (`det_dial`), and the target stays between them, `turn
 **Rational trigonometry** (`T/RationalTrig.lean`). `cosTurn a b n` and `sinTurn a b n` are rationals: dial
 half the turn past its quarter turns, turn by `ω` for an odd quarter, and square. They are exactly on the
 unit circle (`cosTurn_sq_add_sinTurn_sq`), and within `π/√(n + 1)` of `cos(2π·a/b)` and `sin(2π·a/b)`
-(`cosTurn_err`, `sinTurn_err`). The computation is integers, floor division and one comparison per step;
+(`cosTurn_err`, `sinTurn_err`). A positive multiple `(k·a)/(k·b)` gives the same answer at every depth
+(`cosTurn_scale`, `sinTurn_scale`). The computation is integers, floor division and one comparison per step;
 π is only in the error statements.
 
 **The mediant from the four seeds** (`T/MediantTree.lean`). The model's last line says every traction

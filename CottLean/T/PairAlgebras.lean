@@ -3,7 +3,7 @@ import CottLean.T.Unquotiented
 /-!
 # Each reading is the homomorphism of an algebra on the pairs
 
-`Unquotiented` reads one pair seven ways. Here each reading `R` gets the operations on pairs that it
+`Unquotiented` reads one pair six ways. Here each reading `R` gets the operations on pairs that it
 turns into `+` and `×`: `R (x ⊞ y) = R x + R y` and `R (x ⊠ y) = R x · R y`. The pairs are `ℝ × ℝ`, with
 `x.1 = p` and `x.2 = q`.
 
