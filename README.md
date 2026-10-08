@@ -7,120 +7,163 @@ the specification: the engine implements what is proved here and cites it by nam
 
 A traction is an **unquotiented pair** `T(p, q)`. Nothing is reduced. `T(1,2)` and `T(2,4)` are different
 values, `q = 0` is allowed, and `0/0` is a value like any other. The pair is the ground truth, and every
-number it stands for is a reading of it. There are seven:
+number it stands for is a reading of it. There are six:
 
 ```
-C(p,q) = q + i·p        as a complex number
-L(p,q) = log(q + i·p)   as a complex logarithm
-D(p,q) = p − q          as a difference
-S(p,q) = p + q          as a sum
-Q(p,q) = p / q          as a ratio
-P(p,q) = p · q          as a product
-A(p,q) = arg(q + i·p)   as an angle
+C(p,q) = q + i·p             as a complex number
+D(p,q) = q − p               as a difference
+S(p,q) = p + q               as a sum
+Q(p,q) = p / q               as a ratio
+P(p,q) = p · q               as a product
+L(p,q) = (log_b N, turn)     as a logarithm: a scale in any base b, and a turn     N = p² + q²
 ```
+
+None of them needs π. The base of `L` is chosen only when converting, and its turn is the direction as a
+fraction of a whole turn. Radians, `e^(iθ)` and every relation that needs π are kept apart, in a bridge
+to classical trigonometry.
 
 The readings are not independent. They all follow from the definitions, and
-[The pair and its seven readings](#the-pair-and-its-seven-readings) proves how they relate. On that one set of
-pairs, traction defines several arithmetics at once. Each of them is the arithmetic of one or more readings:
-`⊕` adds `C`, `⊗` multiplies it, `*` multiplies `Q`, and `+` adds `Q`. The design goal is a runtime in which
-a value can be read under any of them, and moving between them is always an explicit conversion. This
-repository proves what each arithmetic is, which laws it keeps, and where it loses information.
+[The pair and its readings](#the-pair-and-its-readings) proves how they relate. On that one set of pairs,
+traction defines several arithmetics at once. Each of them is the arithmetic of one or more readings: `⊕`
+adds `C`, `⊗` multiplies it and adds `L`, `*` multiplies `Q`, and `+` adds `Q`. The design goal is a
+runtime in which a value can be read under any of them, and moving between them is always an explicit
+conversion. This repository proves what each arithmetic is, which laws it keeps, and where it loses
+information.
 
 Every theorem holds for every pair; none is checked on a sample. Every declaration is machine-checked to
 use only Lean's standard axioms, in CI (see [Checking the axioms](#checking-the-axioms)).
 
-## The pair and its seven readings
+## The pair and its readings
 
-`T/Unquotiented.lean`. Here the pair is real, `(p, q) ∈ ℝ²`, so that `e^p` and `log p` make sense. On the
-integers `C` is `toC` (`C_toC`). Every relation comes from one fact: `(S, D)` is `C` turned by `−π/4` and
-scaled by `√2`, that is `S + iD = (1 − i)·C` (`sum_diff_eq`). Then `exp` and `log` exchange `+` with `*`.
+Here the pair is real, `(p, q) ∈ ℝ²`, so that `bᵖ` and `log_b p` make sense. On the integers `C` is `toC`
+(`C_toC`). The difference is `D = q − p`, the sign `⊚` multiplies. Every relation comes from one fact:
+`(S, D)` is the pair `⊗ T(1,1)`, traction's `1`, an eighth of a turn scaled by `√2` (`pairOtimes_one`). As
+points, `C(S, D) = (1 + i)·C` and `D + iS = (1 + i)·C` (`C_sum_diff`, `sum_diff_eq`). Then `exp` and `log`
+exchange `+` with `*`.
 
-**Exact: `C` is equivalent to `(D, S)`.**
+The theorems are in three files. `T/Unquotiented.lean` has `C`, `D`, `S`, `Q` and `P`, and states nothing
+with π. `T/LogPair.lean` has `L`. `T/Radians.lean` is the bridge: it converts `L` back to the point and to
+radians, and holds everything stated with π.
+
+**Exact: `C` is equivalent to `(D, S)`.** In `T/Unquotiented.lean`.
 
 | relation | holds | Lean |
 |---|---|---|
-| `C = ((1 + i)/2)(S + iD)` | always | `C_eq` |
-| `S + iD = (1 − i)·C` | always | `sum_diff_eq` |
-| `C = e^L` | off the origin | `exp_L` |
-| `log(S + iD) = L + ½·log 2 − iπ/4` | exactly when `arg C > −3π/4`; modulo `2πi` off the origin; fails at `C = −1 − i` | `log_sum_diff_iff`, `exp_log_sum_diff`, `log_sum_diff_ne` |
-| `Q(eᵖ, e^q) = e^D` | always | `Q_exp` |
-| `P(eᵖ, e^q) = e^S` | always | `P_exp` |
+| `C = ((1 − i)/2)(D + iS)` | always | `C_eq` |
+| `D + iS = (1 + i)·C` | always | `sum_diff_eq` |
+| `C(S, D) = (1 + i)·C(p, q)` | always | `C_sum_diff` |
 | `P = (S² − D²)/4` | always | `P_eq` |
-| `C² = −S·D + 2i·P` | always | `C_sq` |
-| `D(log p, log q) = log Q` | `p, q > 0` | `D_log` |
+| `C² = S·D + 2i·P` | always | `C_sq` |
+| `Q(eᵖ, e^q) = e^(−D)` | always | `Q_exp` |
+| `P(eᵖ, e^q) = e^S` | always | `P_exp` |
+| `D(log p, log q) = −log Q` | `p, q > 0` | `D_log` |
 | `S(log p, log q) = log P` | `p, q > 0` | `S_log` |
 
-The logarithm of the turn is the one relation that needs a branch. Subtracting `π/4` takes an argument
-at or below `−3π/4` out of the principal range, so it holds exactly only on the rest of the plane.
+**Direction only, as a line.** `Q` and `D/S` do not change when the pair is scaled by any `t ≠ 0`, the half
+turn `t = −1` among them (`Q_smul`, `DS_smul`). `D/S = (1 − Q)/(1 + Q)` needs `q ≠ 0` (`DS_eq_Q`,
+`DS_eq_Q_fails`).
 
-**Direction only: the scale is forgotten.**
-
-| relation | holds | Lean |
-|---|---|---|
-| `Q = tan A = tan(Im L)` | every pair, the origin included | `Q_eq_tan_A`, `Q_eq_tan_im_L` |
-| `D/S = tan(A − π/4)` | off the origin | `DS_eq_tan_A`, `DS_eq_tan_fails` |
-| `D/S = (Q − 1)/(Q + 1)` | `q ≠ 0` | `DS_eq_Q`, `DS_eq_Q_fails` |
-
-The direction they keep is a line, not a ray. `Q` and `D/S` do not change when the pair is scaled by any
-`t ≠ 0`, the half turn `t = −1` among them (`Q_smul`, `DS_smul`).
-
-**The angle keeps the direction as a ray.**
+**The logarithm as a pair.** In `T/LogPair.lean`. `L_b(p,q) = (log_b N, turn)`, with `N = p² + q²` the
+squared norm, so no square root is taken.
 
 | relation | holds | Lean |
 |---|---|---|
-| `A = Im L` | every pair | `A_eq_im_L` |
+| `N(x ⊗ y) = N(x)·N(y)` | always | `N_pairOtimes` |
+| `log_b N(x ⊗ y) = log_b N(x) + log_b N(y)` | off the origin, any `b` | `logScale_pairOtimes` |
+| `turn(x ⊗ y) = turn(x) + turn(y)` | modulo `1`, off the origin | `turn_pairOtimes` |
+| `L(x ⊗ y) = L(x) + L(y)` | the turn modulo `1`, off the origin | `L_pairOtimes` |
+| `turn(t·p, t·q) = turn(p, q)` | `t > 0` | `turn_smul` |
+| equal turns exactly when one pair is a positive multiple of the other | off the origin | `turn_eq_turn_iff` |
+| `turn = T.turn` | integer pairs | `turn_toT` |
+| `turn < a/b` decided by the winding count, in integers | integer pairs in the upper half-plane | `turnLt_iff_turn` |
+| `log_c N = log_b N · log_c b`, the turn unchanged | `log b ≠ 0` | `logScale_change_base` |
+| `Q(bᵖ, b^q) = b^(−D)`, `P(bᵖ, b^q) = b^S` | `b > 0` | `Q_rpow`, `P_rpow` |
+| `D(log_b p, log_b q) = −log_b Q`, `S(log_b p, log_b q) = log_b P` | `p, q > 0` | `D_logb`, `S_logb` |
+
+The turn keeps the ray, which `Q` and `D/S` lose. Lean's circle is built from π, so `turn` is defined as
+`arg C / 2π`; that definition is the only π in the file, and no statement there mentions it.
+
+**The bridge to radians.** In `T/Radians.lean`. `1^t` is the rotation by `t` whole turns, and the scale and
+the turn give the point back in any base.
+
+| relation | holds | Lean |
+|---|---|---|
+| `1^(s + t) = 1^s · 1^t`, `1^(t + 1) = 1^t` | always | `oneTurn_add`, `oneTurn_add_one` |
+| `1^1 = 1`, `1^(1/2) = −1`, `1^(1/4) = i` | always | `oneTurn_one`, `oneTurn_half`, `oneTurn_quarter` |
+| `C = b^(½·log_b N) · 1^turn` | `b > 0`, `b ≠ 1`, off the origin | `C_eq_logScale_turn` |
+| `Lrad = ½·log_e N + 2π·turn·i` | always | `Lrad_eq` |
+| `A = 2π·turn` | always | `A_eq_turn` |
+
+So `(−1)^t = 1^(t/2)` and `i^t = 1^(t/4)`. `Lrad = log(q + i·p)` is Lean's complex logarithm: the pair `L` in
+base `e`, with the turn measured in radians. `A = arg C` is the angle in radians. The rest is stated with
+them.
+
+| relation | holds | Lean |
+|---|---|---|
+| `C = e^Lrad` | off the origin | `exp_Lrad` |
+| `log(D + iS) = Lrad + ½·log 2 + iπ/4` | exactly when `arg C ≤ 3π/4`; modulo `2πi` off the origin; fails at `C = −1` | `log_sum_diff_iff`, `exp_log_sum_diff`, `log_sum_diff_ne` |
+| `Q = tan A = tan(Im Lrad)` | every pair, the origin included | `Q_eq_tan_A`, `Q_eq_tan_im_Lrad` |
+| `D/S = tan(π/4 − A)` | off the origin | `DS_eq_tan_A`, `DS_eq_tan_fails` |
+| `A = Im Lrad` | every pair | `A_eq_im_Lrad` |
 | `A = θ` | integer pairs | `A_theta` |
-| `A(t·p, t·q) = A(p, q)` | `t > 0` | `A_smul` |
-| `A(−p, −q) ≠ A(p, q)` | off the origin | `A_neg` |
+| `A(t·p, t·q) = A(p, q)`, and `A(−p, −q) ≠ A(p, q)` | `t > 0`; off the origin | `A_smul`, `A_neg` |
 | `A` equal exactly when one pair is a positive multiple of the other | off the origin | `A_eq_A_iff` |
 | `A(x ⊗ y) = A(x) + A(y)` | modulo `2π`, off the origin | `A_pairOtimes` |
+| `S² + D² = 2·e^(2 Re Lrad)` | off the origin | `scale_eq`, `scale_fails` |
+| `C = \|C\|·e^(iA)`, and `C = e^(Re Lrad)·e^(iA)` | always; off the origin | `C_eq_polar`, `C_eq_scale_angle` |
 
-`Q` and `D/S` are read from `A`, and the half turn is what they lose.
-
-**Scale only: the direction is forgotten.**
-
-| relation | holds | Lean |
-|---|---|---|
-| `S² + D² = 2·e^(2 Re L)` | off the origin | `scale_eq`, `scale_fails` |
-
-**Scale and angle together give `C` back.**
-
-| relation | holds | Lean |
-|---|---|---|
-| `C = \|C\|·e^(iA)` | always | `C_eq_polar` |
-| `C = e^(Re L)·e^(iA)` | off the origin | `C_eq_scale_angle` |
+The logarithm of the turn `1 + i` is the one relation that needs a branch. Adding `π/4` takes an argument
+above `3π/4` out of the principal range, so it holds exactly only on the rest of the plane. A pair `L` with
+its turn kept modulo `1` has no branch.
 
 **Each reading has its own embedding of a number.** Each is a section of its reading
 (`C_embC`, …, `P_embP`), and each carries some of the number's arithmetic into the pairs:
 
 | embedding | reads `n` under | carries | fails | Lean |
 |---|---|---|---|---|
-| `(0, n)` | `C`, and `S`, and `D` up to sign | `+` to `⊕`, `×` to `⊗` and to `⊚` | | `embC_add`, `embC_mul`, `embC_mul_split`, `S_embC`, `D_embC` |
-| `(0, eⁿ)` | `L` | `+` to `⊗` and to `*` | `×` | `embL_add`, `embL_add_times`, `embL_mul_fails` |
-| `(0, −n)` | `D` | `+` to `⊕` | `×` to `⊚` | `embD_add`, `embD_mul_fails` |
+| `(0, n)` | `C`, `D` and `S` | `+` to `⊕`, `×` to `⊗` and to `⊚` | | `embC_add`, `embC_mul`, `embC_mul_split`, `embD_mul`, `S_embC`, `D_embC` |
+| `(0, eⁿ)` | `Lrad` | `+` to `⊗` and to `*` | `×` | `Lrad_embL`, `embL_add`, `embL_add_times`, `embL_mul_fails` |
 | `(n, 0)` | `S` | `+` to `⊕` | `×` to `⊚` | `embS_add`, `embS_mul_fails` |
 | `(n, 1)` | `Q`, and `P` | `+` to fraction `+`, `×` to `*` | `+` to `⊕` | `embQ_add`, `embQ_mul`, `embQ_oplus_fails`, `P_embQ` |
 | `(1, n)` | `P` | `×` to `*` | `+` to `⊕` | `embP_mul`, `embP_add_fails` |
 
 On ℤ, `(0, n)` is the complex reading's integers and `(n, 1)` the ratio reading's (`embC_complexInt`,
-`embQ_ratioInt`); [Two readings](#two-readings-and-the-inverse-one-level-up) shows they share only `0`. The
-`q`-axis repairs `D` and `S`: there `⊚` and `⊗` agree, so it carries `×`. The sign under `D` is because `⊚`
-makes `q − p` multiplicative, not `p − q` (`D_pairSplit`, `S_pairSplit`). `(n, 1)` is the only embedding
-with a true quotient that carries `×` to `*` (`embQ_unique`). Under Lean's `x / 0 = 0` it is not, since
-`n ↦ (n³, n²)` also works (`embQ_unique_fails`).
+`embQ_ratioInt`); [Two readings](#two-readings-and-the-inverse-one-level-up) shows they share only `0`. `D`'s
+embedding is `C`'s (`embD_eq_embC`), and `S`'s own embedding is repaired by it: on the `q`-axis `⊚` and `⊗`
+agree, so it carries `×`. `(n, 1)` is the only embedding with a true quotient that carries `×` to `*`
+(`embQ_unique`). Under Lean's `x / 0 = 0` it is not, since `n ↦ (n³, n²)` also works
+(`embQ_unique_fails`).
 
-**The operations, by the reading they serve.** Read through `toPair`, each operation of `T` is the real
-pair operation of the same name (`toPair_oplus`, `toPair_otimes`, `toPair_splitTimes`, `toPair_times`,
-`toPair_plus`).
+### Each reading is an algebra on the pairs
 
-| operation | is the arithmetic of | Lean |
-|---|---|---|
-| `⊕` | `+` on `C`, and so on `D` and `S` | `GaussianPosition.ringEquiv` |
-| `⊗` | `×` on `C`, so `+` on `A` modulo `2π` and on `L` modulo `2πi` | `GaussianPosition.ringEquiv`, `A_pairOtimes`, `norm_otimes` |
-| `⊚` | `×` on `S` and on `−D` | `lightCone_splitTimes`, `S_pairSplit`, `D_pairSplit` |
-| `*` | `×` on `Q` and on `P` | `T/Fraction.lean` |
-| `+` | `+` on `Q` | `T/Fraction.lean` |
-| `∥` | `+` on `1/Q` | `reciprocal_par` |
+`T/PairAlgebras.lean`. For each reading `R`, the operations on pairs that `R` turns into `+` and `×`. Read
+through `toPair`, each operation of `T` is the real pair operation of the same name (`toPair_oplus`,
+`toPair_otimes`, `toPair_splitTimes`, `toPair_times`, `toPair_plus`).
+
+| reading | `+` on pairs | `×` on pairs | the algebra | Lean |
+|---|---|---|---|---|
+| `C` | `⊕` | `⊗` | ℂ, since `C` loses nothing | `C_add`, `C_pairOtimes`, `C_injective` |
+| `D`, `S` | `⊕` | `⊚` | ℝ × ℝ in the coordinates `(S, D)` | `D_add`, `S_add`, `D_pairSplit`, `S_pairSplit`, `SD_injective` |
+| `Q` | `+` | `*` | a wheel: `*` distributes over `+` only up to the scale `z.q` | `Q_pairPlus`, `Q_pairTimes`, `pairPlus_pairTimes`, `pairPlus_pairTimes_ne` |
+| `P` | none that is homogeneous | `*` | needs a layer | `P_pairTimes`, `no_homogeneous_P_add`, `oplus_P_add_fails` |
+| `L` | `⊗`, the turn modulo `1` | none flat | needs a layer | `L_pairOtimes`, `logScale_pairOtimes`, `turn_pairOtimes` |
+| `1/Q` | `∥` | `*` | `+` on `Q` through the reciprocal | `reciprocal_par` |
+
+`Q_pairPlus` needs both denominators non-zero. `P` has no flat addition because of degrees: every bilinear
+operation is homogeneous in its left argument (`pairPlus_homogeneous`, `pairOtimes_homogeneous`,
+`pairSplit_homogeneous`, `pairTimes_homogeneous`), so scaling that argument by `t` scales `P` of the result
+by `t²`, while `P x + P y` scales only its first term. `P(eᵖ, e^q) = e^S` puts `P`'s `×` one layer down, as
+`S`'s `+` on the exponents.
+
+**Converting between algebras.** `toSD`, the conversion `(p, q) ↦ (S, D)`, is `⊗ T(1,1)` and invertible
+(`toSD_apply`). It carries `⊕` exactly (`toSD_add`), and `⊗` only up to the residue `T(1,1)`
+(`toSD_pairOtimes`). It does not carry `⊗` to `⊚` (`toSD_not_split`), and no conversion can: `⊚` has zero
+divisors on the light lines, `(1, 1) ⊚ (−1, 1) = (0, 0)` (`pairSplit_light`), so no bijection fixing `0`
+takes `⊗` to `⊚` (`no_otimes_to_split`). ℂ and ℝ × ℝ are different rings on the same pairs. What a
+conversion always does is carry a product across, `g⁻¹(g x · g y)` (`carry`), and the result keeps the
+product's laws (`carry_comm`, `carry_assoc`, `carry_add`). `⊚` carried back through `toSD` is
+`(p, q) · (r, s) = (−2pr, 2qs)` in the original coordinates (`carry_split_eq`), a third algebra on the same
+pairs.
 
 ## What it shows
 
@@ -529,7 +572,7 @@ elements (`Held.st_add`, `Held.st_mul`, `Held.st_distrib`). The Laurent series o
 
 ### Two readings, and the inverse one level up
 
-**The two readings agree on ℤ and nowhere else** (`T/Readings.lean`). Of the seven readings, the integer
+**The two readings agree on ℤ and nowhere else** (`T/Readings.lean`). Of the six readings, the integer
 arithmetic of `T` is built on two, `Q` and `C`. The integer `n` is `T(n, 1)` in the ratio reading and
 `T(0, n)` in the complex reading. Each copy respects its own reading's operations
 (`ratioInt_plus`, `ratioInt_times`, `complexInt_oplus`, `complexInt_otimes`). The maps between them are
@@ -723,9 +766,10 @@ search and checks it against the proved `table` cell by cell.
 
 ## Not covered
 
-- The seven readings are proved over real pairs, and the operations are carried to them through `toPair`.
-  That `*` multiplies `Q` and `P`, and that `⊕` adds `D` and `S`, are stated in Lean only for the
-  embeddings, not as theorems about the readings of every pair.
+- `L` has `⊗` as its `+`, but its `×` is a power, a nested pair. That no flat pair operation multiplies
+  it is not proved; `P`'s case is (`no_homogeneous_P_add`).
+- On real pairs `turn` is defined through Lean's `arg`, which is built from π. Only on integer pairs is it
+  decided without π, by the winding count (`turnLt_iff_turn`), and that is for the upper half-plane.
 - The `respected` column of `scripts/LawAtlas.lean`, whether each operation keeps the equivalence a
   pairing needs, is still a search result.
 - Each operation's hyperoperation, the exponentials between operations, and rational exponents of every
@@ -773,7 +817,10 @@ search and checks it against the proved `table` cell by cell.
 | `CottLean/T/Transform.lean` | Möbius transformations as matrices; every product as a family of them; discriminants, fixed points, sandwiches |
 | `CottLean/T/Registers.lean` | a traction in `w`-bit registers: the wrap keeps every operation, `⊕` included; a quotient of differences |
 | `CottLean/T/Readings.lean` | the integers in the ratio and complex readings; the maps between them; no isomorphism |
-| `CottLean/T/Unquotiented.lean` | seven readings of a real pair (complex, logarithm, difference, sum, ratio, product, angle) and how they relate |
+| `CottLean/T/Unquotiented.lean` | the readings of a real pair that need no π (complex, difference, sum, ratio, product), how they relate, and each one's embedding of a number |
+| `CottLean/T/LogPair.lean` | the logarithm as a pair: a scale in any base and a turn; `⊗` adds both; the turn keeps the ray and is decided by the winding count |
+| `CottLean/T/Radians.lean` | the bridge to radians: `1^t`, the point from the scale and the turn, `log` in base `e`, the angle, and every relation stated with π |
+| `CottLean/T/PairAlgebras.lean` | each reading as the homomorphism of an algebra on the pairs; no flat addition for `P`; converting between `C` and `(S, D)`, and carrying a product across |
 | `CottLean/T/Drift.lean` | both readings side by side, with the conjugate for the complex inverse; the drift between them |
 | `CottLean/T/Over.lean` | `T`'s formulas over any commutative ring; `x · (1/x) = T(pq, pq)`; when `+` and `·` can be undone in a domain |
 | `CottLean/Nested/Basic.lean` | `T2`, a pair of pairs: the embedding of `T`, the projection `flatten` as a Möbius transformation of the numerator, and `T2` against the common meadow |
