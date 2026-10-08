@@ -30,6 +30,8 @@ import CottLean.T.Readings
 import CottLean.T.Unquotiented
 import CottLean.T.LogPair
 import CottLean.T.Radians
+import CottLean.T.Bases
+import CottLean.T.BasePowers
 import CottLean.T.PairAlgebras
 import CottLean.T.Drift
 import CottLean.T.Over

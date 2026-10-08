@@ -116,6 +116,52 @@ The logarithm of the turn `1 + i` is the one relation that needs a branch. Addin
 above `3π/4` out of the principal range, so it holds exactly only on the rest of the plane. A pair `L` with
 its turn kept modulo `1` has no branch.
 
+**A base is held by its units, and `log_b` is defined for every base.** In `T/Bases.lean`.
+`log_b z = log z / log b`, so a base enters only through its own logarithm: a scale unit `log N_b` and a
+turn unit `turn b`, each a ratio kept unreduced. Then `log_b z = (log N_z ÷ scale unit, turn z ÷ turn unit)`,
+with traction's division of ratios `(a : b) ÷ (c : d) = (a·d : b·c)` (`rdiv`), which is defined for every
+divisor.
+
+| base | scale unit | turn unit | `log_b z` | Lean |
+|---|---|---|---|---|
+| `1`, a full turn | `0 : 1` | `1 : 1` | scale over `0`; the turn itself | `logBase_one` |
+| `1`, the identity | `0 : 1` | `0 : 1` | both over `0` | `logBase_unit` |
+| `−1` | `0 : 1` | `1/2 : 1` | scale over `0`; the turn in half turns | `logBase_negOne`, `Q_logBase_negOne` |
+| `i` | `0 : 1` | `1/4 : 1` | scale over `0`; the turn in quarter turns | `logBase_i`, `Q_logBase_i` |
+| `0` | `−1 : 0` | `0 : 0` | scale `0 : −1`; turn `0 : 0` | `logBase_zero` |
+| `ω`, as a ratio | `1 : 0` | `0 : 0` | scale `0 : 1`; turn `0 : 0` | `logBase_omega` |
+| a point `q + i·p` | `log N : 1` | `turn : 1` | the ratios of the logarithms | `Q_logBase_ofPoint` |
+
+The named values are bases. Traction's `0 = T(0,1)` is the point `1` and gives the identity base, `_0 = T(0,−1)`
+gives `−1`, and `ω = T(1,0)` read as a point gives `i` (`ofPoint_zero_one`, `ofPoint_zero_negOne`,
+`ofPoint_one_zero`). The full-turn `1` is no point's base, since a point's turn is at most a half
+(`ofPoint_ne_one`): its value cannot say which `1` it is, and only the unreduced units can. `ω` read as a
+ratio is not `ω` read as a point (`omega_ne_ofPoint_one_zero`).
+
+Raised to `x`, a base scales both units by `x`: the magnitude `e^(x·s/2)` and the rotation `1^(x·t)`
+(`basePow`, in `T/BasePowers.lean`). `1` as a full turn gives `1^x`, `−1` gives `1^(x/2)`, `i` gives `1^(x/4)`,
+and `1` as the identity gives `1` (`basePow_one`, `basePow_negOne`, `basePow_i`, `basePow_unit`). For every base
+`b^(x + y) = b^x · b^y` (`basePow_add`), and a point's base raised to `1` is the point (`basePow_ofPoint_one`).
+
+**`0^(p/q)`.** `zeroPow` states James's rules as written, as the pair `L` of the result:
+
+- `p` and `q` both non-zero: a rotation of zero magnitude, scale `−1 : 0` and turn `p : q` turns;
+- `p = 0`: `1` when `q > 0` and `−1` when `q < 0`;
+- `q = 0`: `−1` when `p > 0` and `1` when `p < 0`;
+- `p = q = 0`: no rule, `none`.
+
+So `0^(1/0) = −1`, `0^(0/1) = 1`, and `0^(1/1)` is the zero-magnitude rotation by one turn (`zeroPow_one_zero`,
+`zeroPow_zero_one`, `zeroPow_one_one`, `zeroPow_zero_zero`). On the axes the orientation is the sign of
+`D = q − p` (`zeroPow_axis_iff`). Multiplying values adds their `L` coordinatewise with fraction `+` (`Lmul`),
+and exponents add with fraction `+`. The exponent law, stated and not ruled on:
+
+| | | Lean |
+|---|---|---|
+| `0^0 · 0^ω = 0^(0 + ω)`, both `−1` | holds | `zeroPow_axis_hom` |
+| `0^1 · 0^ω` keeps a zero magnitude, while `0^(1 + ω) = 0^ω = −1` | fails | `zeroPow_hom_fails` |
+| `0^ω · 0^ω` is the full-turn `1`, unreduced, and `ω + ω = 0ω` has no rule | the law would ask `0^(0/0)` to be the full-turn `1` | `zeroPow_omega_sq`, `zeroPow_omega_add_omega` |
+| `(−1)·(−1)` is the full-turn `1`, not the identity | while turns are unreduced | `Lr_negOne_sq` |
+
 **Each reading has its own embedding of a number.** Each is a section of its reading
 (`C_embC`, …, `P_embP`), and each carries some of the number's arithmetic into the pairs:
 
@@ -768,6 +814,7 @@ search and checks it against the proved `table` cell by cell.
 
 - `L` has `⊗` as its `+`, but its `×` is a power, a nested pair. That no flat pair operation multiplies
   it is not proved; `P`'s case is (`no_homogeneous_P_add`).
+- `0^(0/0)` has no rule (`zeroPow_zero_zero`). The exponent law would make it the full-turn `1`.
 - On real pairs `turn` is defined through Lean's `arg`, which is built from π. Only on integer pairs is it
   decided without π, by the winding count (`turnLt_iff_turn`), and that is for the upper half-plane.
 - The `respected` column of `scripts/LawAtlas.lean`, whether each operation keeps the equivalence a
@@ -820,6 +867,8 @@ search and checks it against the proved `table` cell by cell.
 | `CottLean/T/Unquotiented.lean` | the readings of a real pair that need no π (complex, difference, sum, ratio, product), how they relate, and each one's embedding of a number |
 | `CottLean/T/LogPair.lean` | the logarithm as a pair: a scale in any base and a turn; `⊗` adds both; the turn keeps the ray and is decided by the winding count |
 | `CottLean/T/Radians.lean` | the bridge to radians: `1^t`, the point from the scale and the turn, `log` in base `e`, the angle, and every relation stated with π |
+| `CottLean/T/Bases.lean` | a base held by its scale and turn units; `log_b` for every base, `1`, `−1`, `i`, `0` and `ω` included; the named values as bases; the rules for `0^(p/q)` and which exponent laws hold |
+| `CottLean/T/BasePowers.lean` | `b^x` from a base's units, through `1^t`; `b^(x + y) = b^x · b^y` |
 | `CottLean/T/PairAlgebras.lean` | each reading as the homomorphism of an algebra on the pairs; no flat addition for `P`; converting between `C` and `(S, D)`, and carrying a product across |
 | `CottLean/T/Drift.lean` | both readings side by side, with the conjugate for the complex inverse; the drift between them |
 | `CottLean/T/Over.lean` | `T`'s formulas over any commutative ring; `x · (1/x) = T(pq, pq)`; when `+` and `·` can be undone in a domain |
