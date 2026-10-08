@@ -213,6 +213,16 @@ pairs.
 
 ## What it shows
 
+**A number is a pair, and every value of it is a reading.** The same unreduced pair is read as a complex
+number, a difference, a sum, a ratio, a product and a logarithm, and every relation between those readings
+follows from one fact: `(S, D)` is the pair turned an eighth of a turn, `x ⊗ T(1,1)`. Each reading is the
+homomorphism of its own algebra on the pairs: `⊕` and `⊗` are ℂ under `C`, `⊕` and `⊚` are ℝ × ℝ under
+`(S, D)`, and `+` and `*` are a wheel under `Q`. Where a reading has no flat operation, as `P` has no
+addition and `L` no product, the operation needs a nested pair. No reading needs π: the logarithm is a pair
+of a scale in any base and a turn, `⊗` adds both, and the base is chosen only when converting. A base is
+held by its own units, so `log_b` is defined for every base, `1`, `−1`, `i`, `0` and `ω` included, and a full
+turn of `1` is kept apart from the identity `1`.
+
 **Every inverse returns to 1 up to its own norm.** Multiplying by a fixed pair is a linear map of the
 other pair, and its determinant is the product's norm. Since traction never reduces, where classical
 arithmetic divides by the determinant, traction keeps the adjugate, and the determinant stays in the
@@ -271,9 +281,15 @@ forces:
 - each product completing a classical formula at exactly the inputs where that formula collapses;
 - the mediant as the one operation every ring shares and no quotient keeps;
 - each inverse leaving its own norm behind as a residue, failing exactly where that product loses
-  information, at both levels.
+  information, at both levels;
+- each reading kept as a reading of the same pair, with every conversion between them explicit, including
+  the ones that are not homomorphisms of the readings' algebras;
+- `log_b` defined for every base, because a base is held by its units and a ratio over zero is a value, and
+  the full-turn `1` held apart from the identity `1`, which no value can do.
 
-The second level's values are classical too: the Gaussian rationals, the inverse `z̄/|z|²`, the
+The readings' algebras are classical: ℂ, the split-complex numbers as ℝ × ℝ in light-cone coordinates, and
+the wheel of fractions. So are change of base, the polar form `C = |C|·e^(iA)`, and measuring angles in
+turns. The second level's values are classical too: the Gaussian rationals, the inverse `z̄/|z|²`, the
 adjugate identity behind Cramer's rule, and the bicomplex numbers. What is new is the unreduced
 bookkeeping, which keeps the determinant where classical arithmetic divides it away.
 
@@ -282,8 +298,9 @@ bookkeeping, which keeps the determinant where classical arithmetic divides it a
 - **No invariant is specified by default.** Two pairs are equal exactly when their coordinates are, so
   `T(1,2) ≠ T(2,4)`. The ratio, the ray (a positive multiple of both coordinates), the angle and the norm
   are invariants a use may specify, and a result that holds only under one of them says which. Each is
-  read from the pair, never stored in place of it: the ratio is `Q`, the angle is `A`, and the norm is
-  `|C|²`. Away from `0ω`, the angle and the ray are the same invariant (`theta_eq_theta_iff_sameRay`).
+  read from the pair, never stored in place of it: the ratio is `Q`, the angle is the turn of `L`, and the
+  norm is `N = p² + q²`. In radians the angle is `A = 2π·turn`, kept to the bridge (`A_eq_turn`). Away from
+  `0ω`, the angle and the ray are the same invariant (`theta_eq_theta_iff_sameRay`, `turn_eq_turn_iff`).
 - **The nine named values** are spelled the model's way. The four seeds are `0 = T(0,1)`, `ω = T(1,0)`,
   `_0 = T(0,-1)` and `-ω = T(-1,0)`. Between them are `1 = T(1,1)`, `_1 = T(1,-1)`, `-_1 = T(-1,-1)` and
   `-1 = T(-1,1)`, and `0ω = T(0,0)` is the ninth. In Lean they are `T.«0»`, `T.«ω»`, `T.«_0»`, and so on.
