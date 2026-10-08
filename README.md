@@ -7,7 +7,7 @@ the specification: the engine implements what is proved here and cites it by nam
 
 A traction is an **unquotiented pair** `T(p, q)`. Nothing is reduced. `T(1,2)` and `T(2,4)` are different
 values, `q = 0` is allowed, and `0/0` is a value like any other. The pair is the ground truth, and every
-number it stands for is a reading of it. There are six:
+number it stands for is a reading of it. There are seven:
 
 ```
 C(p,q) = q + i·p        as a complex number
@@ -16,10 +16,11 @@ D(p,q) = p − q          as a difference
 S(p,q) = p + q          as a sum
 Q(p,q) = p / q          as a ratio
 P(p,q) = p · q          as a product
+A(p,q) = arg(q + i·p)   as an angle
 ```
 
 The readings are not independent. They all follow from the definitions, and
-[The pair and its six readings](#the-pair-and-its-six-readings) proves how they relate. On that one set of
+[The pair and its seven readings](#the-pair-and-its-seven-readings) proves how they relate. On that one set of
 pairs, traction defines several arithmetics at once. Each of them is the arithmetic of one or more readings:
 `⊕` adds `C`, `⊗` multiplies it, `*` multiplies `Q`, and `+` adds `Q`. The design goal is a runtime in which
 a value can be read under any of them, and moving between them is always an explicit conversion. This
@@ -28,7 +29,7 @@ repository proves what each arithmetic is, which laws it keeps, and where it los
 Every theorem holds for every pair; none is checked on a sample. Every declaration is machine-checked to
 use only Lean's standard axioms, in CI (see [Checking the axioms](#checking-the-axioms)).
 
-## The pair and its six readings
+## The pair and its seven readings
 
 `T/Unquotiented.lean`. Here the pair is real, `(p, q) ∈ ℝ²`, so that `e^p` and `log p` make sense. On the
 integers `C` is `toC` (`C_toC`). Every relation comes from one fact: `(S, D)` is `C` turned by `−π/4` and
@@ -56,18 +57,38 @@ at or below `−3π/4` out of the principal range, so it holds exactly only on t
 
 | relation | holds | Lean |
 |---|---|---|
-| `Q = tan(arg C) = tan(Im L)` | every pair, the origin included | `Q_eq_tan_arg`, `Q_eq_tan_im_L` |
-| `D/S = tan(Im L − π/4)` | off the origin | `DS_eq_tan`, `DS_eq_tan_fails` |
+| `Q = tan A = tan(Im L)` | every pair, the origin included | `Q_eq_tan_A`, `Q_eq_tan_im_L` |
+| `D/S = tan(A − π/4)` | off the origin | `DS_eq_tan_A`, `DS_eq_tan_fails` |
 | `D/S = (Q − 1)/(Q + 1)` | `q ≠ 0` | `DS_eq_Q`, `DS_eq_Q_fails` |
 
 The direction they keep is a line, not a ray. `Q` and `D/S` do not change when the pair is scaled by any
-`t ≠ 0`, the half turn `t = −1` among them (`Q_smul`, `DS_smul`). The angle `Im L` keeps the ray.
+`t ≠ 0`, the half turn `t = −1` among them (`Q_smul`, `DS_smul`).
+
+**The angle keeps the direction as a ray.**
+
+| relation | holds | Lean |
+|---|---|---|
+| `A = Im L` | every pair | `A_eq_im_L` |
+| `A = θ` | integer pairs | `A_theta` |
+| `A(t·p, t·q) = A(p, q)` | `t > 0` | `A_smul` |
+| `A(−p, −q) ≠ A(p, q)` | off the origin | `A_neg` |
+| `A` equal exactly when one pair is a positive multiple of the other | off the origin | `A_eq_A_iff` |
+| `A(x ⊗ y) = A(x) + A(y)` | modulo `2π`, off the origin | `A_pairOtimes` |
+
+`Q` and `D/S` are read from `A`, and the half turn is what they lose.
 
 **Scale only: the direction is forgotten.**
 
 | relation | holds | Lean |
 |---|---|---|
 | `S² + D² = 2·e^(2 Re L)` | off the origin | `scale_eq`, `scale_fails` |
+
+**Scale and angle together give `C` back.**
+
+| relation | holds | Lean |
+|---|---|---|
+| `C = \|C\|·e^(iA)` | always | `C_eq_polar` |
+| `C = e^(Re L)·e^(iA)` | off the origin | `C_eq_scale_angle` |
 
 **Each reading has its own embedding of a number.** Each is a section of its reading
 (`C_embC`, …, `P_embP`), and each carries some of the number's arithmetic into the pairs:
@@ -95,7 +116,7 @@ pair operation of the same name (`toPair_oplus`, `toPair_otimes`, `toPair_splitT
 | operation | is the arithmetic of | Lean |
 |---|---|---|
 | `⊕` | `+` on `C`, and so on `D` and `S` | `GaussianPosition.ringEquiv` |
-| `⊗` | `×` on `C`, so `+` on `L` modulo `2πi` | `GaussianPosition.ringEquiv`, `norm_otimes`, `angle_otimes` |
+| `⊗` | `×` on `C`, so `+` on `A` modulo `2π` and on `L` modulo `2πi` | `GaussianPosition.ringEquiv`, `A_pairOtimes`, `norm_otimes` |
 | `⊚` | `×` on `S` and on `−D` | `lightCone_splitTimes`, `S_pairSplit`, `D_pairSplit` |
 | `*` | `×` on `Q` and on `P` | `T/Fraction.lean` |
 | `+` | `+` on `Q` | `T/Fraction.lean` |
@@ -172,7 +193,7 @@ bookkeeping, which keeps the determinant where classical arithmetic divides it a
 - **No invariant is specified by default.** Two pairs are equal exactly when their coordinates are, so
   `T(1,2) ≠ T(2,4)`. The ratio, the ray (a positive multiple of both coordinates), the angle and the norm
   are invariants a use may specify, and a result that holds only under one of them says which. Each is
-  read from the pair, never stored in place of it: the ratio is `Q`, the angle is `Im L`, and the norm is
+  read from the pair, never stored in place of it: the ratio is `Q`, the angle is `A`, and the norm is
   `|C|²`. Away from `0ω`, the angle and the ray are the same invariant (`theta_eq_theta_iff_sameRay`).
 - **The nine named values** are spelled the model's way. The four seeds are `0 = T(0,1)`, `ω = T(1,0)`,
   `_0 = T(0,-1)` and `-ω = T(-1,0)`. Between them are `1 = T(1,1)`, `_1 = T(1,-1)`, `-_1 = T(-1,-1)` and
@@ -508,7 +529,7 @@ elements (`Held.st_add`, `Held.st_mul`, `Held.st_distrib`). The Laurent series o
 
 ### Two readings, and the inverse one level up
 
-**The two readings agree on ℤ and nowhere else** (`T/Readings.lean`). Of the six readings, the integer
+**The two readings agree on ℤ and nowhere else** (`T/Readings.lean`). Of the seven readings, the integer
 arithmetic of `T` is built on two, `Q` and `C`. The integer `n` is `T(n, 1)` in the ratio reading and
 `T(0, n)` in the complex reading. Each copy respects its own reading's operations
 (`ratioInt_plus`, `ratioInt_times`, `complexInt_oplus`, `complexInt_otimes`). The maps between them are
@@ -702,7 +723,7 @@ search and checks it against the proved `table` cell by cell.
 
 ## Not covered
 
-- The six readings are proved over real pairs, and the operations are carried to them through `toPair`.
+- The seven readings are proved over real pairs, and the operations are carried to them through `toPair`.
   That `*` multiplies `Q` and `P`, and that `⊕` adds `D` and `S`, are stated in Lean only for the
   embeddings, not as theorems about the readings of every pair.
 - The `respected` column of `scripts/LawAtlas.lean`, whether each operation keeps the equivalence a
@@ -752,7 +773,7 @@ search and checks it against the proved `table` cell by cell.
 | `CottLean/T/Transform.lean` | Möbius transformations as matrices; every product as a family of them; discriminants, fixed points, sandwiches |
 | `CottLean/T/Registers.lean` | a traction in `w`-bit registers: the wrap keeps every operation, `⊕` included; a quotient of differences |
 | `CottLean/T/Readings.lean` | the integers in the ratio and complex readings; the maps between them; no isomorphism |
-| `CottLean/T/Unquotiented.lean` | six readings of a real pair (complex, logarithm, difference, sum, ratio, product) and how they relate |
+| `CottLean/T/Unquotiented.lean` | seven readings of a real pair (complex, logarithm, difference, sum, ratio, product, angle) and how they relate |
 | `CottLean/T/Drift.lean` | both readings side by side, with the conjugate for the complex inverse; the drift between them |
 | `CottLean/T/Over.lean` | `T`'s formulas over any commutative ring; `x · (1/x) = T(pq, pq)`; when `+` and `·` can be undone in a domain |
 | `CottLean/Nested/Basic.lean` | `T2`, a pair of pairs: the embedding of `T`, the projection `flatten` as a Möbius transformation of the numerator, and `T2` against the common meadow |

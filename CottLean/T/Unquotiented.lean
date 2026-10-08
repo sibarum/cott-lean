@@ -2,9 +2,9 @@ import CottLean.T.Readings
 import CottLean.T.Quadratic
 
 /-!
-# Unquotiented pairs: six readings of one pair
+# Unquotiented pairs: seven readings of one pair
 
-A pair of reals `(p, q)`, not yet divided by anything, read six ways:
+A pair of reals `(p, q)`, not yet divided by anything, read seven ways:
 
 ```
 C(p,q) = q + i·p        the complex number      (on the integers, `toC`)
@@ -13,6 +13,7 @@ D(p,q) = p − q          the difference
 S(p,q) = p + q          the sum
 Q(p,q) = p / q          the ratio
 P(p,q) = p · q          the product
+A(p,q) = arg(q + i·p)   the angle               (on the integers, `theta`)
 ```
 
 All the relations between them come from one fact: `(S, D)` is `C` turned by `−π/4` and scaled by
@@ -30,7 +31,13 @@ All the relations between them come from one fact: `(S, D)` is `C` turned by `�
   origin it fails (`DS_eq_tan_fails`). `D/S = (Q − 1)/(Q + 1)` needs `q ≠ 0` (`DS_eq_Q`,
   `DS_eq_Q_fails`). The direction is a line, not a ray: `Q` and `D/S` do not change when the pair is
   scaled by any `t ≠ 0`, `t = −1` among them (`Q_smul`, `DS_smul`).
+* **The angle keeps the ray.** `A = Im L` (`A_eq_im_L`), so `Q = tan A` and `D/S = tan(A − π/4)`
+  (`Q_eq_tan_A`, `DS_eq_tan_A`). A positive scaling keeps `A` and the half turn moves it (`A_smul`,
+  `A_neg`), and off the origin two pairs have one `A` exactly when one is a positive multiple of the
+  other (`A_eq_A_iff`). `⊗` adds it modulo `2π` (`A_pairOtimes`).
 * **Scale only.** `S² + D² = 2e^(2 Re L)` off the origin (`scale_eq`), and not at it (`scale_fails`).
+* **Scale and angle together are `C`.** `C = |C|·e^(iA)` (`C_eq_polar`), and off the origin
+  `C = e^(Re L)·e^(iA)` (`C_eq_scale_angle`).
 
 ## Each reading has its own embedding
 
@@ -68,6 +75,8 @@ def S (p q : ℝ) : ℝ := p + q
 noncomputable def Q (p q : ℝ) : ℝ := p / q
 /-- The product reading `p · q`. -/
 def P (p q : ℝ) : ℝ := p * q
+/-- The angle reading `arg(q + i·p)`, in `(−π, π]`. -/
+noncomputable def A (p q : ℝ) : ℝ := arg (C p q)
 
 @[simp] theorem C_re (p q : ℝ) : (C p q).re = q := rfl
 @[simp] theorem C_im (p q : ℝ) : (C p q).im = p := rfl
@@ -377,5 +386,78 @@ theorem embP_add_fails : embP (1 + 1) ≠ embP 1 + embP 1 := by
   simp [embP]
 /-- `Q`'s embedding is also a section of `P`, so `(n, 1)` serves both multiplicative readings. -/
 theorem P_embQ (n : ℝ) : P (embQ n).1 (embQ n).2 = n := by simp [P, embQ]
+
+/-! ## The angle
+
+`A` is the direction as a ray: `Q` and `D/S` are read from it, a positive scaling keeps it, and the half
+turn moves it. With the scale `Re L` it gives `C` back. -/
+
+section Angle
+
+variable (p q : ℝ)
+
+theorem A_eq_im_L : A p q = (L p q).im := by rw [L, log_im]; rfl
+
+/-- On the integers, `A` is `θ`. -/
+theorem A_theta (x : T) : A x.p x.q = theta x := rfl
+
+theorem Q_eq_tan_A : Q p q = Real.tan (A p q) := Q_eq_tan_arg p q
+
+theorem DS_eq_tan_A {p q : ℝ} (h : C p q ≠ 0) : D p q / S p q = Real.tan (A p q - π / 4) :=
+  DS_eq_tan h
+
+/-- `C` in polar form: its norm, turned by `A`. -/
+theorem C_eq_polar : C p q = ‖C p q‖ * exp (A p q * I) := (norm_mul_exp_arg_mul_I _).symm
+
+/-- The scale `Re L` and the angle `A` give `C` back, off the origin. -/
+theorem C_eq_scale_angle {p q : ℝ} (h : C p q ≠ 0) :
+    C p q = (Real.exp (L p q).re : ℂ) * exp (A p q * I) := by
+  rw [L, log_re, Real.exp_log (norm_pos_iff.mpr h)]
+  exact C_eq_polar p q
+
+theorem C_smul (t : ℝ) : C (t * p) (t * q) = (t : ℂ) * C p q := by
+  apply Complex.ext <;> simp [C]
+
+/-- A positive scaling keeps the angle. -/
+theorem A_smul {t : ℝ} (ht : 0 < t) : A (t * p) (t * q) = A p q := by
+  rw [A, C_smul, arg_real_mul _ ht]; rfl
+
+/-- The half turn moves it, unlike `Q` and `D/S` (`Q_smul`, `DS_smul`). -/
+theorem A_neg {p q : ℝ} (h : C p q ≠ 0) : A (-p) (-q) ≠ A p q := by
+  intro heq
+  have hn : C (-p) (-q) = -C p q := by apply Complex.ext <;> simp [C]
+  have h1 := norm_mul_exp_arg_mul_I (C (-p) (-q))
+  rw [hn, norm_neg] at h1
+  rw [A, hn] at heq
+  rw [heq, A, norm_mul_exp_arg_mul_I] at h1
+  exact h (by linear_combination h1 / 2)
+
+/-- Off the origin, two pairs have one angle exactly when one is a positive multiple of the other. -/
+theorem A_eq_A_iff {p q p' q' : ℝ} (h : C p q ≠ 0) (h' : C p' q' ≠ 0) :
+    A p q = A p' q' ↔ ∃ t : ℝ, 0 < t ∧ p' = t * p ∧ q' = t * q := by
+  constructor
+  · intro heq
+    have hm := (arg_eq_arg_iff h h').mp heq
+    refine ⟨‖C p' q'‖ / ‖C p q‖, div_pos (norm_pos_iff.mpr h') (norm_pos_iff.mpr h), ?_, ?_⟩
+    · have := congrArg Complex.im hm
+      simp only [C_im, ← ofReal_div, im_ofReal_mul] at this
+      exact this.symm
+    · have := congrArg Complex.re hm
+      simp only [C_re, ← ofReal_div, re_ofReal_mul] at this
+      exact this.symm
+  · rintro ⟨t, ht, rfl, rfl⟩
+    exact (A_smul p q ht).symm
+
+theorem C_pairOtimes (x y : ℝ × ℝ) :
+    C (pairOtimes x y).1 (pairOtimes x y).2 = C x.1 x.2 * C y.1 y.2 := by
+  apply Complex.ext <;> simp [C, pairOtimes]
+  ring
+
+/-- `⊗` adds angles, modulo `2π`, off the origin. -/
+theorem A_pairOtimes {x y : ℝ × ℝ} (hx : C x.1 x.2 ≠ 0) (hy : C y.1 y.2 ≠ 0) :
+    (A (pairOtimes x y).1 (pairOtimes x y).2 : Real.Angle) = A x.1 x.2 + A y.1 y.2 := by
+  rw [A, C_pairOtimes]; exact arg_mul_coe_angle hx hy
+
+end Angle
 
 end T.Unquotiented
