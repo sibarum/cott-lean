@@ -211,6 +211,31 @@ product's laws (`carry_comm`, `carry_assoc`, `carry_add`). `⊚` carried back th
 `(p, q) · (r, s) = (−2pr, 2qs)` in the original coordinates (`carry_split_eq`), a third algebra on the same
 pairs.
 
+### Coherence and interference of the embeddings
+
+`T/Coherence.lean`. An embedding is coherent with a reading when that reading, too, reads `n` back. `C`, `S`
+and `D` are linear, so a reading multiplies an embedding along a line, `n ↦ n·v`, by one constant: the
+embedding's phase under that reading (`C_lin`, `S_lin`, `D_lin`). Against `C`'s embedding `(0, n)`, `S`'s
+embedding `(n, 0)` is in phase under `S`, in antiphase under `D` (`D(n, 0) = −n`), and in quadrature under
+`C` (`C(n, 0) = n·i`) (`S_embS`, `D_embS`, `C_embS`). Under `⊕` the readings superpose (`C_superpose`,
+`S_superpose`, `D_superpose`), so `embC n ⊕ embS n = (n, n)` reads `S = 2n` and `D = 0`
+(`interfere_embC_embS`).
+
+| statement | Lean |
+|---|---|
+| the only line coherent with `C` is `(0, 1)` | `coherent_C_iff` |
+| the only line coherent with `S` and `D` together is `(0, 1)`, so coherence with `C` is coherence with both | `coherent_S_D_iff`, `coherent_C_iff_S_D` |
+| `S` reads `0` exactly on the light line `p = −q`, and `D` on `p = q`: the zero divisors of `⊚` | `S_eq_zero_iff`, `D_eq_zero_iff` |
+| two lines coherent with one of `S` or `D` differ by a pair on that reading's light line | `S_sub_of_coherent`, `D_sub_of_coherent` |
+| for `n > 0`, `(n^α, n^β)` reads `Q = n^(α−β)` and `P = n^(α+β)`, and only `(n, 1)` is coherent with both | `Q_powEmb`, `P_powEmb`, `coherent_Q_P_iff` |
+| `P`'s embedding is in antiphase under `Q`: `Q(1, n) = n⁻¹` | `Q_embP` |
+| `embQ n * embP n = (n, n)`, reading `Q = 1` and `P = n²` | `interfere_embQ_embP` |
+| the additive and multiplicative interference meet on one pair: `embC n ⊕ embS n = embQ n * embP n` | `diagonal_meet` |
+| `embL n = (0, eⁿ)` is coherent with `L` in base `e²`, and reads `2n` in base `e` | `L_embL`, `L_e_embL` |
+
+So each reading's total cancellation happens on a light line, and the additive and multiplicative pictures
+cancel on the same diagonal `(n, n)`: an eighth of a turn, read `0` by `D` and `1` by `Q`.
+
 ## What it shows
 
 **A number is a pair, and every value of it is a reading.** The same unreduced pair is read as a complex
@@ -888,6 +913,7 @@ search and checks it against the proved `table` cell by cell.
 | `CottLean/T/Bases.lean` | a base held by its scale and turn units; `log_b` for every base, `1`, `−1`, `i`, `0` and `ω` included; the named values as bases; the rules for `0^(p/q)` and which exponent laws hold |
 | `CottLean/T/BasePowers.lean` | `b^x` from a base's units, through `1^t`; `b^(x + y) = b^x · b^y` |
 | `CottLean/T/PairAlgebras.lean` | each reading as the homomorphism of an algebra on the pairs; no flat addition for `P`; converting between `C` and `(S, D)`, and carrying a product across |
+| `CottLean/T/Coherence.lean` | coherence and interference of the embeddings: each embedding's phase under the linear readings, the line each pair of readings fixes, cancellation on the light lines, and the diagonal where the additive and multiplicative pictures meet |
 | `CottLean/T/Drift.lean` | both readings side by side, with the conjugate for the complex inverse; the drift between them |
 | `CottLean/T/Over.lean` | `T`'s formulas over any commutative ring; `x · (1/x) = T(pq, pq)`; when `+` and `·` can be undone in a domain |
 | `CottLean/Nested/Basic.lean` | `T2`, a pair of pairs: the embedding of `T`, the projection `flatten` as a Möbius transformation of the numerator, and `T2` against the common meadow |
