@@ -236,6 +236,27 @@ embedding `(n, 0)` is in phase under `S`, in antiphase under `D` (`D(n, 0) = −
 So each reading's total cancellation happens on a light line, and the additive and multiplicative pictures
 cancel on the same diagonal `(n, n)`: an eighth of a turn, read `0` by `D` and `1` by `Q`.
 
+### Interference between the additive and multiplicative embeddings
+
+`T/Interference.lean`. Each multiplicative embedding is an additive one displaced by the other's `1`:
+`embQ n = embS n ⊕ embC 1` and `embP n = embC n ⊕ embS 1` (`embQ_eq_add`, `embP_eq_add`). So the linear
+readings see them with a constant bias, `S(n, 1) = n + 1`, `D(n, 1) = 1 − n`, `C(n, 1) = 1 + n·i` and the
+mirror images for `embP`. The other way, `P` annihilates both axes, which are exactly its null set
+(`P_eq_zero_iff`).
+
+| statement | Lean |
+|---|---|
+| `⊕` with an additive embedding translates along a multiplicative one: `embS m ⊕ embQ n = embQ (m + n)` | `embS_add_embQ`, `embC_add_embP` |
+| `*` with a multiplicative embedding scales an additive one or leaves it: `embS m * embQ n = embS (m·n)`, `embC m * embQ n = embC m` | `embS_times_embQ`, `embC_times_embP`, `embC_times_embQ`, `embS_times_embP` |
+| crossed, `embC m ⊕ embQ n = (n, 1 + m)`: `Q` reads `n/(1 + m)` and `P` reads `n·(1 + m)` | `embC_add_embQ`, `embS_add_embP` |
+| at `m = −1` the bias cancels and the pair falls onto `S`'s axis | `embC_neg_one_add_embQ` |
+| in the exponents `C`'s `m` adds `log(1 + m)` to `P`, not `m` | `log_P_embC_add_embQ` |
+| the interference `δ(m) = m − log(1 + m)` has `0 ≤ δ(m) ≤ m²/(1 + m)` for `m > −1`, and is `0` only at `m = 0` | `interference_nonneg`, `interference_le`, `interference_eq_zero_iff` |
+| `embC m ⊗ embL n` reads `(n + log|m|, 0)` in base `e²` for `m > 0`, and `(n + log|m|, 1/2)` for `m < 0` | `L_embC_otimes_embL_pos`, `L_embC_otimes_embL_neg` |
+
+So the interference vanishes to first order and grows as `m²`, and diverges only at the total cancellation
+`m = −1`. Under `⊗`, an additive embedding's magnitude shifts `L`'s scale and its sign becomes half a turn.
+
 ## What it shows
 
 **A number is a pair, and every value of it is a reading.** The same unreduced pair is read as a complex
@@ -914,6 +935,7 @@ search and checks it against the proved `table` cell by cell.
 | `CottLean/T/BasePowers.lean` | `b^x` from a base's units, through `1^t`; `b^(x + y) = b^x · b^y` |
 | `CottLean/T/PairAlgebras.lean` | each reading as the homomorphism of an algebra on the pairs; no flat addition for `P`; converting between `C` and `(S, D)`, and carrying a product across |
 | `CottLean/T/Coherence.lean` | coherence and interference of the embeddings: each embedding's phase under the linear readings, the line each pair of readings fixes, cancellation on the light lines, and the diagonal where the additive and multiplicative pictures meet |
+| `CottLean/T/Interference.lean` | interference between the additive and multiplicative embeddings: each multiplicative embedding as an additive one displaced by a bias, translation and scaling, the crossed sums and the measure `m − log(1 + m)`, and the sign of an additive embedding as half a turn of `L` |
 | `CottLean/T/Drift.lean` | both readings side by side, with the conjugate for the complex inverse; the drift between them |
 | `CottLean/T/Over.lean` | `T`'s formulas over any commutative ring; `x · (1/x) = T(pq, pq)`; when `+` and `·` can be undone in a domain |
 | `CottLean/Nested/Basic.lean` | `T2`, a pair of pairs: the embedding of `T`, the projection `flatten` as a Möbius transformation of the numerator, and `T2` against the common meadow |

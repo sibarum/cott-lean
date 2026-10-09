@@ -34,6 +34,7 @@ import CottLean.T.Bases
 import CottLean.T.BasePowers
 import CottLean.T.PairAlgebras
 import CottLean.T.Coherence
+import CottLean.T.Interference
 import CottLean.T.Drift
 import CottLean.T.Over
 import CottLean.T.Ternary
