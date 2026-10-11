@@ -257,6 +257,80 @@ mirror images for `embP`. The other way, `P` annihilates both axes, which are ex
 So the interference vanishes to first order and grows as `m²`, and diverges only at the total cancellation
 `m = −1`. Under `⊗`, an additive embedding's magnitude shifts `L`'s scale and its sign becomes half a turn.
 
+### The hidden channels of Q and D
+
+`T/Channels.lean`. A reading keeps one number of the two in a pair, so it has a hidden channel: what can
+change without changing the reading. `Q`'s is a coefficient, `6/2 = 2·(3/1)` (`Q_scaleBy`). `D`'s is an
+offset along the diagonal, `(695, 700) = (0, 5) + 695·(1, 1)` (`D_shiftBy`, `eq_shiftBy_D`).
+
+| statement | Lean |
+|---|---|
+| the coefficient acts on `D` as a coefficient, `D(k·x) = k·D(x)` | `D_scaleBy`, `S_scaleBy` |
+| the offset acts on `Q` as `(p + t)/(q + t)`, which is not a function of `Q`: `3/1` and `6/2` shift by `1` to `2` and `7/3` | `Q_shiftBy`, `shiftBy_not_function_of_Q` |
+| on `k·v`, `Q` sees only the offset per unit of coefficient, `t/k` | `shiftBy_scaleBy`, `Q_shiftBy_scaleBy` |
+| `(695, 700)` is `(0, 1)` scaled by `5` and shifted by `695`, so `t/k = 139` and `Q = 139/140` | `example_695_700` |
+| scaling after a shift is a larger shift after scaling, and they commute only when `t = 0` or `k = 1`: the `ax + b` group | `scaleBy_shiftBy`, `shiftBy_scaleBy_comm_iff` |
+| a coefficient moves only `L`'s scale, by `log_b k²`, and a positive one keeps the turn | `logScale_scaleBy`, `turn_scaleBy` |
+| the offset moves the turn, and as it grows every turn tends to `1/8`, the diagonal's | `shiftBy_moves_turn`, `tendsto_turn_shiftBy` |
+
+So the coefficient is a pure channel, scale alone, and not a winding number: `6/2` adds no turn. The
+offset is mixed: it moves both the scale and the turn, and `Q` sees it only against the coefficient.
+
+### Z(p, q) = p·0^q, E(p, q) = q + log₀ p and B(p, q) = log_p q
+
+`T/ZeroAlgebra.lean`. In all three `p` is the coefficient and `q` the order of zero. `Z` is the value, `E`
+its logarithm in base `0`, and `B` the ratio of two of those logarithms. No operation is chosen; each is
+derived, then located among traction's products.
+
+| statement | Lean |
+|---|---|
+| `Z`'s product is the exponent law; `+` distributes on equal orders, and the sums make `ℤ[0, 0⁻¹]`, which holds `Z` faithfully with `0·ω = 1` | `toLaurent_mul`, `toLaurent_add_same`, `toLaurent_injective`, `toLaurent_omega` |
+| where `0` stands for a unit `u`, `Z(p, q) ↦ p·u^q` is multiplicative; under `⊗` it sends `0` to traction's `ω` | `toUnit_mul`, `gauss_zero` |
+| under `⊗`, `0² = −1` and `0⁴ = 1`; under `⊚`, `0² = 1`. Under `+` and `*` the element is not invertible, so negative orders have no image | `gauss_two`, `gauss_four`, `split_two` |
+| with `ln 0 = −ω`, zero's scale unit, and `0ω = 1`, `log₀ p = −0·ln p`, so `E(p, q) = q − 0·ln p` | `logZero_mul_lnZero`, `E_eq` |
+| `Z`'s product is `E`'s `+`, `Z`'s power is `E`'s multiple, and `0ʳ·Z` adds `r` to `E`. `0 ↦ 1`, `ω ↦ −1`, `k ↦ log₀ k` | `E_add`, `Z.log_mul`, `E_nsmul`, `E_add_C`, `Z.log_zero`, `Z.log_omega`, `Z.log_ofInt` |
+| on positive coefficients `E` keeps both the coefficient and the order | `E_injective` |
+| `ln 0 = −ω`, never `0`. `log₀ 0 = ln 0 / ln 0` is an `ω/ω`, taken as `1` by `0·ω = 1` | `ln`, `logZero_zero` |
+| nothing normalizes: `Z(0, q) ≠ Z(1, q + 1)`, though `E` reads both as the same value | `Z.coeff_zero_ne`, `E_zero`, `Z.log_coeff_zero` |
+| against a coefficient `0`, `E`'s sum keeps the other coefficient, `E(0, m) + E(b, n) = E(b, m + n + 1)`; `Z`'s product evaluates `0·b = 0` in `ℤ` and drops `b`, so `log₀` is not a homomorphism there. That is where the `0/0` is lost, and `T/Residual.lean` closes it | `E_add_zero`, `Z.log_mul_coeff_zero_ne` |
+| `E(q, 0) ÷ E(p, 0)` is a `0/0` whose `0` cancels to `B(p, q)`, and `B` composes | `E_eq_B_mul`, `B_mul_B` |
+| as a direction, `E(q, 0) + i·E(p, 0) = −0·(ln q + i·ln p)` turns by `atan2(ln p, ln q) + π`: `0` keeps the direction, and the `−` of `ln 0 = −ω` is the half turn | `zeroRatio_arg` |
+| the pair `p + 0q`: its `+` is `⊕`, and any product that distributes over `⊕`, takes out integer factors, commutes and has `0 = T(0,1)` as unit is `qtimes a b`, the rows `⊗`, `+`, `⊚` of `T/Quadratic.lean` | `eq_qtimes`, `otimes_eq_qtimes`, `plus_eq_qtimes`, `splitTimes` |
+| with traction's own `0` and `1`, the unit must be `T(1,1)`, which is `*`'s. There `0` is idempotent and its reciprocal `ω` gives `0·ω = 0ω` | `one_times`, `zero_times_zero`, `zero_times_omega` |
+
+So `Z` is the free ring on an invertible `0`. Each traction product on pairs is that ring, or `ℤ[0]` where
+`0` has no inverse, with one relation imposed, `0² = a + b·0`. The relation is what the product loses of
+`Z`.
+
+`E` and `Z` are one object: `E = log₀ Z` and `Z = 0^E`, and `E`'s `+` is `Z`'s `·`, the way `L` turns the
+multiplicative pair into an additive one. `E` has the shape of `p + 0q`, but a product of two `E`s
+multiplies logarithms, so the products of `p + 0q` are not `E`'s operations. Dividing two `E`s of order `0`
+is: it gives `B`.
+
+Nothing here normalizes. `Z(0, q)` and `Z(1, q + 1)` stay different elements; only `E`'s value meets. The
+`0/0` is lost in `Z`'s coefficient, which as an integer absorbs: `0·b = 0`. That is the zero side of
+traction's own `0ω`, and the next section removes it.
+
+### The residual of an exact cancellation
+
+`T/Residual.lean`. `Z(0, 0)` and `Q(0, 0)` are the absence of a value, and nothing reaches them. `Z`'s
+coefficient is an unreduced ratio, so `Z(a : b, n) = (a/b)·0ⁿ`. Products never make a coefficient `0`; the one
+way in is an exact cancellation, and there the rule distributes over the operands: `x − x = (1 − 1)·x = 0·x`,
+with `1 − 1` the invertible `0 = Z(1 : 1, 1)`. The residual keeps `x` and gains one order.
+
+| statement | Lean |
+|---|---|
+| a product never makes a coefficient `0`, and is the exponent law on values | `mul_coeff_ne_zero`, `value_mul` |
+| `x − x` is the residual `0·x`, one order up with `x` kept | `add_neg_self`, `cancel_eq` |
+| its value depends only on the value of `x`, not on how `x` is written | `value_cancel_congr` |
+| the residual over what cancelled is the zero; `0/0 = (x − x)/(y − y) = x/y` | `cancel_div_self`, `cancel_div_cancel` |
+| without an exact cancellation `+` is the sum of values; when two different pairs cancel, either as coefficient gives one value, and the pair kept is history | `value_add`, `value_cancel_either` |
+| reading the collapsed pair instead, `(0 : b²) ↦ Z(b², 1)`, cancels `3` and `6/2` to `1·0` and `4·0`: equal inputs, unequal values | `denominator_rule_ne` |
+| `(1 + 1) − 1` cancels nothing exactly and gives `1`; `1 − 1` leaves the residual `0` | `add_add_neg`, `add_one_neg` |
+
+So `+` counts exact cancellations and is not associative: `(x + x) − x = x`, while `x + (x − x)` keeps a
+residual. Grouping changes how many exact cancellations happen.
+
 ## What it shows
 
 **A number is a pair, and every value of it is a reading.** The same unreduced pair is read as a complex
@@ -302,6 +376,13 @@ a factor that happens to be zero.
 exactly when the known one has non-zero norm. When it doesn't come back, the product has forgotten
 exactly one integer of it, and keeping that one integer alongside the result is enough to recover it.
 
+**Zero has two faces, and absence is never reached.** The `0` with an inverse, `Z(1, 1)`, keeps whatever it
+multiplies; the absorbing `0·b = 0` is the zero-side mirror of `0ω`. `Q(0, 0)` and `Z(0, 0)` are the absence
+of a value, and with an unreduced ratio as `Z`'s coefficient nothing reaches them: products never make a
+coefficient `0`, and an exact cancellation leaves a residual, `x − x = 0·x`, keeping what cancelled. Its value
+does not depend on how `x` is written, and `0/0` is the ratio of what cancelled, `(x − x)/(y − y) = x/y`. The
+price is associativity: `+` counts exact cancellations, and grouping changes how many happen.
+
 **The tower is forced, not chosen.** The mediant survives no quotient: no invariant coarser than the pair
 itself, such as the ray or the ratio, is respected by it. No equality at all lets it stand beside
 division. So each ring keeps its laws on the bare pairs, and division has to come from a second level,
@@ -331,7 +412,9 @@ forces:
 - each reading kept as a reading of the same pair, with every conversion between them explicit, including
   the ones that are not homomorphisms of the readings' algebras;
 - `log_b` defined for every base, because a base is held by its units and a ratio over zero is a value, and
-  the full-turn `1` held apart from the identity `1`, which no value can do.
+  the full-turn `1` held apart from the identity `1`, which no value can do;
+- the residual of an exact cancellation, `x − x = 0·x`, which keeps absence unreachable and gives `0/0` the
+  value of what cancelled, at the cost of an associative `+`.
 
 The readings' algebras are classical: ℂ, the split-complex numbers as ℝ × ℝ in light-cone coordinates, and
 the wheel of fractions. So are change of base, the polar form `C = |C|·e^(iA)`, and measuring angles in
@@ -891,6 +974,12 @@ search and checks it against the proved `table` cell by cell.
 - The ratio reading's `*` is in the quadratic family only through another basis, so `Point`'s result for
   real ratios is proved on its own, not as a case of `QuadPoint`'s.
 - The points at infinity of `T2`, in the terms `Compare` uses for the two constructions of ℚ(i).
+- `T/Residual.lean`'s type does not exclude a coefficient `0`; the theorems that need it non-zero assume it.
+  Its `+` is defined at one order, so a sum of different orders, such as `x + (x − x)`, is not a single
+  element, and non-associativity is shown by its two groupings separately. When two different pairs
+  cancel, the residual keeps the first; the choice is history, not value (`value_cancel_either`).
+- `E` in `T/ZeroAlgebra.lean` is not yet stated on `Residual`'s coefficients, and still takes `log₀ 0 = 1`,
+  an `ω/ω`. Its log is the real one, so a negative coefficient carries no half turn: `E(−1, 0) = E(1, 0)`.
 
 ## Files
 
@@ -936,6 +1025,10 @@ search and checks it against the proved `table` cell by cell.
 | `CottLean/T/PairAlgebras.lean` | each reading as the homomorphism of an algebra on the pairs; no flat addition for `P`; converting between `C` and `(S, D)`, and carrying a product across |
 | `CottLean/T/Coherence.lean` | coherence and interference of the embeddings: each embedding's phase under the linear readings, the line each pair of readings fixes, cancellation on the light lines, and the diagonal where the additive and multiplicative pictures meet |
 | `CottLean/T/Interference.lean` | interference between the additive and multiplicative embeddings: each multiplicative embedding as an additive one displaced by a bias, translation and scaling, the crossed sums and the measure `m − log(1 + m)`, and the sign of an additive embedding as half a turn of `L` |
+| `CottLean/T/Channels.lean` | the hidden channels of `Q` (a coefficient) and `D` (an offset along the diagonal): the coefficient acts on `D` as a coefficient, the offset acts on `Q` only through `t/k` and not as a function of `Q`; they do not commute; through `L` the coefficient is pure scale and the offset carries the turn to `1/8` |
+| `CottLean/T/ZeroScale.lean` | `Z(p, q) = p·0^q`, a coefficient and an order of zero: why `L`'s scale coordinate, the dual numbers, cannot hold it; `0·ω = 1`, and `−0 ≠ 0` with the sign in the coefficient |
+| `CottLean/T/ZeroAlgebra.lean` | `Z(p, q) = p·0^q`, `E(p, q) = q + log₀ p` and `B(p, q) = log_p q`: `Z`'s ring the Laurent polynomials and each traction product as `Z` with one relation on `0`; `E = log₀ Z`, turning `Z`'s product into `+`; `B` as `E ÷ E` at order `0`; the products of the pair `p + 0q` forced to `qtimes` |
+| `CottLean/T/Residual.lean` | the residual of an exact cancellation: `Z` with an unreduced ratio as coefficient, `x − x = 0·x` by distributing, its value independent of how `x` is written, `0/0` as the ratio of what cancelled, and `+` counting exact cancellations |
 | `CottLean/T/Drift.lean` | both readings side by side, with the conjugate for the complex inverse; the drift between them |
 | `CottLean/T/Over.lean` | `T`'s formulas over any commutative ring; `x · (1/x) = T(pq, pq)`; when `+` and `·` can be undone in a domain |
 | `CottLean/Nested/Basic.lean` | `T2`, a pair of pairs: the embedding of `T`, the projection `flatten` as a Möbius transformation of the numerator, and `T2` against the common meadow |
