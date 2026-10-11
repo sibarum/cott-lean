@@ -3,6 +3,9 @@ import Mathlib
 /-!
 # A neutral element for both operations
 
+**Kept for history only.** This file is not imported by `CottLean.lean`, so it is not built, axiom-checked
+or listed in `declarations.txt`. Nothing depends on it. Delete it soon unless something comes to use it.
+
 `0` is additively invariant and `1` is multiplicatively invariant. `e` is both: `a ⊕ e = a` and
 `a ⊗ e = a`. It is one element with two readings, chosen by the operation it sits in:
 
