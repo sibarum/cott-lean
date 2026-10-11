@@ -31,6 +31,9 @@ Under the ratio invariant a residue is invisible exactly when `k ≠ 0`: `y + T(
 holds, for the ratio, at exactly the inputs where the residue's `k` is not zero. Every `k` in the table is
 zero only where some coordinate is zero: at the quarter turns for the denominator rows, only at `0ω` for
 the norm rows, and also at the zeros `T(0,q)` for `x · (1/x)`.
+
+A residue carries the denominator, so it depends on how a value is written: `3` and `6/2` give `x + -x`
+the residues `1` and `4`. `T/Residual.lean` shows this (`denominator_rule_ne`) and keeps `x` instead.
 -/
 
 namespace T

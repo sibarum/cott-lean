@@ -24,7 +24,9 @@ the `0` that has an inverse. So the residual keeps `x` as its coefficient and ga
 
 Reading the collapsed pair instead, `(a : b) − (a : b) = (0 : b²)` and `Q(0, n) ↦ Z(n, 1)`, puts the
 denominator into the coefficient. Then `3` and `6/2` cancel to `1·0` and `4·0` (`denominator_rule_ne`): equal
-inputs, unequal values.
+inputs, unequal values. The collapsed pair is traction's own `x + (−x) = T(0, q²)` (`T.plus_neg_residue`), so
+this is the residue `T/Residue.lean` attaches to `x + (−x)`. `denominatorRule` is defined here on its own,
+not through `T.plus_neg_residue`.
 
 ## `+` counts exact cancellations
 

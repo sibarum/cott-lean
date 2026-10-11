@@ -331,6 +331,20 @@ with `1 − 1` the invertible `0 = Z(1 : 1, 1)`. The residual keeps `x` and gain
 So `+` counts exact cancellations and is not associative: `(x + x) − x = x`, while `x + (x − x)` keeps a
 residual. Grouping changes how many exact cancellations happen.
 
+The denominator rule that `denominator_rule_ne` sets aside is traction's own: `x + (−x) = T(0, q²)`
+(`T.plus_neg_residue`) and `0·x = T(0, q)` (`T.zero_times`). So the residue `T/Residue.lean` attaches to
+`x + (−x)` depends on how `x` is written, and the residual does not. The two files do not yet state this
+link as a theorem.
+
+The earlier zero files show that the zero `+` produces cannot be held: `Nested/Epsilon.lean` in a ring
+(`additive_zero_erases`), `Nested/Hotel.lean` in a group (`Held.universal_invariant`), and
+`Nested/NoRing.lean` isolates the group laws that force it (`left_distrib_zero`). `Residual`'s `+` is not a
+group: `−x` is not an inverse and `+` is not associative, which is how it holds that zero.
+`Float/Grade.lean` writes the same `(p/q)·0^z` and leaves an exact cancellation partial (`Res.add_cancel`);
+the residual gives that case a value. `0/0` reads differently across them: `1` with one `ε`
+(`TE.zero_div_zero`) and in `Float/Grade.lean` (`TZ.rewrite_pq`), and the ratio of what cancelled here
+(`cancel_div_cancel`).
+
 ## What it shows
 
 **A number is a pair, and every value of it is a reading.** The same unreduced pair is read as a complex
@@ -743,7 +757,9 @@ exactly, `x · 0` is the rule (`of_times_zero`), and neither `· 0` nor `· ω` 
 (`times_zero_times_omega`). A common `ε` cancels exactly (`cancel_step`), and once the denominator is
 non-zero at `ε = 0`, setting `ε = 0` respects `+`, `·` and `−` and gives the classical value (`st_plus`,
 `st_of`). The zero that `+` produces, `1 + (−1)`, cannot be held, since in any ring `a · 0 = b · 0`
-(`additive_zero_erases`). With one `ε`, `0/0 = 1` (`zero_div_zero`). This is the formal infinitesimal of
+(`additive_zero_erases`). `T/Residual.lean` holds it with a `+` that is not a group (see
+[The residual of an exact cancellation](#the-residual-of-an-exact-cancellation)). With one `ε`, `0/0 = 1`
+(`zero_div_zero`). This is the formal infinitesimal of
 `ℚ(ε)`, and the standard part is `ε → 0`; what the model adds is that its nested pairs, read by Horner, are
 the rule.
 
@@ -978,6 +994,15 @@ search and checks it against the proved `table` cell by cell.
   Its `+` is defined at one order, so a sum of different orders, such as `x + (x − x)`, is not a single
   element, and non-associativity is shown by its two groupings separately. When two different pairs
   cancel, the residual keeps the first; the choice is history, not value (`value_cancel_either`).
+- `Residual`'s `add` reads only `x`'s order and ignores `y`'s, so on different orders it returns a value at
+  `x`'s order: `add one zero` is `2`, not `1 + 0`. Its cancellation test, `a·d + b·c = 0`, also fires when
+  both denominators are `0`, so `(1 : 0) + (1 : 0)` counts as an exact cancellation. And `cancel_div_cancel`
+  needs no hypotheses because Lean's `x/0` is `0`: with a zero coordinate in `y` both sides are that `0`.
+- `T.plus_neg_residue`'s `T(0, q²)` and `Residual.denominatorRule`'s `(0 : b²)` are the same pair, but
+  `denominatorRule` is defined on its own, and no theorem connects the two.
+- `Z`'s `0` has no single place among traction's values: under `⊗` and `⊚` it is traction's `ω`
+  (`gauss_zero`), under `*` it is traction's `0`, which has no inverse. `ln 0 = −ω` (`lnZero`) is tied to
+  `Bases`'s zero scale unit `−1 : 0` in prose only.
 - `E` in `T/ZeroAlgebra.lean` is not yet stated on `Residual`'s coefficients, and still takes `log₀ 0 = 1`,
   an `ω/ω`. Its log is the real one, so a negative coefficient carries no half turn: `E(−1, 0) = E(1, 0)`.
 
@@ -999,6 +1024,7 @@ search and checks it against the proved `table` cell by cell.
 | `CottLean/T/Fracpair.lean` | Bergstra and Ponse's fracpairs, read in T |
 | `CottLean/T/Residue.lean` | each law's discrepancy is one added residue `T(0,k)` |
 | `CottLean/T/Dual.lean` | `⊕` with `+` is ℤ\[ε]; `⊕` with `*` is ℤ × ℤ |
+| `CottLean/T/Exponential.lean` | an exponential in each coordinate carries `⊕` to `*` on the quadrant `0 ≤ p, 0 ≤ q`; the `ℓ`-adic valuation carries it back; two exponentials share a ratio exactly when the exponents share a difference |
 | `CottLean/T/Quadratic.lean` | one product for every quadratic ring; split-complex; ℤ[j] is not ℤ × ℤ |
 | `CottLean/T/Velocity.lean` | `⊚` against the wheel's velocity addition; the light cone |
 | `CottLean/T/Parallel.lean` | the parallel sum `∥`; ℤ[ε] through the reciprocal |
@@ -1031,6 +1057,8 @@ search and checks it against the proved `table` cell by cell.
 | `CottLean/T/Residual.lean` | the residual of an exact cancellation: `Z` with an unreduced ratio as coefficient, `x − x = 0·x` by distributing, its value independent of how `x` is written, `0/0` as the ratio of what cancelled, and `+` counting exact cancellations |
 | `CottLean/T/Drift.lean` | both readings side by side, with the conjugate for the complex inverse; the drift between them |
 | `CottLean/T/Over.lean` | `T`'s formulas over any commutative ring; `x · (1/x) = T(pq, pq)`; when `+` and `·` can be undone in a domain |
+| `CottLean/T/Ternary.lean` | Hall's planar ternary rings, `T(a, m, b)` read `y = a·m + b`; every field gives one |
+| `CottLean/T/TernaryMeadow.lean` | the division form `a / m + b` in the involutive, common and neutral meadows, and which of Hall's axioms survive in each |
 | `CottLean/Nested/Basic.lean` | `T2`, a pair of pairs: the embedding of `T`, the projection `flatten` as a Möbius transformation of the numerator, and `T2` against the common meadow |
 | `CottLean/Nested/DivZero.lean` | `p/0 = tan(arg(p·i))`: sign-only on integers, the quarter turn on pairs, the numerator `flatten` loses at `0`, and parallel lines, with and without the `·i` |
 | `CottLean/Nested/T3.lean` | `T3`, a pair of `T2`s: the embedding of `T2`, the projection's residue one level up, the two levels compounded into `T`, the leaves read by parity, and what a denominator erases |
@@ -1045,6 +1073,17 @@ search and checks it against the proved `table` cell by cell.
 | `CottLean/Nested/Bicomplex.lean` | `C(C, C)`, the bicomplex integers: two units, the evaluations, zero divisors, `⊗` and `⊚` together, the complex norm |
 | `CottLean/Nested/BicomplexRatio.lean` | `C(T(C, C), T(C, C))`: the exact bicomplex inverse, its residue, the light lines, the other three corners inside it, the bicomplex units |
 | `CottLean/Nested/Embeddings.lean` | how the corners fit together: the commuting cube, ℚ(i) twice in the top corner, the bicomplex numbers as `ℂ × ℂ`, and what cannot embed |
+| `CottLean/Float/Basic.lean` | `TF`, `T` over a rounded carrier: each operation rounded once per coordinate, agreeing with `T` while every value stays in range, and a 3-bit rounding where the laws fail |
+| `CottLean/Float/Residue.lean` | `Res`, a coordinate never stored as `0`: a coefficient and a grade, `c·ε^k`; grades add under `·`, and a zero and a pole cancel back to a plain coordinate |
+| `CottLean/Float/Tropical.lean` | `+` on residues: the grade is the `min`, so grades form the tropical semiring, and an exact cancellation has no sum |
+| `CottLean/Float/Tail.lean` | a coordinate as a formal sum of `c·ε^k`: `+` tropical on grades and lossless on terms, a cancellation raising the grade, and the product conserving the total |
+| `CottLean/Float/Nested.lean` | `TR2`, a pair of float pairs whose coordinates are residues at every level; `flatten` adds grades, and `+` alone has no value, at the additive zero |
+| `CottLean/Float/Erasure.lean` | the two erasures: `+` forgets the coefficient at `c + (−c)`, `·` forgets the grade at `ε^n · ε^(−n)` |
+| `CottLean/Float/Grade.lean` | `TZ(p, q, z) = (p/q)·0^z`: a zero in `p` or `q` moves the grade, `0/0` is the grade cancelling, and the rewrite is not a homomorphism from the raw pair operations |
+| `CottLean/Float/Neutral.lean` | one element neutral for both operations, read as `0` in a sum and `1` in a product; reversibility as uniform cancellation; Eckmann–Hilton. Not imported by `CottLean.lean`, so it is not built, axiom-checked or listed in `declarations.txt` |
+| `CottLean/Physics/Triality.lean` | the Eisenstein product and the triality `p + q mod 3`, a homomorphism of `⊕` and of that product; the light-like probe |
+| `CottLean/Physics/Center.lean` | the Eisenstein units as a cyclic ℤ₆ generated by `1`, with the Standard Model's center assignment recorded as data, not derived |
+| `CottLean/Physics/Vertex.lean` | vertices whose legs carry a proof of ℤ₆ neutrality, closed under gluing; the center alone is weaker than full hypercharge |
 | `scripts/LawAtlas.lean` | not part of the library: the grid search behind the atlas, checked against `T.Atlas.table` |
 | `scripts/Declarations.lean` | not part of the library: writes `declarations.txt`, the name of every citable declaration. cott-engine cites these names, and CI fails if the file is out of date |
 | `declarations.txt` | the generated list of every citable declaration, sorted |
