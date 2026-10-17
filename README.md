@@ -328,8 +328,23 @@ with `1 − 1` the invertible `0 = Z(1 : 1, 1)`. The residual keeps `x` and gain
 | reading the collapsed pair instead, `(0 : b²) ↦ Z(b², 1)`, cancels `3` and `6/2` to `1·0` and `4·0`: equal inputs, unequal values | `denominator_rule_ne` |
 | `(1 + 1) − 1` cancels nothing exactly and gives `1`; `1 − 1` leaves the residual `0` | `add_add_neg`, `add_one_neg` |
 
-So `+` counts exact cancellations and is not associative: `(x + x) − x = x`, while `x + (x − x)` keeps a
-residual. Grouping changes how many exact cancellations happen.
+So `+` counts exact cancellations and is not associative: `(1 + 1) − 2 = 0·2`, while `1 + (1 − 2) = 0·1`.
+Grouping changes how many exact cancellations happen. Across orders `+` keeps the leading term, the lower
+order.
+
+**The loss is isolated, and the standard part restores it.** `T/ResidualProjection.lean`.
+
+| statement | Lean |
+|---|---|
+| the standard part `st`, the coefficient at order `0`, carries `+` and `·` to `ℚ` on finite elements | `st_add`, `st_mul` |
+| off an exact cancellation `+` is commutative, and at one order associative | `add_comm_of_noCancel`, `add_assoc_of_noCancel` |
+| at one both fail: `1 − 1 = 0·1` but `−1 + 1 = 0·(−1)` | `add_not_comm`, `add_not_assoc` |
+| `st` does not see the failures | `st_add_comm`, `st_add_assoc` |
+| `·` distributes over `+` on values, exact cancellations included | `value_mul_add` |
+| a projection carrying `+` to an associative operation sends `0·n` to `0·1` for every positive integer `n`; to a commutative one, `0·1` to `0·(−1)` | `forgets_cancelled`, `forgets_sign` |
+
+So no lawful projection keeps what cancelled: `(n + 1) − (n + 1)` regroups as `n + (1 − (n + 1)) = n − n`.
+What the residual holds is seen only by readings that are not associative.
 
 The denominator rule that `denominator_rule_ne` sets aside is traction's own: `x + (−x) = T(0, q²)`
 (`T.plus_neg_residue`) and `0·x = T(0, q)` (`T.zero_times`). So the residue `T/Residue.lean` attaches to
@@ -991,13 +1006,13 @@ search and checks it against the proved `table` cell by cell.
   real ratios is proved on its own, not as a case of `QuadPoint`'s.
 - The points at infinity of `T2`, in the terms `Compare` uses for the two constructions of ℚ(i).
 - `T/Residual.lean`'s type does not exclude a coefficient `0`; the theorems that need it non-zero assume it.
-  Its `+` is defined at one order, so a sum of different orders, such as `x + (x − x)`, is not a single
-  element, and non-associativity is shown by its two groupings separately. When two different pairs
-  cancel, the residual keeps the first; the choice is history, not value (`value_cancel_either`).
-- `Residual`'s `add` reads only `x`'s order and ignores `y`'s, so on different orders it returns a value at
-  `x`'s order: `add one zero` is `2`, not `1 + 0`. Its cancellation test, `a·d + b·c = 0`, also fires when
-  both denominators are `0`, so `(1 : 0) + (1 : 0)` counts as an exact cancellation. And `cancel_div_cancel`
+  When two different pairs cancel, the residual keeps the first; the choice is history, not
+  value (`value_cancel_either`), and it is what breaks commutativity (`add_not_comm`).
+- `Residual`'s `add` keeps only the leading term across orders, so `value` is not additive there:
+  `1 + 0·1` is `1`. Its cancellation test, `a·d + b·c = 0`, also fires when both denominators are `0`;
+  `T/ResidualProjection.lean` excludes that with `WF`, `Residual.lean` does not. And `cancel_div_cancel`
   needs no hypotheses because Lean's `x/0` is `0`: with a zero coordinate in `y` both sides are that `0`.
+- Associativity off an exact cancellation is proved at one order only; across orders it is not stated.
 - `T.plus_neg_residue`'s `T(0, q²)` and `Residual.denominatorRule`'s `(0 : b²)` are the same pair, but
   `denominatorRule` is defined on its own, and no theorem connects the two.
 - `Z`'s `0` has no single place among traction's values: under `⊗` and `⊚` it is traction's `ω`
@@ -1055,6 +1070,7 @@ search and checks it against the proved `table` cell by cell.
 | `CottLean/T/ZeroScale.lean` | `Z(p, q) = p·0^q`, a coefficient and an order of zero: why `L`'s scale coordinate, the dual numbers, cannot hold it; `0·ω = 1`, and `−0 ≠ 0` with the sign in the coefficient |
 | `CottLean/T/ZeroAlgebra.lean` | `Z(p, q) = p·0^q`, `E(p, q) = q + log₀ p` and `B(p, q) = log_p q`: `Z`'s ring the Laurent polynomials and each traction product as `Z` with one relation on `0`; `E = log₀ Z`, turning `Z`'s product into `+`; `B` as `E ÷ E` at order `0`; the products of the pair `p + 0q` forced to `qtimes` |
 | `CottLean/T/Residual.lean` | the residual of an exact cancellation: `Z` with an unreduced ratio as coefficient, `x − x = 0·x` by distributing, its value independent of how `x` is written, `0/0` as the ratio of what cancelled, and `+` counting exact cancellations |
+| `CottLean/T/ResidualProjection.lean` | the residual's laws: the standard part carries `+` and `·`, the laws hold off an exact cancellation and fail at one only inside `st`'s fibers, distributivity on values, and no associative projection keeping what cancelled |
 | `CottLean/T/Drift.lean` | both readings side by side, with the conjugate for the complex inverse; the drift between them |
 | `CottLean/T/Over.lean` | `T`'s formulas over any commutative ring; `x · (1/x) = T(pq, pq)`; when `+` and `·` can be undone in a domain |
 | `CottLean/T/Ternary.lean` | Hall's planar ternary rings, `T(a, m, b)` read `y = a·m + b`; every field gives one |

@@ -30,9 +30,10 @@ not through `T.plus_neg_residue`.
 
 ## `+` counts exact cancellations
 
-`(x + x) − x` cancels nothing exactly and gives `x`; `x + (x − x)` cancels once and leaves the residual
-(`add_add_neg`, `add_neg_self`). So `+` is not associative: grouping changes how many exact cancellations
-happen, and the residuals count them.
+`(1 + 1) − 1` cancels nothing exactly and gives `1`; `1 − 1` cancels once and leaves the residual `0`
+(`add_add_neg`, `add_one_neg`). Across orders `+` keeps the lower one, so `x + (x − x) = x`, the residual
+dropped as a higher-order term. Grouping still changes how many exact cancellations happen:
+`(1 + 1) − 2 = 0·2` and `1 + (1 − 2) = 0·1` (`T/ResidualProjection.lean`, `add_not_assoc`).
 -/
 
 namespace T.ZeroScale.Residual
@@ -67,10 +68,27 @@ def zero : R := ⟨(1, 1), 1⟩
 /-- `0·x`: the residual of cancelling `x`. -/
 def cancel (x : R) : R := ⟨x.c, x.n + 1⟩
 
-/-- `+` at `x`'s order. An exact cancellation leaves the residual `0·x`; otherwise fraction `+`. -/
+/-- `+` keeps the leading term: across orders the lower order wins. At one order an exact cancellation
+leaves the residual `0·x`, and otherwise it is fraction `+`. -/
 def add (x y : R) : R :=
-  if x.c.1 * y.c.2 + x.c.2 * y.c.1 = 0 then cancel x
+  if x.n < y.n then x
+  else if y.n < x.n then y
+  else if x.c.1 * y.c.2 + x.c.2 * y.c.1 = 0 then cancel x
   else ⟨(x.c.1 * y.c.2 + x.c.2 * y.c.1, x.c.2 * y.c.2), x.n⟩
+
+theorem add_of_lt {x y : R} (h : x.n < y.n) : add x y = x := by
+  unfold add; rw [if_pos h]
+
+theorem add_of_gt {x y : R} (h : y.n < x.n) : add x y = y := by
+  unfold add; rw [if_neg (by omega), if_pos h]
+
+theorem add_of_cancel {x y : R} (hn : x.n = y.n) (h : x.c.1 * y.c.2 + x.c.2 * y.c.1 = 0) :
+    add x y = cancel x := by
+  unfold add; rw [if_neg (by omega), if_neg (by omega), if_pos h]
+
+theorem add_of_ne {x y : R} (hn : x.n = y.n) (h : x.c.1 * y.c.2 + x.c.2 * y.c.1 ≠ 0) :
+    add x y = ⟨(x.c.1 * y.c.2 + x.c.2 * y.c.1, x.c.2 * y.c.2), x.n⟩ := by
+  unfold add; rw [if_neg (by omega), if_neg (by omega), if_neg h]
 
 theorem mul_coeff_ne_zero {x y : R} (hx : x.c.1 ≠ 0 ∧ x.c.2 ≠ 0) (hy : y.c.1 ≠ 0 ∧ y.c.2 ≠ 0) :
     (mul x y).c.1 ≠ 0 ∧ (mul x y).c.2 ≠ 0 :=
@@ -80,8 +98,8 @@ theorem value_mul (x y : R) : (mul x y).value = x.value * y.value := by
   simp only [value, mul, Int.cast_mul]
   rw [← div_mul_div_comm, map_mul, T_add]; ring
 
-theorem add_neg_self (x : R) : add x (neg x) = cancel x := by
-  unfold add; rw [if_pos (by simp [neg]; ring)]
+theorem add_neg_self (x : R) : add x (neg x) = cancel x :=
+  add_of_cancel rfl (by simp [neg]; ring)
 
 /-- The residual is `0·x`. -/
 theorem cancel_eq (x : R) : cancel x = mul zero x := by
@@ -115,7 +133,8 @@ theorem value_add {x y : R} (hn : x.n = y.n) (hx : x.c.2 ≠ 0) (hy : y.c.2 ≠ 
     (h : x.c.1 * y.c.2 + x.c.2 * y.c.1 ≠ 0) : (add x y).value = x.value + y.value := by
   have hx' : (x.c.2 : ℚ) ≠ 0 := by exact_mod_cast hx
   have hy' : (y.c.2 : ℚ) ≠ 0 := by exact_mod_cast hy
-  simp only [add, if_neg h, value, ← hn, ← add_mul, ← map_add, Int.cast_add, Int.cast_mul]
+  rw [add_of_ne hn h]
+  simp only [value, ← hn, ← add_mul, ← map_add, Int.cast_add, Int.cast_mul]
   congr 2; field_simp
 
 /-- When `x` and `y` cancel exactly, the residual of `x` and of `−y` have the same value. -/
