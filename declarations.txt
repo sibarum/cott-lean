@@ -929,6 +929,7 @@ T.Root.X.mul_def
 T.Root.X.noConfusion
 T.Root.X.noConfusionType
 T.Root.X.no_exact_assoc
+T.Root.X.one_mul
 T.Root.X.p
 T.Root.X.q
 T.Root.X.rec
@@ -937,6 +938,7 @@ T.Root.X.two_one_ne
 T.Root.X.val
 T.Root.X.val_add_same
 T.Root.X.val_mul
+T.Root.X.val_one
 T.Root.X.val_radicand_zero
 T.Root.X.val_sq
 T.Root.X.val_two_one
@@ -953,6 +955,7 @@ T.Root.row_otimes
 T.Root.row_plus
 T.Root.row_split
 T.Root.rt
+T.Root.rt_eq
 T.Root.rt_mul
 T.Root.rt_negOne
 T.Root.rt_of_neg
@@ -961,6 +964,7 @@ T.Root.rt_one
 T.Root.rt_sq
 T.Root.rt_zero
 T.Root.sgn
+T.Root.turnOf
 T.Root.val_eq_rpow
 T.Unquotiented.A
 T.Unquotiented.A_eq_A_iff

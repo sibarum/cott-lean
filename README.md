@@ -362,32 +362,35 @@ the residual gives that case a value. `0/0` reads differently across them: `1` w
 
 ### X(p, q) = p·√q
 
-`T/RootAlgebra.lean`. `p` is the coefficient and `q` the radicand, and the value is complex, `√q = i·√(−q)`
-for `q < 0`. Nothing normalizes: `X(2, 1) ≠ X(1, 4)`, though both read `2`.
+`T/RootAlgebra.lean`. `p` is the coefficient and `q` the radicand. `√` halves the turn, and a positive number
+is taken at the full turn `1`, not at `0`, so `√q = √|q|·1^(turn/2)` with the turn in `(0, 1]`. Then
+`√1 = 1^½ = −1`, as `oneTurn_half` already has it, and `√−1 = 1^¼ = i`. Every root has its turn in `(0, ½]`,
+and `1` itself is `X(−1, 1)`. Nothing normalizes: `X(2, 1) ≠ X(1, 4)`, though both read `−2`.
 
 | statement | Lean |
 |---|---|
-| `√m·√n = σ·√(mn)`, with `σ = −1` exactly when both radicands are negative | `rt_mul` |
-| so the product that reads exactly is `X(a, m)·X(b, n) = X(σ·ab, mn)`; its square reads `p²q` | `val_mul`, `val_sq` |
+| `√1 = −1`, `√−1 = i`; `√q = −√|q|` for `q > 0` and `i·√|q|` for `q < 0` | `rt`, `rt_one`, `rt_negOne`, `rt_of_nonneg`, `rt_of_neg` |
+| `√m·√n = σ·√(mn)`, with `σ = 1` exactly when both radicands are negative, `−1` otherwise | `rt_mul` |
+| so the product that reads exactly is `X(a, m)·X(b, n) = X(σ·ab, mn)`, with unit `X(−1, 1)`; its square reads `p²q` | `val_mul`, `one_mul`, `val_one`, `val_sq` |
 | it commutes, and is associative on non-zero radicands | `mul_comm`, `mul_assoc_of_ne` |
 | at a radicand `0` grouping loses the sign of `i·i`: `(X(1, 0)·i)·i = X(1, 0)`, `X(1, 0)·(i·i) = X(−1, 0)`, both `0` | `mul_assoc_fails` |
 | no sign `σ(m, n) = ±1` gives a product that both reads exactly and associates | `no_exact_assoc` |
-| `√0·√0 = √0`: the radicand evaluates `0·0 = 0`, idempotent as traction's `0` under `*` | `zero_mul_zero`, `val_radicand_zero` |
+| `X(−1, 0)` is idempotent: the radicand evaluates `0·0 = 0`, as traction's `0` under `*` | `zero_mul_zero`, `val_radicand_zero` |
 | `+` distributes on equal radicands | `val_add_same` |
 | `ℤ[√n]` reads into `ℂ` multiplicatively by `ω ↦ √n = X(1, n)` | `ofQuad_add`, `ofQuad_mul`, `ofQuad_omega` |
-| a pair through its row's root: `⊗` gives `C = q + i·p`, `⊚` gives `S = q + p`, `+` gives `q` alone | `row`, `row_otimes`, `row_split`, `row_plus` |
-| `log_q X(p, q) = ½ + B(q, p)`, so `X(p, q) = q^(½ + B(q, p))` | `logb_val`, `val_eq_rpow` |
+| a pair through its row's root: `⊗` gives `C = q + i·p`, `⊚` gives `D = q − p`, `+` gives `q` alone | `row`, `row_otimes`, `row_split`, `row_plus` |
+| the scale is `log_q (p·√q) = ½ + B(q, p)`, and `X(p, q) = q^(½ + B(q, p))·1^½` | `logb_val`, `val_eq_rpow` |
 
-The sign is a branch: `√` halves the turn, which is defined modulo `1`, so the half is defined only modulo
-`1/2`. Where the radicand is `0` there is no turn to halve, and the sign has nowhere to live, which is why
-no choice mends associativity there. That is `X`'s loss, at its radicand, as `Z`'s is at its coefficient:
-read as `0^½`, `√0` would square to `0¹` by `Z`'s exponent law, but `X`'s product evaluates `0·0 = 0` and
-gives `√0` back.
+The sign is a branch: the turn is defined modulo `1`, so its half only modulo `½`, and two halves summed can
+leave `(0, ½]`. Where the radicand is `0` there is no turn to halve, and the sign has nowhere to live, which
+is why no choice mends associativity there. That is `X`'s loss, at its radicand, as `Z`'s is at its
+coefficient: read as `0^½`, `√0` would square to `0¹` by `Z`'s exponent law, but `X`'s product evaluates
+`0·0 = 0`.
 
 `ω` of the `qtimes` row `ω² = n` is `X(1, n)`: traction's `⊗`, `+` and `⊚` are the rows `√−1`, `√0` and `√1`,
-and read through their root they give `C`, the denominator and `S`. `√−1` is not in `ℤ` and the reading is
-faithful; `√0` and `√1` are, and those rows lose. `Z(p, n) = p·0ⁿ` fixes the base at `0` and moves the
-order; `X(p, q) = p·q^½` fixes the order at `½` and moves the base, and `B` relates them.
+and read through their root they give `C`, the denominator and `D`. `√1 = −1` is what makes `⊚`'s reading
+`D` rather than `S`. `Z(p, n) = p·0ⁿ` fixes the base at `0` and moves the order; `X(p, q) = p·q^½` fixes the
+order at `½` and moves the base, and `B` relates them.
 
 ## What it shows
 
@@ -1103,7 +1106,7 @@ search and checks it against the proved `table` cell by cell.
 | `CottLean/T/ZeroAlgebra.lean` | `Z(p, q) = p·0^q`, `E(p, q) = q + log₀ p` and `B(p, q) = log_p q`: `Z`'s ring the Laurent polynomials and each traction product as `Z` with one relation on `0`; `E = log₀ Z`, turning `Z`'s product into `+`; `B` as `E ÷ E` at order `0`; the products of the pair `p + 0q` forced to `qtimes` |
 | `CottLean/T/Residual.lean` | the residual of an exact cancellation: `Z` with an unreduced ratio as coefficient, `x − x = 0·x` by distributing, its value independent of how `x` is written, `0/0` as the ratio of what cancelled, and `+` counting exact cancellations |
 | `CottLean/T/ResidualProjection.lean` | the residual's laws: the standard part carries `+` and `·`, the laws hold off an exact cancellation and fail at one only inside `st`'s fibers, distributivity on values, and no associative projection keeping what cancelled |
-| `CottLean/T/RootAlgebra.lean` | `X(p, q) = p·√q`: the exact product carries the sign of `√m·√n`, associates off a radicand `0` and cannot at one; `ℤ[√n]` read through `√n`, giving `C`, `S` and the denominator for the rows `⊗`, `⊚`, `+`; `log_q X = ½ + B(q, p)` |
+| `CottLean/T/RootAlgebra.lean` | `X(p, q) = p·√q`: the exact product carries the sign of `√m·√n`, associates off a radicand `0` and cannot at one; `√1 = −1`, the turn of a positive number taken as the full turn; `ℤ[√n]` read through `√n`, giving `C`, `D` and the denominator for the rows `⊗`, `⊚`, `+`; `X = q^(½ + B(q, p))·1^½` |
 | `CottLean/T/Drift.lean` | both readings side by side, with the conjugate for the complex inverse; the drift between them |
 | `CottLean/T/Over.lean` | `T`'s formulas over any commutative ring; `x · (1/x) = T(pq, pq)`; when `+` and `·` can be undone in a domain |
 | `CottLean/T/Ternary.lean` | Hall's planar ternary rings, `T(a, m, b)` read `y = a·m + b`; every field gives one |
