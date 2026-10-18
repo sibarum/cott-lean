@@ -40,6 +40,7 @@ import CottLean.T.ZeroScale
 import CottLean.T.ZeroAlgebra
 import CottLean.T.Residual
 import CottLean.T.ResidualProjection
+import CottLean.T.RootAlgebra
 import CottLean.T.Drift
 import CottLean.T.Over
 import CottLean.T.Ternary

@@ -360,6 +360,35 @@ the residual gives that case a value. `0/0` reads differently across them: `1` w
 (`TE.zero_div_zero`) and in `Float/Grade.lean` (`TZ.rewrite_pq`), and the ratio of what cancelled here
 (`cancel_div_cancel`).
 
+### X(p, q) = p·√q
+
+`T/RootAlgebra.lean`. `p` is the coefficient and `q` the radicand, and the value is complex, `√q = i·√(−q)`
+for `q < 0`. Nothing normalizes: `X(2, 1) ≠ X(1, 4)`, though both read `2`.
+
+| statement | Lean |
+|---|---|
+| `√m·√n = σ·√(mn)`, with `σ = −1` exactly when both radicands are negative | `rt_mul` |
+| so the product that reads exactly is `X(a, m)·X(b, n) = X(σ·ab, mn)`; its square reads `p²q` | `val_mul`, `val_sq` |
+| it commutes, and is associative on non-zero radicands | `mul_comm`, `mul_assoc_of_ne` |
+| at a radicand `0` grouping loses the sign of `i·i`: `(X(1, 0)·i)·i = X(1, 0)`, `X(1, 0)·(i·i) = X(−1, 0)`, both `0` | `mul_assoc_fails` |
+| no sign `σ(m, n) = ±1` gives a product that both reads exactly and associates | `no_exact_assoc` |
+| `√0·√0 = √0`: the radicand evaluates `0·0 = 0`, idempotent as traction's `0` under `*` | `zero_mul_zero`, `val_radicand_zero` |
+| `+` distributes on equal radicands | `val_add_same` |
+| `ℤ[√n]` reads into `ℂ` multiplicatively by `ω ↦ √n = X(1, n)` | `ofQuad_add`, `ofQuad_mul`, `ofQuad_omega` |
+| a pair through its row's root: `⊗` gives `C = q + i·p`, `⊚` gives `S = q + p`, `+` gives `q` alone | `row`, `row_otimes`, `row_split`, `row_plus` |
+| `log_q X(p, q) = ½ + B(q, p)`, so `X(p, q) = q^(½ + B(q, p))` | `logb_val`, `val_eq_rpow` |
+
+The sign is a branch: `√` halves the turn, which is defined modulo `1`, so the half is defined only modulo
+`1/2`. Where the radicand is `0` there is no turn to halve, and the sign has nowhere to live, which is why
+no choice mends associativity there. That is `X`'s loss, at its radicand, as `Z`'s is at its coefficient:
+read as `0^½`, `√0` would square to `0¹` by `Z`'s exponent law, but `X`'s product evaluates `0·0 = 0` and
+gives `√0` back.
+
+`ω` of the `qtimes` row `ω² = n` is `X(1, n)`: traction's `⊗`, `+` and `⊚` are the rows `√−1`, `√0` and `√1`,
+and read through their root they give `C`, the denominator and `S`. `√−1` is not in `ℤ` and the reading is
+faithful; `√0` and `√1` are, and those rows lose. `Z(p, n) = p·0ⁿ` fixes the base at `0` and moves the
+order; `X(p, q) = p·q^½` fixes the order at `½` and moves the base, and `B` relates them.
+
 ## What it shows
 
 **A number is a pair, and every value of it is a reading.** The same unreduced pair is read as a complex
@@ -1020,6 +1049,9 @@ search and checks it against the proved `table` cell by cell.
   `Bases`'s zero scale unit `−1 : 0` in prose only.
 - `E` in `T/ZeroAlgebra.lean` is not yet stated on `Residual`'s coefficients, and still takes `log₀ 0 = 1`,
   an `ω/ω`. Its log is the real one, so a negative coefficient carries no half turn: `E(−1, 0) = E(1, 0)`.
+- `T/RootAlgebra.lean`'s `X` has integer radicands, so `√` of a ratio is not stated, and `X` is not given
+  `Residual`'s unreduced coefficient. `√0` as `Z`'s `0^½` is prose only, since `Z`'s orders are integers.
+  The `√n` reading of a row is shown faithful for no `n`: that it is for every non-square `n` is not stated.
 
 ## Files
 
@@ -1071,6 +1103,7 @@ search and checks it against the proved `table` cell by cell.
 | `CottLean/T/ZeroAlgebra.lean` | `Z(p, q) = p·0^q`, `E(p, q) = q + log₀ p` and `B(p, q) = log_p q`: `Z`'s ring the Laurent polynomials and each traction product as `Z` with one relation on `0`; `E = log₀ Z`, turning `Z`'s product into `+`; `B` as `E ÷ E` at order `0`; the products of the pair `p + 0q` forced to `qtimes` |
 | `CottLean/T/Residual.lean` | the residual of an exact cancellation: `Z` with an unreduced ratio as coefficient, `x − x = 0·x` by distributing, its value independent of how `x` is written, `0/0` as the ratio of what cancelled, and `+` counting exact cancellations |
 | `CottLean/T/ResidualProjection.lean` | the residual's laws: the standard part carries `+` and `·`, the laws hold off an exact cancellation and fail at one only inside `st`'s fibers, distributivity on values, and no associative projection keeping what cancelled |
+| `CottLean/T/RootAlgebra.lean` | `X(p, q) = p·√q`: the exact product carries the sign of `√m·√n`, associates off a radicand `0` and cannot at one; `ℤ[√n]` read through `√n`, giving `C`, `S` and the denominator for the rows `⊗`, `⊚`, `+`; `log_q X = ½ + B(q, p)` |
 | `CottLean/T/Drift.lean` | both readings side by side, with the conjugate for the complex inverse; the drift between them |
 | `CottLean/T/Over.lean` | `T`'s formulas over any commutative ring; `x · (1/x) = T(pq, pq)`; when `+` and `·` can be undone in a domain |
 | `CottLean/T/Ternary.lean` | Hall's planar ternary rings, `T(a, m, b)` read `y = a·m + b`; every field gives one |
